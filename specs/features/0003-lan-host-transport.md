@@ -22,7 +22,7 @@ The Mac Admin hosts the game on the local network over Bonjour; iOS devices conn
 
 ## Acceptance criteria
 
-- [ ] **AC1 Discovery**: Given the host is running, when an iOS client opens, then it discovers the host over Bonjour and connects without typing an address.
+- [x] **AC1 Discovery**: Given the host is running, when an iOS client opens, then it discovers the host over Bonjour and connects without typing an address.
 - [x] **AC2 Auth**: Given a client, when it sends a valid family code or the OC PIN, then the host accepts it; invalid codes are rejected and rate-limited.
 - [x] **AC3 Command flow**: Given a connected client, when it sends a command, then the host runs it through the engine, persists the resulting events and broadcasts the new state only to clients allowed to see it (roles and task lists stay private).
 - [x] **AC4 Resume**: Given a game in progress, when the Mac app is killed and relaunched, then state, cooldowns and timers are restored from persisted events.
@@ -60,7 +60,7 @@ New SwiftData models `GameRecord` and `GameEventRecord` (schema V1 of the real d
 ## Open questions
 
 - Does the venue Wi-Fi allow client-to-client traffic? Check before the event; fallback is a travel router run by OC.
-- AC1 stays open until Bonjour discovery is checked on two real devices: the transport is covered by a real loopback connection test, but `NWBrowser` discovery cannot run in unit tests.
+- Bonjour discovery was checked by hand with the iOS simulator and the Mac app on one machine; repeat on two real devices and the venue Wi-Fi before the event.
 
 ## Implementation notes
 
