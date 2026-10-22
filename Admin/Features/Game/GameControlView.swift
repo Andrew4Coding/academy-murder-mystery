@@ -52,6 +52,14 @@ struct GameControlView: View {
                 if case .voting = game.phase {
                     LabeledContent("Votes", value: "\(game.votes.count) of \(game.aliveFamilies().count) families")
                 }
+                if let sabotage = game.sabotage {
+                    LabeledContent("Sabotage") {
+                        HStack {
+                            Text(sabotage.kind.title)
+                            CountdownView(until: sabotage.endsAt, now: hostNow)
+                        }
+                    }
+                }
             }
 
             if let result = game.lastResult {
@@ -101,6 +109,13 @@ struct GameControlView: View {
                 .help("Cast a vote for a family whose head can't, for example because their phone is offline")
             }
             ToolbarItem {
+                Button("Resolve Sabotage", systemImage: "checkmark.shield") {
+                    attempt { try host.applyAsOC(.resolveSabotage) }
+                }
+                .disabled(game.sabotage == nil)
+                .help("The villagers fixed the sabotage")
+            }
+            ToolbarItem {
                 Menu("End Game", systemImage: "flag.checkered") {
                     Button("Villagers Win") { confirmingEnd = .villagers }
                     Button("Werewolves Win") { confirmingEnd = .werewolves }
@@ -129,6 +144,11 @@ struct GameControlView: View {
         for id in ids {
             attempt { try host.applyAsOC(.override(.revive(id))) }
         }
+    }
+
+    private var hostNow: @Sendable (Date) -> Date {
+        let clock = host.clock
+        return { _ in clock.now }
     }
 
     private func isVoting(_ game: GameState) -> Bool {
