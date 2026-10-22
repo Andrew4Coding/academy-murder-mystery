@@ -98,7 +98,7 @@ extension GameHost {
             myVote: info.head == viewer ? engine.state.votes[info.id] : nil,
             votesCast: engine.state.votes.count,
             votersTotal: engine.state.aliveFamilies().count,
-            lastResult: engine.state.lastResult.map(resultView),
+            lastResult: engine.state.lastResult.map(publicResult),
             bleToken: state.players[viewer]?.bleToken ?? "",
             proximity: ProximitySettings(rssiThreshold: state.rssiThreshold, sightingFreshness: state.sightingFreshness),
             nearby: engineFamily.role == .werewolf && engineFamily.isAlive
@@ -108,16 +108,5 @@ extension GameHost {
             sabotage: sabotageView(engine),
             sabotageReadyAt: engineFamily.role == .werewolf ? engine.state.sabotageReadyAt : nil
         )
-    }
-
-    private func resultView(_ result: VoteResult) -> VoteResultView {
-        let rows = result.tally.map { count -> ResultRow in
-            switch count.choice {
-            case let .family(id): ResultRow(name: state.families[id]?.name ?? "Unknown", count: count.count, isSkip: false)
-            case .skip: ResultRow(name: "Skip", count: count.count, isSkip: true)
-            }
-        }
-        let expelled = result.expelled.map { ExpelledView(name: state.families[$0.family]?.name ?? "Unknown", role: $0.role) }
-        return VoteResultView(rows: rows, expelled: expelled, isFinal: result.isFinal)
     }
 }
