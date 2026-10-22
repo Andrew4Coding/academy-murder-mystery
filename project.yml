@@ -41,6 +41,7 @@ targets:
         # Keep it on app targets only: on test bundles it collides with the app module.
         PRODUCT_MODULE_NAME: MurderMystery
         INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery
+        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: Murder Mystery uses Bluetooth to tell which families are close to each other during the game.
         INFOPLIST_KEY_NSCameraUsageDescription: Murder Mystery uses the camera only to scan your family's QR code.
         INFOPLIST_KEY_NSLocalNetworkUsageDescription: Murder Mystery connects to the game host on the event Wi-Fi so your family can play.
         TARGETED_DEVICE_FAMILY: "1,2"
