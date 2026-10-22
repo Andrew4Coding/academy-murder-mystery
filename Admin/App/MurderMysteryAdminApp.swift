@@ -4,6 +4,7 @@ import SwiftUI
 struct MurderMysteryAdminApp: App {
     @State private var environment: AppEnvironment
     @State private var controller: HostController
+    @State private var simulation = SimulationController()
 
     init() {
         let environment = AppEnvironment.live()
@@ -13,7 +14,7 @@ struct MurderMysteryAdminApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(controller: controller)
+            RootView(controller: controller, simulation: simulation)
                 .frame(minWidth: 720, minHeight: 480)
         }
         Window("Public Display", id: PublicDisplayWindow.id) {

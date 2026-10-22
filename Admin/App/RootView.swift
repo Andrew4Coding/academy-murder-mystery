@@ -4,6 +4,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
     case setup
     case game
     case display
+    case simulation
     case devices
 
     var id: String {
@@ -15,6 +16,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
         case .setup: "Setup"
         case .game: "Game"
         case .display: "Display"
+        case .simulation: "Simulation"
         case .devices: "Devices"
         }
     }
@@ -24,6 +26,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
         case .setup: "slider.horizontal.3"
         case .game: "gamecontroller"
         case .display: "tv"
+        case .simulation: "testtube.2"
         case .devices: "iphone.gen3.radiowaves.left.and.right"
         }
     }
@@ -31,6 +34,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
 
 struct RootView: View {
     let controller: HostController
+    let simulation: SimulationController
 
     @State private var selection: AdminSection? = .setup
 
@@ -48,6 +52,8 @@ struct RootView: View {
                 GameControlView(controller: controller)
             case .display:
                 DisplaySettingsView()
+            case .simulation:
+                SimulationView(controller: simulation)
             case .devices:
                 DevicesView(controller: controller)
             }
@@ -57,5 +63,5 @@ struct RootView: View {
 }
 
 #Preview {
-    RootView(controller: HostController(host: try! GameHost(repository: InMemoryGameRepository())))
+    RootView(controller: HostController(host: try! GameHost(repository: InMemoryGameRepository())), simulation: SimulationController())
 }
