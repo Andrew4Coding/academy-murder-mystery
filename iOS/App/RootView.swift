@@ -16,7 +16,7 @@ struct RootView: View {
                         ProgressView()
                     }
                 case .oc:
-                    ContentUnavailableView("OC mode", systemImage: "person.badge.key", description: Text("Coming soon."))
+                    OCRootView(view: view, client: client)
                 }
             } else {
                 JoinView(client: client)

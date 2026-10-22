@@ -6,6 +6,7 @@ struct JoinView: View {
     @State private var code = ""
     @State private var name = ""
     @State private var isScanning = false
+    @State private var isSigningInAsOC = false
     @FocusState private var focus: Field?
 
     private enum Field {
@@ -62,10 +63,14 @@ struct JoinView: View {
             .navigationTitle("Join the Game")
             .scrollDismissesKeyboard(.interactively)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("I'm an Organiser", systemImage: "person.badge.key") { isSigningInAsOC = true }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     ConnectionBadge(status: client.status)
                 }
             }
+            .sheet(isPresented: $isSigningInAsOC) { OCSignInView(client: client) }
             .sheet(isPresented: $isScanning) {
                 ScannerSheet { scanned in
                     code = scanned
