@@ -18,7 +18,7 @@ final class AppEnvironment {
 
     private static func make(inMemory: Bool) -> AppEnvironment {
         do {
-            return AppEnvironment(modelContainer: try ModelContainerFactory.make(inMemory: inMemory))
+            return try AppEnvironment(modelContainer: ModelContainerFactory.make(inMemory: inMemory))
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
