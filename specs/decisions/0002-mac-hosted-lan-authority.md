@@ -27,3 +27,7 @@ The Mac Admin runs the authoritative game host on the local network, advertised 
 - Positive: offline, no accounts, one source of truth, simple to reason about.
 - Negative: depends on Wi-Fi that allows device-to-device traffic; the Mac is a single point of failure (mitigated by persistence and resume).
 - Follow-ups: [spec 0003](../features/0003-lan-host-transport.md) must include a venue connectivity check; the Mac needs network server and Bonjour entitlements.
+
+## Update 2026-10-22
+
+The transport is length-prefixed JSON messages over TCP (Network.framework `NWProtocolFramer`) rather than WebSocket or HTTP: WebSocket clients need a URL endpoint and fail with Bonjour service endpoints.
