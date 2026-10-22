@@ -16,7 +16,7 @@ struct Player: Codable, Equatable, Sendable {
     let bleToken: String
 }
 
-struct FamilyInfo: Codable, Equatable, Sendable {
+struct FamilyInfo: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     var name: String
     let joinCode: String
