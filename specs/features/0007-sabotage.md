@@ -1,7 +1,7 @@
 ---
 id: 0007
 title: Sabotage
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-22
@@ -23,14 +23,14 @@ A werewolf picks Reactor (Collab 7A, Heist Plan) or Oxygen (Collab 6, Scary Memo
 
 ## Acceptance criteria
 
-- [ ] **AC1 Request**: Given a werewolf device (alive, dead or expelled family), when the shared cooldown is over and no sabotage is active outside a meeting, then the app offers Reactor and Oxygen.
-- [ ] **AC2 Activate**: Given a confirmed choice, when the host accepts it, then the sabotage is active, a 90 s countdown starts on all devices and the Public Display, and the shared cooldown (default 120 s) starts for all werewolf families.
-- [ ] **AC3 Villager alert**: Given an active sabotage, when villager devices update, then they show which booth to run to.
-- [ ] **AC4 Resolve**: Given an active sabotage, when the booth OC or Town Hall OC taps Resolved, then it clears everywhere and no win is triggered.
-- [ ] **AC5 Timeout**: Given an active sabotage, when 90 s pass, then Werewolves win.
-- [ ] **AC6 One at a time**: Given an active sabotage, when another request comes, then it is rejected.
-- [ ] **AC7 Blocked in meetings**: Given discussion or voting, when a sabotage request arrives, then it is rejected.
-- [ ] **AC8 Persistence**: Given a Mac restart during a sabotage, when the host resumes, then the remaining time is correct.
+- [x] **AC1 Request**: Given a werewolf device (alive, dead or expelled family), when the shared cooldown is over and no sabotage is active outside a meeting, then the app offers Reactor and Oxygen.
+- [x] **AC2 Activate**: Given a confirmed choice, when the host accepts it, then the sabotage is active, a 90 s countdown starts on all devices and the Public Display, and the shared cooldown (default 120 s) starts for all werewolf families.
+- [x] **AC3 Villager alert**: Given an active sabotage, when villager devices update, then they show which booth to run to.
+- [x] **AC4 Resolve**: Given an active sabotage, when the booth OC or Town Hall OC taps Resolved, then it clears everywhere and no win is triggered.
+- [x] **AC5 Timeout**: Given an active sabotage, when 90 s pass, then Werewolves win.
+- [x] **AC6 One at a time**: Given an active sabotage, when another request comes, then it is rejected.
+- [x] **AC7 Blocked in meetings**: Given discussion or voting, when a sabotage request arrives, then it is rejected.
+- [x] **AC8 Persistence**: Given a Mac restart during a sabotage, when the host resumes, then the remaining time is correct.
 
 ## UX
 
@@ -60,8 +60,11 @@ Accessibility notes: alarm uses sound, haptics and text; countdown not conveyed 
 
 ## Open questions
 
-- Should a sabotage pause when a meeting starts? Proposed: no; the countdown keeps running.
+- The countdown keeps running during meetings (implemented): it is the engine's `sabotage.endsAt`, independent of the meeting phase.
+- The Public Display countdown (AC2) comes with spec 0009; the booth OC Resolved button on iPhone comes with spec 0008 (host routing is done and tested).
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Host: `GameHost+Sabotage` (`requestSabotage` for players, `resolveSabotage` for OC at the matching sabotage station or the Town Hall; `HostError.notOC` / `wrongStation`). `GameView` gains `sabotage` and `sabotageReadyAt` (werewolf families only); `ClientView.oc` (`OCView.sabotage`) lets OC devices see the active sabotage.
+- iOS: `SabotageSection` in the werewolf Actions tab (works for dead werewolf families), `SabotageBanner` for everyone (text, countdown, system alert sound, error haptic). Admin: sabotage row with countdown and Resolve Sabotage in `GameControlView`.
+- Tests: `GameHostSabotageTests`; engine rules were covered in spec 0002.

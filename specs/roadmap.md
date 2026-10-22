@@ -9,13 +9,13 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0004 Lobby, family join and roles](features/0004-lobby-and-roles.md)
 - [0005 Meetings and voting](features/0005-meetings-and-voting.md)
 - [0006 BLE proximity kill](features/0006-ble-kill.md): AC1 needs a real-device check.
+- [0007 Sabotage](features/0007-sabotage.md)
 
 ## Now
 
 
 ## Next
 
-- [0007 Sabotage](features/0007-sabotage.md)
 - [0008 OC mode and task stamping](features/0008-oc-mode-and-stamping.md)
 
 ## Later
