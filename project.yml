@@ -1,0 +1,114 @@
+name: MurderMystery
+options:
+  bundleIdPrefix: com.andrew4coding
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    DEVELOPMENT_TEAM: 92QV2QPDKA
+    GENERATE_INFOPLIST_FILE: YES
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+    INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+targets:
+  MurderMysteryiOS:
+    type: application
+    supportedDestinations: [iOS]
+    configFiles:
+      Debug: iOS/MurderMysteryiOS.xcconfig
+      Release: iOS/MurderMysteryiOS.xcconfig
+    sources:
+      - Shared
+      - path: iOS
+        excludes: ["*.xcconfig"]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery
+        PRODUCT_NAME: MurderMysteryiOS
+        # Both app targets share one module name so Tests/Shared can `@testable import MurderMystery`.
+        # Keep it on app targets only: on test bundles it collides with the app module.
+        PRODUCT_MODULE_NAME: MurderMystery
+        INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+  MurderMysteryiOSTests:
+    type: bundle.unit-test
+    supportedDestinations: [iOS]
+    sources:
+      - Tests/Shared
+      - Tests/iOS
+    dependencies:
+      - target: MurderMysteryiOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.Tests
+        TARGETED_DEVICE_FAMILY: "1,2"
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MurderMysteryiOS.app/MurderMysteryiOS
+        BUNDLE_LOADER: $(TEST_HOST)
+  MurderMysteryAdmin:
+    type: application
+    supportedDestinations: [macOS]
+    configFiles:
+      Debug: Admin/MurderMysteryAdmin.xcconfig
+      Release: Admin/MurderMysteryAdmin.xcconfig
+    sources:
+      - Shared
+      - path: Admin
+        excludes: ["*.xcconfig"]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.admin
+        PRODUCT_NAME: MurderMysteryAdmin
+        PRODUCT_MODULE_NAME: MurderMystery
+        INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery Admin
+        CODE_SIGN_ENTITLEMENTS: Admin/Resources/MurderMysteryAdmin.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+  MurderMysteryAdminTests:
+    type: bundle.unit-test
+    supportedDestinations: [macOS]
+    sources:
+      - Tests/Shared
+      - Tests/Admin
+    dependencies:
+      - target: MurderMysteryAdmin
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.admin.Tests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MurderMysteryAdmin.app/Contents/MacOS/MurderMysteryAdmin
+        BUNDLE_LOADER: $(TEST_HOST)
+schemes:
+  MurderMysteryiOS:
+    build:
+      targets:
+        MurderMysteryiOS: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - MurderMysteryiOSTests
+    archive:
+      config: Release
+  MurderMysteryAdmin:
+    build:
+      targets:
+        MurderMysteryAdmin: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - MurderMysteryAdminTests
+    archive:
+      config: Release

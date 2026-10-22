@@ -1,0 +1,8 @@
+--swiftversion 6.0
+--indent 4
+--maxwidth 140
+--wraparguments before-first
+--wrapcollections before-first
+--commas inline
+--exclude **/DerivedData,**/build,**/.build,**/fastlane,vendor
+--importgrouping testable-last
