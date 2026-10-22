@@ -15,7 +15,7 @@ final class Simulation {
         let playerID: PlayerID
     }
 
-    static let epoch = Date(timeIntervalSince1970: 1_800_000_000)
+    nonisolated static let epoch = Date(timeIntervalSince1970: 1_800_000_000)
 
     let config: Config
     let host: GameHost
