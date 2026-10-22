@@ -22,6 +22,13 @@ targets:
     configFiles:
       Debug: iOS/MurderMysteryiOS.xcconfig
       Release: iOS/MurderMysteryiOS.xcconfig
+    info:
+      path: iOS/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSBonjourServices:
+          - _murdermystery._tcp
     sources:
       - Shared
       - path: iOS
@@ -34,6 +41,7 @@ targets:
         # Keep it on app targets only: on test bundles it collides with the app module.
         PRODUCT_MODULE_NAME: MurderMystery
         INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Murder Mystery connects to the game host on the event Wi-Fi so your family can play.
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO

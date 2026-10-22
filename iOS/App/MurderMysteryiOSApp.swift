@@ -2,11 +2,11 @@ import SwiftUI
 
 @main
 struct MurderMysteryiOSApp: App {
-    @State private var environment = AppEnvironment.live()
+    @State private var client = GameClient(transport: NetworkClientTransport(), store: UserDefaultsIdentityStore())
 
     var body: some Scene {
         WindowGroup {
-            RootView(environment: environment)
+            RootView(client: client)
         }
     }
 }
