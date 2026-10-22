@@ -1,7 +1,7 @@
 ---
 id: 0004
 title: Single pure game engine with injected clock
-status: proposed
+status: accepted
 date: 2026-10-22
 deciders: [AND]
 ---

@@ -1,7 +1,7 @@
 ---
 id: 0003
 title: LAN host transport and persistence
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-22

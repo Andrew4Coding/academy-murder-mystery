@@ -1,7 +1,7 @@
 ---
 id: 0006
 title: BLE proximity kill
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-22

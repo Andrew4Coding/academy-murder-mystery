@@ -1,7 +1,7 @@
 ---
 id: 0002
 title: Mac-hosted LAN authority with persisted state
-status: proposed
+status: accepted
 date: 2026-10-22
 deciders: [AND]
 ---

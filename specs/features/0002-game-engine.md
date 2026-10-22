@@ -1,7 +1,7 @@
 ---
 id: 0002
 title: Game engine
-status: draft
+status: in-progress
 owner: AND
 app: all
 created: 2026-10-22

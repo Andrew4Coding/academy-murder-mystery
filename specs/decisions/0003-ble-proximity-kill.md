@@ -1,7 +1,7 @@
 ---
 id: 0003
 title: BLE proximity kill with RSSI threshold and OC override
-status: proposed
+status: accepted
 date: 2026-10-22
 deciders: [AND]
 ---

@@ -1,7 +1,7 @@
 ---
 id: 0005
 title: Family-level identity, one role and one vote per family
-status: proposed
+status: accepted
 date: 2026-10-22
 deciders: [AND]
 ---

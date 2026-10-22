@@ -1,7 +1,7 @@
 ---
 id: 0005
 title: Meetings and voting
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-22

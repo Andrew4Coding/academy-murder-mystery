@@ -1,7 +1,7 @@
 ---
 id: 0007
 title: Sabotage
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-22

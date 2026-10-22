@@ -1,7 +1,7 @@
 ---
 id: 0009
 title: Public Display
-status: draft
+status: approved
 owner: AND
 app: admin
 created: 2026-10-22

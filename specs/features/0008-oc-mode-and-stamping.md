@@ -1,7 +1,7 @@
 ---
 id: 0008
 title: OC mode and task stamping
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-22
