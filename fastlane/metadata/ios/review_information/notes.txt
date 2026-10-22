@@ -1,0 +1,1 @@
+TODO: notes for App Review, including demo account details if the app requires sign-in.

@@ -1,0 +1,229 @@
+default_platform(:ios)
+
+ROOT = File.expand_path("..", __dir__)
+PROJECT = File.join(ROOT, "MurderMystery.xcodeproj")
+TEAM_ID = ENV.fetch("APP_TEAM_ID", "92QV2QPDKA")
+MAC_INSTALLER_CERT = ENV.fetch("MAC_INSTALLER_CERT", "Mac Installer Distribution")
+
+APPS = {
+  ios: {
+    scheme: "MurderMysteryiOS",
+    bundle_id: "com.andrew4coding.MurderMystery",
+    xcconfig: File.join(ROOT, "iOS/MurderMysteryiOS.xcconfig"),
+    metadata: File.join(ROOT, "fastlane/metadata/ios")
+  },
+  admin: {
+    scheme: "MurderMysteryAdmin",
+    bundle_id: "com.andrew4coding.MurderMystery.admin",
+    xcconfig: File.join(ROOT, "Admin/MurderMysteryAdmin.xcconfig"),
+    metadata: File.join(ROOT, "fastlane/metadata/admin")
+  },
+}.freeze
+
+def app(name)
+  APPS.fetch(name.to_s.to_sym) { UI.user_error!("app must be one of: #{APPS.keys.join(', ')}") }
+end
+
+def api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_content: ENV.fetch("ASC_KEY_CONTENT"),
+    is_key_content_base64: true,
+    in_house: false
+  )
+end
+
+def generate_project
+  sh("cd #{ROOT} && xcodegen generate")
+end
+
+def next_build_number(key, target, platform)
+  latest_testflight_build_number(api_key: key, app_identifier: target[:bundle_id], platform: platform) + 1
+end
+
+def sign_for(target, profile_env, identity)
+  update_code_signing_settings(
+    use_automatic_signing: false,
+    path: PROJECT,
+    targets: [target[:scheme]],
+    team_id: TEAM_ID,
+    bundle_identifier: target[:bundle_id],
+    code_signing_identity: identity,
+    profile_name: ENV.fetch(profile_env)
+  )
+end
+
+def bump_marketing_version(xcconfig, type)
+  content = File.read(xcconfig)
+  bumped = content.sub(/MARKETING_VERSION = (\d+)\.(\d+)\.(\d+)/) do
+    major = Regexp.last_match(1).to_i
+    minor = Regexp.last_match(2).to_i
+    patch = Regexp.last_match(3).to_i
+    case type.to_s
+    when "major"
+      major += 1
+      minor = 0
+      patch = 0
+    when "minor"
+      minor += 1
+      patch = 0
+    else
+      patch += 1
+    end
+    "MARKETING_VERSION = #{major}.#{minor}.#{patch}"
+  end
+  UI.user_error!("MARKETING_VERSION not found in #{xcconfig}") if bumped == content
+  File.write(xcconfig, bumped)
+  UI.success(bumped[/MARKETING_VERSION = \S+/])
+end
+
+def upload_metadata(target, key, submit, extra = {})
+  upload_to_app_store(
+    api_key: key,
+    metadata_path: target[:metadata],
+    skip_screenshots: true,
+    submit_for_review: submit == true,
+    automatic_release: false,
+    force: true,
+    **extra
+  )
+end
+
+before_all do
+  setup_ci if ENV["CI"]
+end
+
+desc "Run SwiftLint and SwiftFormat over the whole repo"
+lane :lint do
+  sh("cd #{ROOT} && swiftlint --strict")
+  sh("cd #{ROOT} && swiftformat --lint .")
+end
+
+desc "Regenerate MurderMystery.xcodeproj from project.yml"
+lane :generate do
+  generate_project
+end
+
+desc "Bump one app's MARKETING_VERSION (app:ios|admin type:patch|minor|major)"
+lane :bump do |options|
+  bump_marketing_version(app(options[:app] || APPS.keys.first)[:xcconfig], options[:type] || "patch")
+end
+
+platform :ios do
+  ios_app = APPS[:ios]
+
+  desc "Run MurderMysteryiOS tests on iPhone 17 Pro"
+  lane :test do
+    generate_project
+    run_tests(project: PROJECT, scheme: ios_app[:scheme], device: ENV["TEST_DEVICE"] || "iPhone 17 Pro", clean: true)
+  end
+
+  desc "Create MurderMysteryiOS signing assets (run once, interactive)"
+  lane :signing do
+    match(type: "appstore", platform: "ios", app_identifier: ios_app[:bundle_id], api_key: api_key, readonly: false)
+  end
+
+  desc "Build MurderMysteryiOS and upload it to TestFlight"
+  lane :beta do
+    key = prepare_ios(ios_app)
+    upload_to_testflight(api_key: key, app_identifier: ios_app[:bundle_id], skip_waiting_for_build_processing: true)
+  end
+
+  desc "Upload MurderMysteryiOS build and metadata to App Store Connect (submit_for_review:true to submit)"
+  lane :release do |options|
+    key = prepare_ios(ios_app)
+    upload_metadata(ios_app, key, options[:submit_for_review], app_identifier: ios_app[:bundle_id])
+  end
+
+  private_lane :prepare_ios do |target|
+    generate_project
+    key = api_key
+    match(type: "appstore", platform: "ios", app_identifier: target[:bundle_id], api_key: key, readonly: is_ci)
+    sign_for(target, "sigh_#{target[:bundle_id]}_appstore_profile-name", "Apple Distribution")
+    build_app(
+      project: PROJECT,
+      scheme: target[:scheme],
+      configuration: "Release",
+      destination: "generic/platform=iOS",
+      export_method: "app-store",
+      xcargs: "CURRENT_PROJECT_VERSION=#{next_build_number(key, target, 'ios')}",
+      output_directory: File.join(ROOT, "build/ios"),
+      clean: true
+    )
+    key
+  end
+end
+
+platform :mac do
+  mac_app = APPS[:admin]
+
+  desc "Run MurderMysteryAdmin tests on macOS"
+  lane :test do
+    generate_project
+    run_tests(project: PROJECT, scheme: mac_app[:scheme], destination: "platform=macOS", xcargs: "CODE_SIGNING_ALLOWED=NO", clean: true)
+  end
+
+  desc "Create MurderMysteryAdmin signing assets (run once, interactive)"
+  lane :signing do
+    match(
+      type: "appstore",
+      platform: "macos",
+      app_identifier: mac_app[:bundle_id],
+      api_key: api_key,
+      additional_cert_types: ["mac_installer_distribution"],
+      readonly: false
+    )
+  end
+
+  desc "Build MurderMysteryAdmin and upload it to TestFlight"
+  lane :beta do
+    key = prepare_mac(mac_app)
+    upload_to_testflight(
+      api_key: key,
+      app_identifier: mac_app[:bundle_id],
+      app_platform: "osx",
+      pkg: lane_context[SharedValues::PKG_OUTPUT_PATH],
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Upload MurderMysteryAdmin build and metadata to App Store Connect (submit_for_review:true to submit)"
+  lane :release do |options|
+    key = prepare_mac(mac_app)
+    upload_metadata(
+      mac_app,
+      key,
+      options[:submit_for_review],
+      app_identifier: mac_app[:bundle_id],
+      platform: "osx",
+      pkg: lane_context[SharedValues::PKG_OUTPUT_PATH]
+    )
+  end
+
+  private_lane :prepare_mac do |target|
+    generate_project
+    key = api_key
+    match(
+      type: "appstore",
+      platform: "macos",
+      app_identifier: target[:bundle_id],
+      api_key: key,
+      additional_cert_types: ["mac_installer_distribution"],
+      readonly: is_ci
+    )
+    sign_for(target, "sigh_#{target[:bundle_id]}_appstore_macos_profile-name", "Apple Distribution")
+    build_mac_app(
+      project: PROJECT,
+      scheme: target[:scheme],
+      configuration: "Release",
+      destination: "generic/platform=macOS",
+      export_method: "app-store",
+      installer_cert_name: MAC_INSTALLER_CERT,
+      xcargs: "CURRENT_PROJECT_VERSION=#{next_build_number(key, target, 'osx')}",
+      output_directory: File.join(ROOT, "build/admin"),
+      clean: true
+    )
+    key
+  end
+end

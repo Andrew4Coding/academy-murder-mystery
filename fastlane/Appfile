@@ -1,0 +1,9 @@
+team_id(ENV.fetch("APP_TEAM_ID", "92QV2QPDKA"))
+
+for_platform :ios do
+  app_identifier("com.andrew4coding.MurderMystery")
+end
+
+for_platform :mac do
+  app_identifier("com.andrew4coding.MurderMystery.admin")
+end
