@@ -8,12 +8,12 @@ Tooling and refactors that users can't see don't go here.
 
 ### MurderMysteryiOS
 
-#### Added
+#### Removed
 
-- Items list, detail and editor, backed by SwiftData ([0001](specs/features/0001-items.md)).
+- Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 
 ### MurderMysteryAdmin
 
-#### Added
+#### Removed
 
-- Items list, detail and editor in a sidebar layout, backed by SwiftData ([0001](specs/features/0001-items.md)).
+- Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
