@@ -36,6 +36,8 @@ final class GameHost {
     private(set) var recentEvents: [GameEvent] = []
     private(set) var revision = 0
 
+    @ObservationIgnored var sightings: [FamilyID: [FamilyID: SightingRecord]] = [:]
+    @ObservationIgnored var lastNearby: [FamilyID: Set<FamilyID>] = [:]
     @ObservationIgnored let clock: any HostClock
     @ObservationIgnored private let repository: any GameRepository
     @ObservationIgnored private var transport: (any HostTransport)?
@@ -107,6 +109,10 @@ final class GameHost {
                 try handOverHead(identity: signedIn(id), to: target)
             case let .vote(choice):
                 try vote(identity: signedIn(id), choice: choice)
+            case let .sightings(list):
+                try receiveSightings(list, identity: signedIn(id))
+            case let .kill(victim):
+                try kill(identity: signedIn(id), victim: victim)
             }
         } catch let error as HostError {
             send(.rejected(error.message), to: id)
@@ -120,9 +126,11 @@ final class GameHost {
     func tick() {
         guard var engine = state.engine else { return }
         let events = engine.advance(to: clock.now)
-        guard !events.isEmpty else { return }
-        state.engine = engine
-        commit(events: events)
+        if !events.isEmpty {
+            state.engine = engine
+            commit(events: events)
+        }
+        refreshNearby()
     }
 
     func checkConnectivity() {

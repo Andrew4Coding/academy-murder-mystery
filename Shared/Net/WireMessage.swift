@@ -6,6 +6,8 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case claimHead
     case handOverHead(to: PlayerID)
     case vote(VoteChoice)
+    case sightings([Sighting])
+    case kill(victim: FamilyID)
 }
 
 enum ServerMessage: Codable, Equatable, Sendable {

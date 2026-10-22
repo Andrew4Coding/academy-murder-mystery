@@ -49,3 +49,13 @@ struct Hello: Codable, Equatable, Sendable {
 enum WireVersion {
     static let current = 1
 }
+
+struct Sighting: Codable, Equatable, Sendable {
+    let token: String
+    let rssi: Int
+}
+
+struct ProximitySettings: Codable, Equatable, Sendable {
+    let rssiThreshold: Int
+    let sightingFreshness: TimeInterval
+}

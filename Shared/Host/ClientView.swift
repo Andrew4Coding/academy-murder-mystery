@@ -83,6 +83,10 @@ struct GameView: Codable, Equatable, Sendable {
     let votesCast: Int
     let votersTotal: Int
     let lastResult: VoteResultView?
+    let bleToken: String
+    let proximity: ProximitySettings
+    let nearby: [FamilySummary]
+    let killReadyAt: Date?
 }
 
 struct ClientView: Codable, Equatable, Sendable {

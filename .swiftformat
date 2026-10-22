@@ -6,3 +6,4 @@
 --commas inline
 --exclude **/DerivedData,**/build,**/.build,**/fastlane,vendor
 --importgrouping testable-last
+--disable noForceUnwrapInTests

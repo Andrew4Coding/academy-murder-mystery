@@ -71,7 +71,13 @@ extension GameHost {
             myVote: info.head == viewer ? engine.state.votes[info.id] : nil,
             votesCast: engine.state.votes.count,
             votersTotal: engine.state.aliveFamilies().count,
-            lastResult: engine.state.lastResult.map(resultView)
+            lastResult: engine.state.lastResult.map(resultView),
+            bleToken: state.players[viewer]?.bleToken ?? "",
+            proximity: ProximitySettings(rssiThreshold: state.rssiThreshold, sightingFreshness: state.sightingFreshness),
+            nearby: engineFamily.role == .werewolf && engineFamily.isAlive
+                ? nearbyFamilies(of: info.id).compactMap { summary(of: $0, in: engine) }
+                : [],
+            killReadyAt: engineFamily.role == .werewolf && engineFamily.isAlive ? engineFamily.killReadyAt : nil
         )
     }
 
