@@ -47,3 +47,6 @@ vendor/bundle/
 # Claude Code: commit .claude/, keep personal overrides local
 .claude/settings.local.json
 .claude/*.local.*
+
+# SwiftData store created when unsigned test hosts run
+default.store*
