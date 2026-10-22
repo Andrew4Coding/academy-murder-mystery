@@ -3,6 +3,7 @@ import SwiftUI
 enum AdminSection: String, CaseIterable, Identifiable {
     case setup
     case game
+    case display
     case devices
 
     var id: String {
@@ -13,6 +14,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
         switch self {
         case .setup: "Setup"
         case .game: "Game"
+        case .display: "Display"
         case .devices: "Devices"
         }
     }
@@ -21,6 +23,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
         switch self {
         case .setup: "slider.horizontal.3"
         case .game: "gamecontroller"
+        case .display: "tv"
         case .devices: "iphone.gen3.radiowaves.left.and.right"
         }
     }
@@ -43,6 +46,8 @@ struct RootView: View {
                 SetupView(controller: controller)
             case .game:
                 GameControlView(controller: controller)
+            case .display:
+                DisplaySettingsView()
             case .devices:
                 DevicesView(controller: controller)
             }

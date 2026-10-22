@@ -16,5 +16,10 @@ struct MurderMysteryAdminApp: App {
             RootView(controller: controller)
                 .frame(minWidth: 720, minHeight: 480)
         }
+        Window("Public Display", id: PublicDisplayWindow.id) {
+            PublicDisplayView(controller: controller)
+                .frame(minWidth: 960, minHeight: 540)
+        }
+        .windowResizability(.contentMinSize)
     }
 }
