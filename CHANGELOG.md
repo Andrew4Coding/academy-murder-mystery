@@ -11,6 +11,7 @@ Tooling and refactors that users can't see don't go here.
 #### Added
 
 - Finds the game host on the local network and shows connection status ([0003](specs/features/0003-lan-host-transport.md)).
+- Join a family with a code or QR, choose the head of family, and see your role and tasks ([0004](specs/features/0004-lobby-and-roles.md)).
 
 #### Removed
 
@@ -21,6 +22,7 @@ Tooling and refactors that users can't see don't go here.
 #### Added
 
 - Hosts the game on the local network and lists connected devices, with a connectivity check ([0003](specs/features/0003-lan-host-transport.md)).
+- Setup screen: families, join codes and QR, timings, OC PIN, Start Game and New Game ([0004](specs/features/0004-lobby-and-roles.md)).
 
 #### Removed
 
