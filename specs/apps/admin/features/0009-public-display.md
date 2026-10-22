@@ -1,7 +1,7 @@
 ---
 id: 0009
 title: Public Display
-status: approved
+status: implemented
 owner: AND
 app: admin
 created: 2026-10-22
@@ -22,12 +22,12 @@ A dedicated window in the Mac Admin app that the OC sends to the lab TVs via Air
 
 ## Acceptance criteria
 
-- [ ] **AC1 Window**: Given Admin, when the OC opens Public Display, then a separate window opens that can be moved to an AirPlay or second display.
-- [ ] **AC2 Content by phase**: Given the game phase, when it changes, then the window shows the game clock (running), discussion/voting timers (meeting), the sabotage countdown with booth name (sabotage) and the result (after voting).
-- [ ] **AC3 No secrets**: Given any state, when the window renders, then no living family's role, task list or vote choice is shown.
-- [ ] **AC4 Reveal**: Given an expelled family, when the result shows, then its role is revealed on screen.
-- [ ] **AC5 End**: Given the game ended, when the engine reports a winner, then the window shows the winning side and reason.
-- [ ] **AC6 Readability**: Given a TV at the back of the room, when content shows, then timers are at least 120 pt and legible at 1080p.
+- [x] **AC1 Window**: Given Admin, when the OC opens Public Display, then a separate window opens that can be moved to an AirPlay or second display.
+- [x] **AC2 Content by phase**: Given the game phase, when it changes, then the window shows the game clock (running), discussion/voting timers (meeting), the sabotage countdown with booth name (sabotage) and the result (after voting).
+- [x] **AC3 No secrets**: Given any state, when the window renders, then no living family's role, task list or vote choice is shown.
+- [x] **AC4 Reveal**: Given an expelled family, when the result shows, then its role is revealed on screen.
+- [x] **AC5 End**: Given the game ended, when the engine reports a winner, then the window shows the winning side and reason.
+- [x] **AC6 Readability**: Given a TV at the back of the room, when content shows, then timers are at least 120 pt and legible at 1080p.
 
 ## UX
 
@@ -57,8 +57,11 @@ Read-only view of host state, no new models.
 
 ## Open questions
 
-- Show the death announcement list on the TV or only on phones? Proposed: both.
+- Deaths since the last meeting are shown on the TV during discussion as well as on phones (implemented).
+- The result screen shows for 30 seconds after a vote closes, then returns to the game clock.
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Shared: `PublicDisplayState` (a role-free snapshot built by `GameHost.publicDisplayState`; only expelled families carry a role) and `PublicDisplayLayout` (timers 180 pt, headlines 64 pt, so 1080p stays legible).
+- Admin: `PublicDisplayView` in its own `Window` (id `public-display`, black background, sabotage banner in every phase, respects Reduce Motion), `DisplaySettingsView` (Display sidebar section, Cmd+Shift+P, AirPlay instructions).
+- Tests: `PublicDisplayStateTests`. The view was also rendered to PNG at 1920x1080 once for a visual check.
