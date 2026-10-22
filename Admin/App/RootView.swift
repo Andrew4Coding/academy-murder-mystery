@@ -1,6 +1,7 @@
 import SwiftUI
 
 enum AdminSection: String, CaseIterable, Identifiable {
+    case setup
     case devices
 
     var id: String {
@@ -9,12 +10,14 @@ enum AdminSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .setup: "Setup"
         case .devices: "Devices"
         }
     }
 
     var symbol: String {
         switch self {
+        case .setup: "slider.horizontal.3"
         case .devices: "iphone.gen3.radiowaves.left.and.right"
         }
     }
@@ -23,7 +26,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
 struct RootView: View {
     let controller: HostController
 
-    @State private var selection: AdminSection? = .devices
+    @State private var selection: AdminSection? = .setup
 
     var body: some View {
         NavigationSplitView {
@@ -32,7 +35,9 @@ struct RootView: View {
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 220)
         } detail: {
-            switch selection ?? .devices {
+            switch selection ?? .setup {
+            case .setup:
+                SetupView(controller: controller)
             case .devices:
                 DevicesView(controller: controller)
             }
