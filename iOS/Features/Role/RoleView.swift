@@ -120,20 +120,6 @@ private struct RoleCard: View {
 }
 
 extension Role {
-    var title: String {
-        switch self {
-        case .villager: "Villager"
-        case .werewolf: "Werewolf"
-        }
-    }
-
-    var symbol: String {
-        switch self {
-        case .villager: "house.fill"
-        case .werewolf: "moon.stars.fill"
-        }
-    }
-
     var tint: Color {
         switch self {
         case .villager: .blue
@@ -145,16 +131,6 @@ extension Role {
         switch self {
         case .villager: "Finish every family's tasks together, or vote the werewolves out of the village."
         case .werewolf: "Eliminate villager families until there are as many werewolves as villagers, without being caught."
-        }
-    }
-}
-
-extension LifeState {
-    var title: String {
-        switch self {
-        case .alive: "In the game"
-        case .killed: "Eliminated"
-        case .expelled: "Voted out"
         }
     }
 }

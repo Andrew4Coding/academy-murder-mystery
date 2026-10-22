@@ -9,7 +9,7 @@ struct RootView: View {
                 switch view.identity {
                 case .player:
                     if let game = view.game {
-                        RoleView(game: game)
+                        GameTabsView(game: game, client: client)
                     } else if let lobby = view.lobby {
                         FamilyLobbyView(lobby: lobby, client: client)
                     } else {
