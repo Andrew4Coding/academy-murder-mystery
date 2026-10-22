@@ -71,7 +71,8 @@ final class LoopbackClientTransport: ClientTransport {
     }
 
     func send(_ message: ClientMessage) {
-        guard let id, let data = try? WireCodec.encode(message), let decoded = try? WireCodec.decode(ClientMessage.self, from: data) else { return }
+        guard let id, let data = try? WireCodec.encode(message),
+              let decoded = try? WireCodec.decode(ClientMessage.self, from: data) else { return }
         hub.host.continuation.yield(.message(id, decoded))
     }
 
