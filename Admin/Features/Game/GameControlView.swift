@@ -4,6 +4,8 @@ struct GameControlView: View {
     let controller: HostController
 
     @State private var showRoles = false
+    @State private var selection: Set<FamilyID> = []
+    @State private var confirmingEnd: Side?
     @State private var errorMessage: String?
 
     private var host: GameHost {
@@ -23,6 +25,19 @@ struct GameControlView: View {
             }
         }
         .navigationTitle("Game")
+        .confirmationDialog(
+            confirmingEnd == .villagers ? "End the game with a villager win?" : "End the game with a werewolf win?",
+            isPresented: Binding(get: { confirmingEnd != nil }, set: {
+                if !$0 {
+                    confirmingEnd = nil
+                }
+            }),
+            titleVisibility: .visible
+        ) {
+            if let side = confirmingEnd {
+                Button("End Game", role: .destructive) { attempt { try host.applyAsOC(.override(.endGame(side))) } }
+            }
+        }
         .alert("Can't do that", isPresented: .constant(errorMessage != nil)) {
             Button("OK") { errorMessage = nil }
         } message: {
@@ -54,8 +69,15 @@ struct GameControlView: View {
             }
 
             Section("Families") {
-                FamilyStatusTable(host: host, game: game, showRoles: showRoles)
-                    .frame(minHeight: 260)
+                FamilyStatusTable(
+                    host: host,
+                    game: game,
+                    showRoles: showRoles,
+                    selection: $selection,
+                    onEliminate: eliminate,
+                    onRevive: revive
+                )
+                .frame(minHeight: 260)
             }
         }
         .formStyle(.grouped)
@@ -78,6 +100,14 @@ struct GameControlView: View {
                 .disabled(!isVoting(game))
                 .help("Cast a vote for a family whose head can't, for example because their phone is offline")
             }
+            ToolbarItem {
+                Menu("End Game", systemImage: "flag.checkered") {
+                    Button("Villagers Win") { confirmingEnd = .villagers }
+                    Button("Werewolves Win") { confirmingEnd = .werewolves }
+                }
+                .disabled(game.outcome != nil)
+                .help("End the game now and declare a winner")
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Start Discussion", systemImage: "bell.fill") {
                     attempt { try host.applyAsOC(.startMeeting) }
@@ -86,6 +116,18 @@ struct GameControlView: View {
                 .disabled(game.phase != .running)
                 .help("Call everyone to the Town Hall. Ring the bell first.")
             }
+        }
+    }
+
+    private func eliminate(_ ids: Set<FamilyID>) {
+        for id in ids {
+            attempt { try host.applyAsOC(.override(.forceKill(id))) }
+        }
+    }
+
+    private func revive(_ ids: Set<FamilyID>) {
+        for id in ids {
+            attempt { try host.applyAsOC(.override(.revive(id))) }
         }
     }
 
@@ -150,13 +192,16 @@ private struct FamilyStatusTable: View {
     let host: GameHost
     let game: GameState
     let showRoles: Bool
+    @Binding var selection: Set<FamilyID>
+    let onEliminate: (Set<FamilyID>) -> Void
+    let onRevive: (Set<FamilyID>) -> Void
 
     private var rows: [Family] {
         game.families.values.sorted { $0.id < $1.id }
     }
 
     var body: some View {
-        Table(rows) {
+        Table(rows, selection: $selection) {
             TableColumn("Family") { (family: Family) in
                 Text(host.state.families[family.id]?.name ?? "Unknown")
             }
@@ -176,6 +221,12 @@ private struct FamilyStatusTable: View {
             TableColumn("Vote") { (family: Family) in
                 Text(voteStatus(family))
             }
+        }
+        .contextMenu(forSelectionType: FamilyID.self) { ids in
+            Button("Eliminate Family", systemImage: "xmark.circle") { onEliminate(ids) }
+                .disabled(ids.isEmpty)
+            Button("Revive Family", systemImage: "arrow.uturn.backward.circle") { onRevive(ids) }
+                .disabled(ids.isEmpty)
         }
     }
 

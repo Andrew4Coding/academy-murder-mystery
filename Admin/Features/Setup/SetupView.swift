@@ -7,6 +7,8 @@ struct SetupView: View {
     @State private var werewolfCount = 2
     @State private var discussionMinutes = 2
     @State private var votingMinutes = 2
+    @State private var rssiThreshold = -65.0
+    @State private var sightingFreshness = 5
     @State private var qrFamily: FamilyInfo?
     @State private var errorMessage: String?
     @State private var confirmingNewGame = false
@@ -29,6 +31,25 @@ struct SetupView: View {
                 Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
             }
             .disabled(!isLobby)
+
+            Section {
+                LabeledContent("Kill range") {
+                    Slider(value: $rssiThreshold, in: -90 ... -40, step: 1) {
+                        Text("Signal threshold")
+                    } minimumValueLabel: {
+                        Text("Far")
+                    } maximumValueLabel: {
+                        Text("Close")
+                    }
+                    .frame(maxWidth: 280)
+                    Text("\(Int(rssiThreshold)) dBm").monospacedDigit().frame(width: 70, alignment: .trailing)
+                }
+                Stepper("Sighting stays valid for \(sightingFreshness) s", value: $sightingFreshness, in: 1 ... 10)
+            } header: {
+                Text("Bluetooth")
+            } footer: {
+                Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
+            }
 
             Section("OC PIN") {
                 LabeledContent("PIN for booth organisers") {
@@ -58,6 +79,8 @@ struct SetupView: View {
         .onChange(of: werewolfCount) { _, _ in apply() }
         .onChange(of: discussionMinutes) { _, _ in apply() }
         .onChange(of: votingMinutes) { _, _ in apply() }
+        .onChange(of: rssiThreshold) { _, _ in applyProximity() }
+        .onChange(of: sightingFreshness) { _, _ in applyProximity() }
         .toolbar {
             ToolbarItem {
                 Button("New Game", systemImage: "arrow.counterclockwise") { confirmingNewGame = true }
@@ -103,9 +126,15 @@ struct SetupView: View {
         werewolfCount = max(1, state.werewolfCount)
         discussionMinutes = max(1, Int(state.settings.discussionDuration / 60))
         votingMinutes = max(1, Int(state.settings.votingDuration / 60))
+        rssiThreshold = Double(state.rssiThreshold)
+        sightingFreshness = Int(state.sightingFreshness)
         if state.families.isEmpty {
             apply()
         }
+    }
+
+    private func applyProximity() {
+        host.setProximity(rssiThreshold: Int(rssiThreshold), sightingFreshness: TimeInterval(sightingFreshness))
     }
 
     private func apply() {
