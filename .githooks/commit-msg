@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+msg_file="$1"
+message="$(grep -v '^#' "$msg_file" || true)"
+subject="$(printf '%s\n' "$message" | sed -n '1p')"
+
+fail() {
+  {
+    echo "commit-msg: $1"
+    echo "  got:      $subject"
+    echo "  expected: <type>(<scope>)?: [ABC] <lowercase imperative summary>"
+    echo "  types:    feat fix refactor chore docs test style perf build ci revert"
+    echo "  see .claude/rules/commits.md"
+  } >&2
+  exit 1
+}
+
+case "$subject" in
+  "Merge "* | "Revert \""* | "fixup! "* | "squash! "* | "amend! "*) exit 0 ;;
+esac
+
+pattern='^(feat|fix|refactor|chore|docs|test|style|perf|build|ci|revert)(\([a-z0-9-]+\))?!?: \[[A-Z]{3}\] [a-z0-9].*[^.]$'
+[[ "$subject" =~ $pattern ]] || fail "subject does not match the convention"
+[[ ${#subject} -le 72 ]] || fail "subject is ${#subject} characters, max 72"
+
+if printf '%s\n' "$message" | grep -qiE '^co-authored-by:|generated with \[?claude|noreply@anthropic\.com'; then
+  fail "AI attribution trailers are not allowed in this repo"
+fi
+
+expected="$("$(git rev-parse --show-toplevel)/scripts/commit-code.sh" 2>/dev/null || true)"
+actual="$(printf '%s' "$subject" | sed -E 's/^[^[]*\[([A-Z]{3})\].*/\1/')"
+if [[ -n "$expected" && "$actual" != "$expected" ]]; then
+  echo "commit-msg: warning: code [$actual] differs from your code [$expected]" >&2
+fi
