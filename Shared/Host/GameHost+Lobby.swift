@@ -53,11 +53,15 @@ extension GameHost {
     }
 
     func startGame() throws {
+        var generator = SystemRandomNumberGenerator()
+        try startGame(using: &generator)
+    }
+
+    func startGame(using generator: inout some RandomNumberGenerator) throws {
         guard state.isLobby else { throw HostError.gameAlreadyStarted }
         if let issue = state.setupIssues().first {
             throw HostError.setup(issue)
         }
-        var generator = SystemRandomNumberGenerator()
         let (engine, events) = try GameEngine.start(
             familyIDs: state.families.keys.sorted(),
             werewolfCount: state.werewolfCount,
