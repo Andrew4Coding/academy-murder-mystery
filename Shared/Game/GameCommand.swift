@@ -1,3 +1,5 @@
+import Foundation
+
 enum OCOverride: Codable, Equatable, Sendable {
     case forceKill(FamilyID)
     case revive(FamilyID)
