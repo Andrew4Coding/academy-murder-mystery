@@ -4,12 +4,19 @@ Each item links to a spec once one exists. Move items between sections at every 
 
 ## Now
 
-- [0001 Items](features/0001-items.md): reference feature from the scaffold. Replace it with the first real feature.
+- [0002 Game engine](features/0002-game-engine.md): pure rules engine; first commit removes the sample Items feature ([0001](features/0001-items.md)).
+- [0003 LAN host transport](features/0003-lan-host-transport.md)
+- [0004 Lobby, family join and roles](features/0004-lobby-and-roles.md)
 
 ## Next
 
-- TODO
+- [0005 Meetings and voting](features/0005-meetings-and-voting.md)
+- [0006 BLE proximity kill](features/0006-ble-kill.md)
+- [0007 Sabotage](features/0007-sabotage.md)
+- [0008 OC mode and task stamping](features/0008-oc-mode-and-stamping.md)
 
 ## Later
 
-- TODO
+- [0009 Public Display](apps/admin/features/0009-public-display.md)
+- [0010 Simulation mode](apps/admin/features/0010-simulation-mode.md)
+- Venue dry run: BLE threshold calibration and Wi-Fi client-isolation check.
