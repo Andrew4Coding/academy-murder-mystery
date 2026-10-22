@@ -60,7 +60,7 @@ struct GameHostMeetingTests {
     @Test func onlyTheHeadCanVoteAndMayChangeTheVoteUntilClose() async throws {
         let (harness, heads) = try await HostHarness.seated(families: 5, werewolves: 1)
         let member = harness.makeClient()
-        member.join(code: harness.host.state.families[1]!.joinCode, name: "Member")
+        try member.join(code: #require(harness.host.state.families[1]?.joinCode), name: "Member")
         #expect(await eventually { member.isSignedIn })
         try harness.host.startGame()
         try harness.host.applyAsOC(.startMeeting)
@@ -71,12 +71,12 @@ struct GameHostMeetingTests {
         member.send(.vote(.skip))
         #expect(await eventually { member.lastError == HostError.notHead.message })
 
-        heads[1]!.send(.vote(.family(2)))
+        heads[1]?.send(.vote(.family(2)))
         #expect(await eventually { heads[1]!.view?.game?.myVote == .family(2) })
-        heads[1]!.send(.vote(.skip))
+        heads[1]?.send(.vote(.skip))
         #expect(await eventually { heads[1]!.view?.game?.myVote == .skip })
-        #expect(heads[1]!.view?.game?.votesCast == 1)
-        #expect(heads[2]!.view?.game?.myVote == nil)
+        #expect(heads[1]?.view?.game?.votesCast == 1)
+        #expect(heads[2]?.view?.game?.myVote == nil)
     }
 
     @Test func storedSnapshotsNeverContainWhoVotedForWhom() async throws {
