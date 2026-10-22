@@ -68,7 +68,7 @@ struct GameSettings: Codable, Equatable, Sendable {
     static let standard = GameSettings()
 }
 
-struct Family: Codable, Equatable, Sendable {
+struct Family: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let role: Role
     var life: LifeState
