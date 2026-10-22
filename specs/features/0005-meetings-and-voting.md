@@ -1,7 +1,7 @@
 ---
 id: 0005
 title: Meetings and voting
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-22
@@ -22,14 +22,14 @@ When someone shouts "body" the Town Hall OC rings the bell and taps Start Discus
 
 ## Acceptance criteria
 
-- [ ] **AC1 Start**: Given a running game, when the OC taps Start Discussion, then every device shows a meeting alert, announces families that died since the last meeting, and shows the discussion countdown from host time.
-- [ ] **AC2 Auto vote**: Given discussion ends, when time elapses, then voting opens automatically with the voting countdown.
-- [ ] **AC3 Vote**: Given voting is open, when a living family's head selects a family or Skip, then one vote is recorded for that family; non-heads see a read-only screen; a head can change their vote until voting closes.
-- [ ] **AC4 Anonymous**: Given voting, when results are stored, then only per-target tallies are persisted, never who voted for whom.
-- [ ] **AC5 Close**: Given all living families voted or time elapsed, when voting closes, then the result is computed per [0002 AC7](0002-game-engine.md) and shown on every device and the Public Display.
-- [ ] **AC6 Expulsion**: Given a family is expelled, when the result shows, then its role is revealed, its devices show the expelled status, and win conditions are re-evaluated.
-- [ ] **AC7 Final vote**: Given the clock hits 45:00, when the engine enters the final vote, then every device alerts everyone to gather and uses the voting screen with the top-N rule from [0002 AC11](0002-game-engine.md).
-- [ ] **AC8 No head change**: Given discussion or voting, when a head change is requested, then it is rejected.
+- [x] **AC1 Start**: Given a running game, when the OC taps Start Discussion, then every device shows a meeting alert, announces families that died since the last meeting, and shows the discussion countdown from host time.
+- [x] **AC2 Auto vote**: Given discussion ends, when time elapses, then voting opens automatically with the voting countdown.
+- [x] **AC3 Vote**: Given voting is open, when a living family's head selects a family or Skip, then one vote is recorded for that family; non-heads see a read-only screen; a head can change their vote until voting closes.
+- [x] **AC4 Anonymous**: Given voting, when results are stored, then only per-target tallies are persisted, never who voted for whom.
+- [x] **AC5 Close**: Given all living families voted or time elapsed, when voting closes, then the result is computed per [0002 AC7](0002-game-engine.md) and shown on every device and the Public Display.
+- [x] **AC6 Expulsion**: Given a family is expelled, when the result shows, then its role is revealed, its devices show the expelled status, and win conditions are re-evaluated.
+- [x] **AC7 Final vote**: Given the clock hits 45:00, when the engine enters the final vote, then every device alerts everyone to gather and uses the voting screen with the top-N rule from [0002 AC11](0002-game-engine.md).
+- [x] **AC8 No head change**: Given discussion or voting, when a head change is requested, then it is rejected.
 
 ## UX
 
@@ -60,8 +60,12 @@ Accessibility notes: countdown announced at key moments; vote targets at least 4
 
 ## Open questions
 
-- If the head's phone is offline during voting, may the OC vote on their behalf? Proposed: yes, as an `ocOverride` event.
+- OC proxy votes are implemented: `GameCommand.proxyVote` casts the vote and records an `ocOverride(.proxyVote(family))` event without the choice.
+- The Public Display result view (AC5) is delivered by spec 0009; phones and the Admin game screen already show results.
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Engine: `GameState.announcedDeaths`, `lastResult` (public tally and reveals); ballots (`votes`) are excluded from `Codable`, so stored games hold only tallies. A restart during voting keeps voting open but heads must vote again.
+- Host: `ClientMessage.vote` (head only, `HostError.notHead` otherwise), `GameHost.vote`, `GameView` gains `announcedDeaths`, `myVote` (head's own only), `votesCast`, `votersTotal`, `lastResult`.
+- iOS: `GameTabsView` (Family and Meeting tabs, switches to Meeting when a meeting starts), `MeetingView`. Admin: `GameControlView` (Start Discussion Cmd+D, proxy vote menu, roles hidden by default, families table). Shared: `CountdownView` (host-clock based), `GameLabels`.
+- Tests: `GameEngineMeetingStateTests`, `GameHostMeetingTests`.

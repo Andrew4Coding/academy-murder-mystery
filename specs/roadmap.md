@@ -7,13 +7,13 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0002 Game engine](features/0002-game-engine.md): pure rules engine; sample Items feature removed.
 - [0003 LAN host transport](features/0003-lan-host-transport.md): repeat the Bonjour check on real devices at the venue.
 - [0004 Lobby, family join and roles](features/0004-lobby-and-roles.md)
+- [0005 Meetings and voting](features/0005-meetings-and-voting.md)
 
 ## Now
 
 
 ## Next
 
-- [0005 Meetings and voting](features/0005-meetings-and-voting.md)
 - [0006 BLE proximity kill](features/0006-ble-kill.md)
 - [0007 Sabotage](features/0007-sabotage.md)
 - [0008 OC mode and task stamping](features/0008-oc-mode-and-stamping.md)
