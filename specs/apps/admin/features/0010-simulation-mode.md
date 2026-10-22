@@ -1,7 +1,7 @@
 ---
 id: 0010
 title: Simulation mode
-status: approved
+status: implemented
 owner: AND
 app: admin
 created: 2026-10-22
@@ -21,12 +21,12 @@ A rehearsal mode in Admin that fills a game with bot families, speeds up the clo
 
 ## Acceptance criteria
 
-- [ ] **AC1 Bots**: Given Admin setup, when the OC enables Simulation, then they choose the number of bot families and the rest are filled with bots that play their roles.
-- [ ] **AC2 Fast forward**: Given a simulated game, when the OC sets a speed (1x, 5x, 20x), then the engine clock advances accordingly and all timers still derive from it.
-- [ ] **AC3 Scripted actions**: Given a simulated game, when it runs, then bots stamp tasks, kill, sabotage, vote and skip according to a seeded random plan.
-- [ ] **AC4 Same engine**: Given simulation, when events are produced, then they come from the same engine and persistence as a real game and are marked `simulated`.
-- [ ] **AC5 Isolation**: Given simulation, when it ends, then its data is discarded or kept separately and never mixes with a real game.
-- [ ] **AC6 Seeded replay**: Given a seed, when the same simulation is run again, then it produces the same events.
+- [x] **AC1 Bots**: Given Admin setup, when the OC enables Simulation, then they choose the number of bot families and the rest are filled with bots that play their roles.
+- [x] **AC2 Fast forward**: Given a simulated game, when the OC sets a speed (1x, 5x, 20x), then the engine clock advances accordingly and all timers still derive from it.
+- [x] **AC3 Scripted actions**: Given a simulated game, when it runs, then bots stamp tasks, kill, sabotage, vote and skip according to a seeded random plan.
+- [x] **AC4 Same engine**: Given simulation, when events are produced, then they come from the same engine and persistence as a real game and are marked `simulated`.
+- [x] **AC5 Isolation**: Given simulation, when it ends, then its data is discarded or kept separately and never mixes with a real game.
+- [x] **AC6 Seeded replay**: Given a seed, when the same simulation is run again, then it produces the same events.
 
 ## UX
 
@@ -56,8 +56,12 @@ Marks events with `simulated: Bool` and a seed; no new persistence model.
 
 ## Open questions
 
-- Should simulation mix bots with real phones? Proposed: yes, bots fill only empty families.
+- Simulation runs on its own host with an in-memory store and only bots (implemented); mixing bots with real phones is not supported, so a rehearsal can never affect the real game. Revisit if the OC wants to test real phones together with bots.
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Shared: `Simulation` (separate `GameHost` with `ManualHostClock` and `InMemoryGameRepository`, `state.simulated = true`; bots are synchronous virtual connections that join, claim head, stamp, kill via sightings, sabotage, resolve, start meetings and vote through the normal host message path), `SimulationController` (speeds paused, 1x, 5x, 20x, 60x; run to end; discard), `SimulationLog`. `GameHost.startGame(using:)` takes the seeded generator.
+- Admin: `SimulationView` (Simulation sidebar section: bots, werewolves, members, seed, speed, status, event log).
+- SwiftData `latest()` skips simulated games, so a rehearsal can never be restored as a real game.
+- Tests: `SimulationTests` (AC1 to AC6 including seeded replay), `SimulationControllerTests`.
+- BLE signal strength is not simulated; bots report sightings directly.

@@ -12,6 +12,7 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0007 Sabotage](features/0007-sabotage.md)
 - [0008 OC mode and task stamping](features/0008-oc-mode-and-stamping.md)
 - [0009 Public Display](apps/admin/features/0009-public-display.md)
+- [0010 Simulation mode](apps/admin/features/0010-simulation-mode.md)
 
 ## Now
 
@@ -21,5 +22,4 @@ Each item links to a spec once one exists. Move items between sections at every 
 
 ## Later
 
-- [0010 Simulation mode](apps/admin/features/0010-simulation-mode.md)
 - Venue dry run: BLE threshold calibration and Wi-Fi client-isolation check.
