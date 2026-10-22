@@ -15,6 +15,7 @@ Tooling and refactors that users can't see don't go here.
 - Meeting tab with discussion and voting timers, announced deaths, head-only anonymous voting and results ([0005](specs/features/0005-meetings-and-voting.md)).
 - Werewolf Actions tab: eliminate a nearby villager family over Bluetooth, with cooldown ([0006](specs/features/0006-ble-kill.md)).
 - Sabotage: werewolves start Reactor or Oxygen sabotage, everyone sees an alert banner with the countdown ([0007](specs/features/0007-sabotage.md)).
+- Organiser mode: sign in with the OC PIN, stamp families at a booth with undo, resolve sabotage, or observe from the Town Hall ([0008](specs/features/0008-oc-mode-and-stamping.md)).
 
 #### Removed
 
@@ -29,6 +30,7 @@ Tooling and refactors that users can't see don't go here.
 - Game screen: start discussion, proxy votes, results and a family status table with optional roles ([0005](specs/features/0005-meetings-and-voting.md)).
 - Bluetooth range settings, and Eliminate, Revive and End Game overrides ([0006](specs/features/0006-ble-kill.md)).
 - Sabotage status and a Resolve Sabotage button ([0007](specs/features/0007-sabotage.md)).
+- Record and undo stamps from the family table ([0008](specs/features/0008-oc-mode-and-stamping.md)).
 
 #### Removed
 
