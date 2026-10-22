@@ -37,6 +37,7 @@ final class GameHost {
     private(set) var revision = 0
 
     @ObservationIgnored var sightings: [FamilyID: [FamilyID: SightingRecord]] = [:]
+    @ObservationIgnored var stampTimes: [StampKey: Date] = [:]
     @ObservationIgnored var lastNearby: [FamilyID: Set<FamilyID>] = [:]
     @ObservationIgnored let clock: any HostClock
     @ObservationIgnored private let repository: any GameRepository
@@ -117,6 +118,10 @@ final class GameHost {
                 try requestSabotage(identity: signedIn(id), kind: kind)
             case .resolveSabotage:
                 try resolveSabotage(identity: signedIn(id))
+            case let .stamp(family, confirmOffList):
+                try stamp(identity: signedIn(id), family: family, confirmOffList: confirmOffList)
+            case let .undoStamp(family):
+                try undoStamp(identity: signedIn(id), family: family)
             }
         } catch let error as HostError {
             send(.rejected(error.message), to: id)

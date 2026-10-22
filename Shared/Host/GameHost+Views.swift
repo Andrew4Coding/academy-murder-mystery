@@ -26,9 +26,28 @@ extension GameHost {
             guard let device = state.ocDevices[id] else { return nil }
             var view = ClientView(serverTime: clock.now, identity: .oc(id: id, station: device.station), familyName: nil)
             if let engine = state.engine {
-                view.oc = OCView(sabotage: sabotageView(engine))
+                view.oc = OCView(sabotage: sabotageView(engine), families: ocRows(engine, station: device.station))
             }
             return view
+        }
+    }
+
+    func ocRows(_ engine: GameEngine, station: OCStation) -> [OCFamilyRow] {
+        let booth: Booth? = if case let .booth(booth) = station {
+            booth
+        } else {
+            nil
+        }
+        return engine.state.families.values.sorted { $0.id < $1.id }.map { family in
+            OCFamilyRow(
+                id: family.id,
+                name: state.families[family.id]?.name ?? "Unknown",
+                life: family.life,
+                stampsDone: family.stamps.intersection(family.tasks).count,
+                stampsTotal: family.tasks.count,
+                onList: booth.map { family.tasks.contains($0) },
+                stamped: booth.map { family.stamps.contains($0) }
+            )
         }
     }
 

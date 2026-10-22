@@ -16,6 +16,8 @@ enum HostError: Error, Equatable, Sendable {
     case setup(String)
     case notNearby
     case notOC
+    case offList
+    case undoExpired
     case wrongStation
     case notInGame
     case familyHasMembers
@@ -37,6 +39,8 @@ enum HostError: Error, Equatable, Sendable {
         case let .setup(reason): reason
         case .notNearby: "That family isn't close enough."
         case .notOC: "Only organisers can do that."
+        case .offList: "Not on this family's list."
+        case .undoExpired: "Too late to undo this stamp."
         case .wrongStation: "This sabotage is handled at a different station."
         case .notInGame: "There's no game running."
         case .familyHasMembers: "That family already has members."

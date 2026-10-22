@@ -73,8 +73,19 @@ struct SabotageView: Codable, Equatable, Sendable {
     let endsAt: Date
 }
 
+struct OCFamilyRow: Codable, Equatable, Sendable, Identifiable {
+    let id: FamilyID
+    let name: String
+    let life: LifeState
+    let stampsDone: Int
+    let stampsTotal: Int
+    let onList: Bool?
+    let stamped: Bool?
+}
+
 struct OCView: Codable, Equatable, Sendable {
     let sabotage: SabotageView?
+    let families: [OCFamilyRow]
 }
 
 struct GameView: Codable, Equatable, Sendable {

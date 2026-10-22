@@ -10,6 +10,8 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case kill(victim: FamilyID)
     case requestSabotage(SabotageKind)
     case resolveSabotage
+    case stamp(family: FamilyID, confirmOffList: Bool)
+    case undoStamp(family: FamilyID)
 }
 
 enum ServerMessage: Codable, Equatable, Sendable {
