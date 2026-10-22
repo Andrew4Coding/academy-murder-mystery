@@ -8,6 +8,8 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case vote(VoteChoice)
     case sightings([Sighting])
     case kill(victim: FamilyID)
+    case requestSabotage(SabotageKind)
+    case resolveSabotage
 }
 
 enum ServerMessage: Codable, Equatable, Sendable {

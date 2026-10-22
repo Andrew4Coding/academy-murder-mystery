@@ -113,6 +113,10 @@ final class GameHost {
                 try receiveSightings(list, identity: signedIn(id))
             case let .kill(victim):
                 try kill(identity: signedIn(id), victim: victim)
+            case let .requestSabotage(kind):
+                try requestSabotage(identity: signedIn(id), kind: kind)
+            case .resolveSabotage:
+                try resolveSabotage(identity: signedIn(id))
             }
         } catch let error as HostError {
             send(.rejected(error.message), to: id)

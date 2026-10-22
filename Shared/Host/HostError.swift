@@ -15,6 +15,8 @@ enum HostError: Error, Equatable, Sendable {
     case headLocked
     case setup(String)
     case notNearby
+    case notOC
+    case wrongStation
     case notInGame
     case familyHasMembers
 
@@ -34,6 +36,8 @@ enum HostError: Error, Equatable, Sendable {
         case .headLocked: "The head of family can't change during a meeting."
         case let .setup(reason): reason
         case .notNearby: "That family isn't close enough."
+        case .notOC: "Only organisers can do that."
+        case .wrongStation: "This sabotage is handled at a different station."
         case .notInGame: "There's no game running."
         case .familyHasMembers: "That family already has members."
         }

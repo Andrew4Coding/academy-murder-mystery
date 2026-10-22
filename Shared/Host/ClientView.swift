@@ -67,6 +67,16 @@ struct VoteResultView: Codable, Equatable, Sendable {
     let isFinal: Bool
 }
 
+struct SabotageView: Codable, Equatable, Sendable {
+    let kind: SabotageKind
+    let startedAt: Date
+    let endsAt: Date
+}
+
+struct OCView: Codable, Equatable, Sendable {
+    let sabotage: SabotageView?
+}
+
 struct GameView: Codable, Equatable, Sendable {
     let role: Role
     let family: FamilyID
@@ -87,6 +97,8 @@ struct GameView: Codable, Equatable, Sendable {
     let proximity: ProximitySettings
     let nearby: [FamilySummary]
     let killReadyAt: Date?
+    let sabotage: SabotageView?
+    let sabotageReadyAt: Date?
 }
 
 struct ClientView: Codable, Equatable, Sendable {
@@ -95,6 +107,7 @@ struct ClientView: Codable, Equatable, Sendable {
     var familyName: String?
     var lobby: LobbyView?
     var game: GameView?
+    var oc: OCView?
 }
 
 struct Welcome: Codable, Equatable, Sendable {

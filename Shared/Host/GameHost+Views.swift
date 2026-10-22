@@ -24,8 +24,16 @@ extension GameHost {
             return view
         case let .oc(id):
             guard let device = state.ocDevices[id] else { return nil }
-            return ClientView(serverTime: clock.now, identity: .oc(id: id, station: device.station), familyName: nil)
+            var view = ClientView(serverTime: clock.now, identity: .oc(id: id, station: device.station), familyName: nil)
+            if let engine = state.engine {
+                view.oc = OCView(sabotage: sabotageView(engine))
+            }
+            return view
         }
+    }
+
+    func sabotageView(_ engine: GameEngine) -> SabotageView? {
+        engine.state.sabotage.map { SabotageView(kind: $0.kind, startedAt: $0.startedAt, endsAt: $0.endsAt) }
     }
 
     func memberViews(of family: FamilyInfo) -> [MemberView] {
@@ -77,7 +85,9 @@ extension GameHost {
             nearby: engineFamily.role == .werewolf && engineFamily.isAlive
                 ? nearbyFamilies(of: info.id).compactMap { summary(of: $0, in: engine) }
                 : [],
-            killReadyAt: engineFamily.role == .werewolf && engineFamily.isAlive ? engineFamily.killReadyAt : nil
+            killReadyAt: engineFamily.role == .werewolf && engineFamily.isAlive ? engineFamily.killReadyAt : nil,
+            sabotage: sabotageView(engine),
+            sabotageReadyAt: engineFamily.role == .werewolf ? engine.state.sabotageReadyAt : nil
         )
     }
 
