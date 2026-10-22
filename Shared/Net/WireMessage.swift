@@ -3,6 +3,8 @@ import Foundation
 enum ClientMessage: Codable, Equatable, Sendable {
     case hello(Hello)
     case probeReply(UUID)
+    case claimHead
+    case handOverHead(to: PlayerID)
 }
 
 enum ServerMessage: Codable, Equatable, Sendable {

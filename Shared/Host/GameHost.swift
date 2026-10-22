@@ -30,9 +30,9 @@ final class GameHost {
     static let lockDuration: TimeInterval = 30
     static let probeTimeout: TimeInterval = 3
 
-    private(set) var state: HostState
-    private(set) var gameID: UUID
-    private(set) var sessions: [ClientID: Session] = [:]
+    var state: HostState
+    var gameID: UUID
+    var sessions: [ClientID: Session] = [:]
     private(set) var recentEvents: [GameEvent] = []
     private(set) var revision = 0
 
@@ -101,6 +101,10 @@ final class GameHost {
                 if sessions[id]?.probe?.nonce == nonce {
                     sessions[id]?.lastReplyAt = clock.now
                 }
+            case .claimHead:
+                try claimHead(identity: signedIn(id))
+            case let .handOverHead(target):
+                try handOverHead(identity: signedIn(id), to: target)
             }
         } catch let error as HostError {
             send(.rejected(error.message), to: id)
@@ -159,21 +163,6 @@ final class GameHost {
         return (players + ocs).sorted { ($0.detail, $0.label) < ($1.detail, $1.label) }
     }
 
-    func view(for identity: Identity) -> ClientView? {
-        switch identity {
-        case let .player(id):
-            guard let player = state.players[id] else { return nil }
-            return ClientView(
-                serverTime: clock.now,
-                identity: .player(id: id, name: player.name, family: player.family),
-                familyName: state.families[player.family]?.name
-            )
-        case let .oc(id):
-            guard let device = state.ocDevices[id] else { return nil }
-            return ClientView(serverTime: clock.now, identity: .oc(id: id, station: device.station), familyName: nil)
-        }
-    }
-
     func replaceState(_ change: (inout HostState) -> Void) {
         change(&state)
         commit()
@@ -200,8 +189,13 @@ final class GameHost {
         broadcast()
     }
 
-    private func send(_ message: ServerMessage, to id: ClientID) {
+    func send(_ message: ServerMessage, to id: ClientID) {
         transport?.send(message, to: id)
+    }
+
+    func signedIn(_ id: ClientID) throws -> Identity {
+        guard let identity = sessions[id]?.identity else { throw HostError.notSignedIn }
+        return identity
     }
 
     private func authenticate(_ hello: Hello, clientID id: ClientID) throws {

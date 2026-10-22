@@ -9,6 +9,12 @@ enum HostError: Error, Equatable, Sendable {
     case familyFull
     case gameAlreadyStarted
     case unknownDevice
+    case notAPlayer
+    case notHead
+    case notInFamily
+    case headLocked
+    case setup(String)
+    case familyHasMembers
 
     var message: String {
         switch self {
@@ -20,6 +26,12 @@ enum HostError: Error, Equatable, Sendable {
         case .familyFull: "That family is already full."
         case .gameAlreadyStarted: "The game has already started."
         case .unknownDevice: "This device isn't registered with the host any more."
+        case .notAPlayer: "Only players can do that."
+        case .notHead: "Only the head of family can do that."
+        case .notInFamily: "That person isn't in your family."
+        case .headLocked: "The head of family can't change during a meeting."
+        case let .setup(reason): reason
+        case .familyHasMembers: "That family already has members."
         }
     }
 }
