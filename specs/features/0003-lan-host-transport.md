@@ -1,7 +1,7 @@
 ---
 id: 0003
 title: LAN host transport and persistence
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-22
@@ -23,12 +23,12 @@ The Mac Admin hosts the game on the local network over Bonjour; iOS devices conn
 ## Acceptance criteria
 
 - [ ] **AC1 Discovery**: Given the host is running, when an iOS client opens, then it discovers the host over Bonjour and connects without typing an address.
-- [ ] **AC2 Auth**: Given a client, when it sends a valid family code or the OC PIN, then the host accepts it; invalid codes are rejected and rate-limited.
-- [ ] **AC3 Command flow**: Given a connected client, when it sends a command, then the host runs it through the engine, persists the resulting events and broadcasts the new state only to clients allowed to see it (roles and task lists stay private).
-- [ ] **AC4 Resume**: Given a game in progress, when the Mac app is killed and relaunched, then state, cooldowns and timers are restored from persisted events.
-- [ ] **AC5 Reconnect**: Given a client loses the connection, when it reconnects, then it rejoins its family by stored identity and shows correct countdowns computed from host timestamps.
-- [ ] **AC6 Connectivity check**: Given the Admin app, when the OC runs "Check connectivity", then it lists connected devices and flags devices that cannot be reached.
-- [ ] **AC7 Clock**: Given any client, when it shows a countdown, then it derives it from host time offset, never from its own authoritative timer.
+- [x] **AC2 Auth**: Given a client, when it sends a valid family code or the OC PIN, then the host accepts it; invalid codes are rejected and rate-limited.
+- [x] **AC3 Command flow**: Given a connected client, when it sends a command, then the host runs it through the engine, persists the resulting events and broadcasts the new state only to clients allowed to see it (roles and task lists stay private).
+- [x] **AC4 Resume**: Given a game in progress, when the Mac app is killed and relaunched, then state, cooldowns and timers are restored from persisted events.
+- [x] **AC5 Reconnect**: Given a client loses the connection, when it reconnects, then it rejoins its family by stored identity and shows correct countdowns computed from host timestamps.
+- [x] **AC6 Connectivity check**: Given the Admin app, when the OC runs "Check connectivity", then it lists connected devices and flags devices that cannot be reached.
+- [x] **AC7 Clock**: Given any client, when it shows a countdown, then it derives it from host time offset, never from its own authoritative timer.
 
 ## UX
 
@@ -60,7 +60,12 @@ New SwiftData models `GameRecord` and `GameEventRecord` (schema V1 of the real d
 ## Open questions
 
 - Does the venue Wi-Fi allow client-to-client traffic? Check before the event; fallback is a travel router run by OC.
+- AC1 stays open until Bonjour discovery is checked on two real devices: the transport is covered by a real loopback connection test, but `NWBrowser` discovery cannot run in unit tests.
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Code: `Shared/Net/` (`MessageFramer` length-prefixed framing over TCP, `NetworkHostTransport`, `NetworkClientTransport`, `LoopbackTransport` for tests and simulation, `WireMessage`), `Shared/Host/` (`GameHost` authority, `GameClient`, `HostController`, `HostState`, `ClientView`, `HostClock`), `Shared/Data/GameRepository.swift` (SwiftData and in-memory).
+- Wire protocol is versioned (`WireVersion.current`) JSON over length-prefixed TCP frames, not WebSocket: WebSocket client connections need a URL endpoint and do not work with Bonjour endpoints.
+- Persistence is a snapshot of `HostState` per accepted change plus an append-only `GameEventRecord` log; the host resumes from the latest non-simulated game.
+- Admin: `DevicesView` with Check Connectivity (Cmd+R). iOS: `ConnectionStatusView`; Info.plist declares `_murdermystery._tcp` and the local network usage string.
+- Tests: `GameHostSessionTests` (AC2), `GameHostResilienceTests` (AC3-AC7), `NetworkTransportTests`.

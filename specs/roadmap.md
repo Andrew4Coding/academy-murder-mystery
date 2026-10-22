@@ -5,10 +5,10 @@ Each item links to a spec once one exists. Move items between sections at every 
 ## Done
 
 - [0002 Game engine](features/0002-game-engine.md): pure rules engine; sample Items feature removed.
+- [0003 LAN host transport](features/0003-lan-host-transport.md): AC1 Bonjour check pending on real devices.
 
 ## Now
 
-- [0003 LAN host transport](features/0003-lan-host-transport.md)
 - [0004 Lobby, family join and roles](features/0004-lobby-and-roles.md)
 
 ## Next
