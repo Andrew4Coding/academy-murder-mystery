@@ -18,9 +18,7 @@ final class NetworkHostTransport: HostTransport {
     }
 
     func start() async throws {
-        let parameters = NWParameters.tcp
-        parameters.defaultProtocolStack.applicationProtocols.insert(NWProtocolWebSocket.Options(), at: 0)
-        let listener = try NWListener(using: parameters)
+        let listener = try NWListener(using: .murderMystery())
         if advertise {
             listener.service = NWListener.Service(type: Self.serviceType)
         }
@@ -61,9 +59,7 @@ final class NetworkHostTransport: HostTransport {
 
     func send(_ message: ServerMessage, to client: ClientID) {
         guard let connection = connections[client], let data = try? WireCodec.encode(message) else { return }
-        let metadata = NWProtocolWebSocket.Metadata(opcode: .text)
-        let context = NWConnection.ContentContext(identifier: "text", metadata: [metadata])
-        connection.send(content: data, contentContext: context, isComplete: true, completion: .contentProcessed { _ in })
+        connection.sendFramed(data)
     }
 
     func disconnect(_ client: ClientID) {
@@ -77,13 +73,15 @@ final class NetworkHostTransport: HostTransport {
             MainActor.assumeIsolated { self?.stateChanged(id, state) }
         }
         connection.start(queue: .main)
-        receive(id, on: connection)
     }
 
     private func stateChanged(_ id: ClientID, _ state: NWConnection.State) {
         switch state {
         case .ready:
             continuation.yield(.connected(id))
+            if let connection = connections[id] {
+                receive(id, on: connection)
+            }
         case .failed, .cancelled:
             if connections.removeValue(forKey: id) != nil {
                 continuation.yield(.disconnected(id))

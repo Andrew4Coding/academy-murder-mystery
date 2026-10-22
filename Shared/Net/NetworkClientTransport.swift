@@ -39,9 +39,7 @@ final class NetworkClientTransport: ClientTransport {
 
     func send(_ message: ClientMessage) {
         guard let connection, let data = try? WireCodec.encode(message) else { return }
-        let metadata = NWProtocolWebSocket.Metadata(opcode: .text)
-        let context = NWConnection.ContentContext(identifier: "text", metadata: [metadata])
-        connection.send(content: data, contentContext: context, isComplete: true, completion: .contentProcessed { _ in })
+        connection.sendFramed(data)
     }
 
     private func begin() {
@@ -51,7 +49,7 @@ final class NetworkClientTransport: ClientTransport {
             connect(to: .hostPort(host: NWEndpoint.Host(host), port: port))
         case .discover:
             continuation.yield(.status(.searching))
-            let browser = NWBrowser(for: .bonjour(type: NetworkHostTransport.serviceType, domain: nil), using: .tcp)
+            let browser = NWBrowser(for: .bonjour(type: NetworkHostTransport.serviceType, domain: nil), using: .murderMystery())
             browser.browseResultsChangedHandler = { [weak self] results, _ in
                 MainActor.assumeIsolated { self?.found(results.first?.endpoint) }
             }
@@ -65,15 +63,12 @@ final class NetworkClientTransport: ClientTransport {
 
     private func connect(to endpoint: NWEndpoint) {
         continuation.yield(.status(.connecting))
-        let parameters = NWParameters.tcp
-        parameters.defaultProtocolStack.applicationProtocols.insert(NWProtocolWebSocket.Options(), at: 0)
-        let connection = NWConnection(to: endpoint, using: parameters)
+        let connection = NWConnection(to: endpoint, using: .murderMystery())
         self.connection = connection
         connection.stateUpdateHandler = { [weak self] state in
             MainActor.assumeIsolated { self?.stateChanged(state, of: connection) }
         }
         connection.start(queue: .main)
-        receive(on: connection)
     }
 
     private func stateChanged(_ state: NWConnection.State, of connection: NWConnection) {
@@ -81,6 +76,7 @@ final class NetworkClientTransport: ClientTransport {
         switch state {
         case .ready:
             continuation.yield(.status(.connected))
+            receive(on: connection)
         case let .failed(error):
             lost(reason: error.localizedDescription)
         case .cancelled:
