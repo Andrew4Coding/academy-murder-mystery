@@ -1,0 +1,135 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main, staging, dev]
+  push:
+    branches: [main, staging, dev]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  branch:
+    name: Branch name
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check head branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: bash scripts/check-branch-name.sh "$HEAD_REF"
+
+  commits:
+    name: Commit convention
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check every commit message
+        run: |
+          status=0
+          for sha in $(git rev-list --no-merges "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"); do
+            git log -1 --format=%B "$sha" > /tmp/msg
+            if ! bash .githooks/commit-msg /tmp/msg; then
+              echo "::error::Commit ${sha:0:7} violates the commit convention"
+              status=1
+            fi
+          done
+          exit $status
+
+  changes:
+    name: Detect changed targets
+    runs-on: ubuntu-latest
+    outputs:
+      # Build and test run only for main; dev and staging get the light checks.
+      full: ${{ github.base_ref == 'main' || github.ref == 'refs/heads/main' }}
+      ios: ${{ steps.filter.outputs.ios }}
+      admin: ${{ steps.filter.outputs.admin }}
+      swift: ${{ steps.filter.outputs.swift }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - Shared/**
+              - Tests/Shared/**
+              - project.yml
+              - fastlane/Fastfile
+              - Gemfile
+              - Gemfile.lock
+              - Brewfile
+              - .swiftlint.yml
+              - .swiftformat
+              - .github/workflows/**
+            ios:
+              - *shared
+              - iOS/**
+              - Tests/iOS/**
+            admin:
+              - *shared
+              - Admin/**
+              - Tests/Admin/**
+            swift:
+              - *shared
+              - '**/*.swift'
+
+  lint:
+    name: Lint
+    needs: changes
+    if: needs.changes.outputs.swift == 'true'
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - run: brew install swiftlint swiftformat
+      - run: bundle exec fastlane lint
+
+  ios:
+    name: MurderMysteryiOS build and test
+    needs: changes
+    if: needs.changes.outputs.full == 'true' && needs.changes.outputs.ios == 'true'
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - run: brew install xcodegen
+      - run: bundle exec fastlane ios test
+
+  admin:
+    name: MurderMysteryAdmin build and test
+    needs: changes
+    if: needs.changes.outputs.full == 'true' && needs.changes.outputs.admin == 'true'
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - run: brew install xcodegen
+      - run: bundle exec fastlane mac test
