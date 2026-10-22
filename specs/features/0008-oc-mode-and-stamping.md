@@ -1,7 +1,7 @@
 ---
 id: 0008
 title: OC mode and task stamping
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-22
@@ -22,15 +22,15 @@ Organisers unlock OC mode in the iOS app with the game's OC PIN and choose a boo
 
 ## Acceptance criteria
 
-- [ ] **AC1 Unlock**: Given the iOS app, when a user chooses "I'm an OC" and enters the PIN, then OC mode opens and asks for a booth (7 task booths, 2 sabotage booths, Town Hall observer); a wrong PIN is rejected and rate-limited.
-- [ ] **AC2 Stamp**: Given a task booth OC, when they select a family and confirm Stamp, then the host records one stamp for that booth and the family's progress updates on its devices.
-- [ ] **AC3 Disguise**: Given a werewolf family at a booth, when stamped, then the OC flow is identical to a villager's and no role is shown.
-- [ ] **AC4 Idempotent**: Given a family already stamped at a booth, when stamped again, then the host ignores it and the OC sees "Already stamped".
-- [ ] **AC5 Wrong booth**: Given a booth not on the family's list, when the OC tries to stamp, then the app warns "Not on this family's list" and requires confirmation.
-- [ ] **AC6 Undo**: Given a recent stamp, when the OC taps Undo within 60 s, then it is removed and progress recomputed.
-- [ ] **AC7 Sabotage resolve**: Given a sabotage booth OC, when a sabotage is active at their booth, then a Resolved button is enabled and clears it per [0007](0007-sabotage.md).
-- [ ] **AC8 Admin parity**: Given the Mac Admin, when the Town Hall OC opens a family, then they can stamp, undo and resolve sabotage with the same rules.
-- [ ] **AC9 Privacy**: Given OC mode, when it shows families, then roles of living families are never shown to a booth OC.
+- [x] **AC1 Unlock**: Given the iOS app, when a user chooses "I'm an OC" and enters the PIN, then OC mode opens and asks for a booth (7 task booths, 2 sabotage booths, Town Hall observer); a wrong PIN is rejected and rate-limited.
+- [x] **AC2 Stamp**: Given a task booth OC, when they select a family and confirm Stamp, then the host records one stamp for that booth and the family's progress updates on its devices.
+- [x] **AC3 Disguise**: Given a werewolf family at a booth, when stamped, then the OC flow is identical to a villager's and no role is shown.
+- [x] **AC4 Idempotent**: Given a family already stamped at a booth, when stamped again, then the host ignores it and the OC sees "Already stamped".
+- [x] **AC5 Wrong booth**: Given a booth not on the family's list, when the OC tries to stamp, then the app warns "Not on this family's list" and requires confirmation.
+- [x] **AC6 Undo**: Given a recent stamp, when the OC taps Undo within 60 s, then it is removed and progress recomputed.
+- [x] **AC7 Sabotage resolve**: Given a sabotage booth OC, when a sabotage is active at their booth, then a Resolved button is enabled and clears it per [0007](0007-sabotage.md).
+- [x] **AC8 Admin parity**: Given the Mac Admin, when the Town Hall OC opens a family, then they can stamp, undo and resolve sabotage with the same rules.
+- [x] **AC9 Privacy**: Given OC mode, when it shows families, then roles of living families are never shown to a booth OC.
 
 ## UX
 
@@ -61,8 +61,12 @@ Accessibility notes: search field labelled; confirm actions have clear VoiceOver
 
 ## Open questions
 
-- Should booth OCs see a family's whole list or only their booth? Proposed: only whether their booth is on the list and already stamped.
+- Booth OCs see only whether their own booth is on a family's list and already stamped, plus an overall stamp count (implemented). They never see roles.
+- The undo window (60 s) is tracked in host memory, so it does not survive a Mac restart; the Mac can undo any stamp at any time.
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Host: `GameHost+Stamps` (`stamp`, `undoStamp` for booth stations, `recordStamp` / `removeStamp` for the Mac; off-list stamps need `confirmOffList`, `HostError.offList` / `undoExpired`). `ClientView.oc` (`OCView`) now lists `OCFamilyRow`s (life, stamp progress, `onList` / `stamped` for the station's booth), never roles.
+- iOS: `OCSignInView` (PIN + station picker, opened from the join screen), `OCRootView` choosing `BoothStampView` (search, confirm, off-list alert, 60 s undo), `SabotageStationView` (countdown, Mark as Resolved), `TownHallObserverView`.
+- Admin: Record Stamp, Undo Stamp, Eliminate and Revive in the family table context menu of `GameControlView`, with an off-list confirmation.
+- Tests: `GameHostOCTests`.
