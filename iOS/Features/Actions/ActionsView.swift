@@ -15,6 +15,7 @@ struct ActionsView: View {
                 if game.life == .alive {
                     killSection
                 }
+                SabotageSection(game: game, client: client)
                 if let error = client.lastError {
                     Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red) }
                 }

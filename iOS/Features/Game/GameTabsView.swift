@@ -33,7 +33,15 @@ struct GameTabsView: View {
                 selection = .meeting
             }
         }
+        .safeAreaInset(edge: .top) {
+            if let sabotage = game.sabotage {
+                SabotageBanner(sabotage: sabotage, client: client)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.default, value: game.sabotage)
         .sensoryFeedback(.warning, trigger: game.phase.isMeeting)
+        .sensoryFeedback(.error, trigger: game.sabotage?.startedAt)
         .task(id: ProximityPlan(game: game, isActive: scenePhase == .active)) { configureProximity() }
         .onDisappear { proximity.stop() }
     }
