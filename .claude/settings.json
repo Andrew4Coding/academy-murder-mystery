@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(xcodegen generate:*)",
+      "Bash(xcodebuild build:*)",
+      "Bash(bundle exec fastlane ios test:*)",
+      "Bash(bundle exec fastlane mac test:*)",
+      "Bash(bundle exec fastlane lint:*)",
+      "Bash(bundle exec fastlane generate:*)",
+      "Bash(xcodebuild test:*)",
+      "Bash(swiftformat:*)",
+      "Bash(swiftlint:*)",
+      "Bash(scripts/commit-code.sh)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(scripts/check-branch-name.sh:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git branch --show-current)",
+      "Bash(.claude/hooks/sync-state.sh:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git commit --no-verify:*)",
+      "Bash(bundle exec fastlane ios beta:*)",
+      "Bash(bundle exec fastlane ios release:*)",
+      "Bash(bundle exec fastlane ios signing:*)",
+      "Bash(bundle exec fastlane mac beta:*)",
+      "Bash(bundle exec fastlane mac release:*)",
+      "Bash(bundle exec fastlane mac signing:*)",
+      "Bash(ALLOW_MAIN_PUSH=1:*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-sync-check.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
