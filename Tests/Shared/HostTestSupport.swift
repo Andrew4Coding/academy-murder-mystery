@@ -44,4 +44,21 @@ struct HostHarness {
         client.start()
         return client
     }
+
+    static func seated(families: Int = 5, werewolves: Int = 1) async throws -> (HostHarness, [FamilyID: GameClient]) {
+        let harness = try HostHarness(families: [])
+        try harness.host.configure(familyCount: families, werewolfCount: werewolves, settings: .standard)
+        var heads: [FamilyID: GameClient] = [:]
+        for family in harness.host.state.families.values.sorted(by: { $0.id < $1.id }) {
+            let client = harness.makeClient()
+            client.join(code: family.joinCode, name: "Head \(family.id.rawValue)")
+            let signedIn = await eventually { client.isSignedIn }
+            precondition(signedIn, "client failed to join")
+            client.send(.claimHead)
+            let isHead = await eventually { client.view?.lobby?.isHead == true }
+            precondition(isHead, "client failed to become head")
+            heads[family.id] = client
+        }
+        return (harness, heads)
+    }
 }

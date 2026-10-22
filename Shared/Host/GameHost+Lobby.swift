@@ -105,6 +105,12 @@ extension GameHost {
         commit()
     }
 
+    func vote(identity: Identity, choice: VoteChoice) throws {
+        guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
+        guard state.families[player.family]?.head == playerID else { throw HostError.notHead }
+        try applyAsOC(.castVote(by: player.family, choice: choice))
+    }
+
     func applyAsOC(_ command: GameCommand) throws {
         guard var engine = state.engine else { throw RuleError.wrongPhase }
         let events = try engine.apply(command, at: clock.now)

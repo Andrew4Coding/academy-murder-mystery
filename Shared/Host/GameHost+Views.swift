@@ -66,7 +66,23 @@ extension GameHost {
                 .map { TaskProgress(booth: $0, done: engineFamily.stamps.contains($0)) },
             allies: allies,
             families: state.families.keys.sorted().compactMap { summary(of: $0, in: engine) },
-            phase: phase
+            phase: phase,
+            announcedDeaths: engine.state.announcedDeaths.compactMap { summary(of: $0, in: engine) },
+            myVote: info.head == viewer ? engine.state.votes[info.id] : nil,
+            votesCast: engine.state.votes.count,
+            votersTotal: engine.state.aliveFamilies().count,
+            lastResult: engine.state.lastResult.map(resultView)
         )
+    }
+
+    private func resultView(_ result: VoteResult) -> VoteResultView {
+        let rows = result.tally.map { count -> ResultRow in
+            switch count.choice {
+            case let .family(id): ResultRow(name: state.families[id]?.name ?? "Unknown", count: count.count, isSkip: false)
+            case .skip: ResultRow(name: "Skip", count: count.count, isSkip: true)
+            }
+        }
+        let expelled = result.expelled.map { ExpelledView(name: state.families[$0.family]?.name ?? "Unknown", role: $0.role) }
+        return VoteResultView(rows: rows, expelled: expelled, isFinal: result.isFinal)
     }
 }

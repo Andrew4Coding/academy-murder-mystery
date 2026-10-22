@@ -5,6 +5,7 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case probeReply(UUID)
     case claimHead
     case handOverHead(to: PlayerID)
+    case vote(VoteChoice)
 }
 
 enum ServerMessage: Codable, Equatable, Sendable {

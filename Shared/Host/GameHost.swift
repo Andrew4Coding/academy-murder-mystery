@@ -105,6 +105,8 @@ final class GameHost {
                 try claimHead(identity: signedIn(id))
             case let .handOverHead(target):
                 try handOverHead(identity: signedIn(id), to: target)
+            case let .vote(choice):
+                try vote(identity: signedIn(id), choice: choice)
             }
         } catch let error as HostError {
             send(.rejected(error.message), to: id)

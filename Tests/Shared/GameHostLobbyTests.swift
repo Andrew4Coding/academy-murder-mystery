@@ -4,21 +4,6 @@ import Testing
 
 @MainActor
 struct GameHostLobbyTests {
-    private func seatedHarness(families: Int = 5, werewolves: Int = 1) async throws -> (HostHarness, [FamilyID: GameClient]) {
-        let harness = try HostHarness(families: [])
-        try harness.host.configure(familyCount: families, werewolfCount: werewolves, settings: .standard)
-        var heads: [FamilyID: GameClient] = [:]
-        for family in harness.host.state.families.values.sorted(by: { $0.id < $1.id }) {
-            let client = harness.makeClient()
-            client.join(code: family.joinCode, name: "Head \(family.id.rawValue)")
-            #expect(await eventually { client.isSignedIn })
-            client.send(.claimHead)
-            #expect(await eventually { client.view?.lobby?.isHead == true })
-            heads[family.id] = client
-        }
-        return (harness, heads)
-    }
-
     @Test func setupIssuesExplainWhyAGameCannotStart() {
         var state = HostState(ocPin: "1111")
         #expect(state.setupIssues().contains("Create at least 3 families."))
@@ -55,7 +40,7 @@ struct GameHostLobbyTests {
     }
 
     @Test func membersAppearInTheLobbyAndHeadsCanBeClaimedAndHandedOver() async throws {
-        let (harness, heads) = try await seatedHarness(families: 3)
+        let (harness, heads) = try await HostHarness.seated(families: 3)
         let familyOne = try #require(harness.host.state.families[1])
         let second = harness.makeClient()
         second.join(code: familyOne.joinCode, name: "Ayu")
@@ -83,7 +68,7 @@ struct GameHostLobbyTests {
     }
 
     @Test func startAssignsRolesAndPrivatelyShowsEachFamilyItsRoleAndFiveBooths() async throws {
-        let (harness, heads) = try await seatedHarness()
+        let (harness, heads) = try await HostHarness.seated()
         try harness.host.startGame()
         #expect(await eventually { heads.values.allSatisfy { $0.view?.game != nil } })
         var werewolves = 0
@@ -101,7 +86,7 @@ struct GameHostLobbyTests {
     }
 
     @Test func werewolvesSeeAlliesAndVillagersNeverSeeAnyOtherRole() async throws {
-        let (harness, heads) = try await seatedHarness(families: 7, werewolves: 3)
+        let (harness, heads) = try await HostHarness.seated(families: 7, werewolves: 3)
         try harness.host.startGame()
         #expect(await eventually { heads.values.allSatisfy { $0.view?.game != nil } })
         let wolfIDs = try Set(#require(harness.host.state.engine?.state.families.values.filter { $0.role == .werewolf }.map(\.id)))
@@ -119,7 +104,7 @@ struct GameHostLobbyTests {
     }
 
     @Test func expelledFamiliesAreRevealedToEveryone() async throws {
-        let (harness, heads) = try await seatedHarness()
+        let (harness, heads) = try await HostHarness.seated()
         try harness.host.startGame()
         let wolf = try #require(harness.host.state.engine?.state.families.values.first { $0.role == .werewolf }?.id)
         try harness.host.applyAsOC(.startMeeting)
@@ -135,7 +120,7 @@ struct GameHostLobbyTests {
     }
 
     @Test func killedFamiliesSeeTheirStatusAndHeadChangesAreLockedInMeetings() async throws {
-        let (harness, heads) = try await seatedHarness()
+        let (harness, heads) = try await HostHarness.seated()
         try harness.host.startGame()
         let victim = try #require(harness.host.state.engine?.state.families.values.first { $0.role == .villager }?.id)
         try harness.host.applyAsOC(.override(.forceKill(victim)))

@@ -42,6 +42,31 @@ struct LobbyView: Codable, Equatable, Sendable {
     let hasHead: Bool
 }
 
+struct ResultRow: Codable, Equatable, Sendable, Identifiable {
+    let name: String
+    let count: Int
+    let isSkip: Bool
+
+    var id: String {
+        isSkip ? "skip" : name
+    }
+}
+
+struct ExpelledView: Codable, Equatable, Sendable, Identifiable {
+    let name: String
+    let role: Role
+
+    var id: String {
+        name
+    }
+}
+
+struct VoteResultView: Codable, Equatable, Sendable {
+    let rows: [ResultRow]
+    let expelled: [ExpelledView]
+    let isFinal: Bool
+}
+
 struct GameView: Codable, Equatable, Sendable {
     let role: Role
     let family: FamilyID
@@ -53,6 +78,11 @@ struct GameView: Codable, Equatable, Sendable {
     let allies: [FamilySummary]?
     let families: [FamilySummary]
     let phase: PhaseView
+    let announcedDeaths: [FamilySummary]
+    let myVote: VoteChoice?
+    let votesCast: Int
+    let votersTotal: Int
+    let lastResult: VoteResultView?
 }
 
 struct ClientView: Codable, Equatable, Sendable {
