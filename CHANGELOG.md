@@ -31,6 +31,7 @@ Tooling and refactors that users can't see don't go here.
 - Bluetooth range settings, and Eliminate, Revive and End Game overrides ([0006](specs/features/0006-ble-kill.md)).
 - Sabotage status and a Resolve Sabotage button ([0007](specs/features/0007-sabotage.md)).
 - Record and undo stamps from the family table ([0008](specs/features/0008-oc-mode-and-stamping.md)).
+- Public Display window for the lab screens: game clock, meeting timers, sabotage alarm, vote results and winner ([0009](specs/apps/admin/features/0009-public-display.md)).
 
 #### Removed
 
