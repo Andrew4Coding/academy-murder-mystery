@@ -8,11 +8,19 @@ Tooling and refactors that users can't see don't go here.
 
 ### MurderMysteryiOS
 
+#### Added
+
+- Finds the game host on the local network and shows connection status ([0003](specs/features/0003-lan-host-transport.md)).
+
 #### Removed
 
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 
 ### MurderMysteryAdmin
+
+#### Added
+
+- Hosts the game on the local network and lists connected devices, with a connectivity check ([0003](specs/features/0003-lan-host-transport.md)).
 
 #### Removed
 
