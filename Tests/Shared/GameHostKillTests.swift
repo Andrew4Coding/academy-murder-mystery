@@ -106,8 +106,7 @@ struct GameHostKillTests {
         let tokens = players.map(\.bleToken)
         #expect(Set(tokens).count == tokens.count)
         for player in players {
-            #expect(player.bleToken.count == 6)
-            #expect(player.bleToken.allSatisfy { $0.isHexDigit })
+            #expect(player.bleToken.range(of: "^[0-9A-F]{6}$", options: .regularExpression) != nil)
             #expect(!player.id.uuidString.contains(player.bleToken))
         }
         for client in s.heads.values {
