@@ -174,6 +174,11 @@ final class GameHost {
         }
     }
 
+    func replaceState(_ change: (inout HostState) -> Void) {
+        change(&state)
+        commit()
+    }
+
     func broadcast() {
         for (id, session) in sessions {
             guard let identity = session.identity, let view = view(for: identity) else { continue }
