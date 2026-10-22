@@ -125,6 +125,8 @@ private extension GameEngine {
     mutating func openFinalVote(at time: Date) -> [GameEvent] {
         let dead = state.deadSinceLastMeeting
         state.deadSinceLastMeeting = []
+        state.announcedDeaths = dead
+        state.lastResult = nil
         state.votes = [:]
         state.phase = .voting(until: time.addingTimeInterval(state.settings.votingDuration), isFinal: true)
         return [
@@ -142,6 +144,7 @@ private extension GameEngine {
         case let .undoStamp(family, booth): try undoStamp(family: family, booth: booth, at: now)
         case .startMeeting: try startMeeting(at: now)
         case let .castVote(by, choice): try castVote(by: by, choice: choice, at: now)
+        case let .proxyVote(family, choice): try proxyVote(for: family, choice: choice, at: now)
         case let .override(override): try applyOverride(override, at: now)
         }
     }
@@ -200,6 +203,8 @@ private extension GameEngine {
         guard case .running = state.phase else { throw RuleError.wrongPhase }
         let dead = state.deadSinceLastMeeting
         state.deadSinceLastMeeting = []
+        state.announcedDeaths = dead
+        state.lastResult = nil
         state.votes = [:]
         state.phase = .discussion(until: now.addingTimeInterval(state.settings.discussionDuration))
         return [GameEvent(at: now, kind: .meetingStarted(deadFamilies: dead))]
@@ -215,6 +220,13 @@ private extension GameEngine {
         state.votes[id] = choice
         var events = [GameEvent(at: now, kind: .voteCast(by: id))]
         events += closeVotingIfComplete(at: now)
+        return events
+    }
+
+    mutating func proxyVote(for id: FamilyID, choice: VoteChoice, at now: Date) throws -> [GameEvent] {
+        guard case .voting = state.phase else { throw RuleError.wrongPhase }
+        var events = [GameEvent(at: now, kind: .ocOverride(.proxyVote(id)))]
+        events += try castVote(by: id, choice: choice, at: now)
         return events
     }
 
@@ -238,6 +250,8 @@ private extension GameEngine {
             events += evaluateWin(at: now)
         case let .endGame(side):
             events += end(side, .ocEnded, at: now)
+        case .proxyVote:
+            throw RuleError.wrongPhase
         }
         return events
     }
@@ -262,6 +276,7 @@ private extension GameEngine {
             expelled.append(Reveal(family: id, role: state.families[id]?.role ?? .villager))
         }
         state.phase = .running
+        state.lastResult = VoteResult(tally: tally, expelled: expelled, isFinal: false, at: time)
         var events = [GameEvent(at: time, kind: .voteClosed(tally: tally, expelled: expelled, isFinal: false))]
         events += evaluateWin(at: time)
         if state.outcome == nil, state.finalVotePending {
@@ -302,6 +317,7 @@ private extension GameEngine {
             }
         }
         let caught = cleanCut && Set(ranked.prefix(cutoff)) == werewolves
+        state.lastResult = VoteResult(tally: tally, expelled: expelled, isFinal: true, at: time)
         var events = [GameEvent(at: time, kind: .voteClosed(tally: tally, expelled: expelled, isFinal: true))]
         events += end(
             caught ? .villagers : .werewolves,

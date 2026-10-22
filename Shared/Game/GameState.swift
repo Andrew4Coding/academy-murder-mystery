@@ -1,5 +1,12 @@
 import Foundation
 
+struct VoteResult: Codable, Equatable, Sendable {
+    let tally: [VoteCount]
+    let expelled: [Reveal]
+    let isFinal: Bool
+    let at: Date
+}
+
 struct GameState: Codable, Equatable, Sendable {
     var settings: GameSettings
     let startedAt: Date
@@ -8,9 +15,17 @@ struct GameState: Codable, Equatable, Sendable {
     var sabotage: ActiveSabotage?
     var sabotageReadyAt: Date
     var votes: [FamilyID: VoteChoice] = [:]
+    var announcedDeaths: [FamilyID] = []
+    var lastResult: VoteResult?
     var deadSinceLastMeeting: [FamilyID] = []
     var finalVoteStarted = false
     var finalVotePending = false
+
+    /// Ballots are deliberately not encoded: stored games keep tallies, never who voted for whom.
+    private enum CodingKeys: String, CodingKey {
+        case settings, startedAt, families, phase, sabotage, sabotageReadyAt
+        case announcedDeaths, lastResult, deadSinceLastMeeting, finalVoteStarted, finalVotePending
+    }
 
     var finalVoteAt: Date {
         startedAt.addingTimeInterval(settings.gameDuration)

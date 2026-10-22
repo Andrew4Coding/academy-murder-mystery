@@ -4,6 +4,7 @@ enum OCOverride: Codable, Equatable, Sendable {
     case forceKill(FamilyID)
     case revive(FamilyID)
     case endGame(Side)
+    case proxyVote(FamilyID)
 }
 
 enum GameCommand: Codable, Equatable, Sendable {
@@ -14,6 +15,7 @@ enum GameCommand: Codable, Equatable, Sendable {
     case undoStamp(family: FamilyID, booth: Booth)
     case startMeeting
     case castVote(by: FamilyID, choice: VoteChoice)
+    case proxyVote(for: FamilyID, choice: VoteChoice)
     case override(OCOverride)
 }
 
