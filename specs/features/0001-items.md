@@ -1,7 +1,7 @@
 ---
 id: 0001
 title: Items reference feature
-status: implemented
+status: deprecated
 owner: AND
 app: all
 created: 2026-10-22

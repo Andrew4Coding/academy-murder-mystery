@@ -2,9 +2,12 @@
 
 Each item links to a spec once one exists. Move items between sections at every planning cycle.
 
+## Done
+
+- [0002 Game engine](features/0002-game-engine.md): pure rules engine; sample Items feature removed.
+
 ## Now
 
-- [0002 Game engine](features/0002-game-engine.md): pure rules engine; first commit removes the sample Items feature ([0001](features/0001-items.md)).
 - [0003 LAN host transport](features/0003-lan-host-transport.md)
 - [0004 Lobby, family join and roles](features/0004-lobby-and-roles.md)
 
