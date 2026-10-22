@@ -2,8 +2,7 @@ import Foundation
 import Network
 
 final class MessageFramer: NWProtocolFramerImplementation {
-    /// Network.framework builds the definition once and never mutates it.
-    nonisolated(unsafe) static let definition = NWProtocolFramer.Definition(implementation: MessageFramer.self)
+    static let definition = NWProtocolFramer.Definition(implementation: MessageFramer.self)
 
     static let label = "MurderMysteryFramer"
     private static let headerSize = MemoryLayout<UInt32>.size
