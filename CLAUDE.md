@@ -56,21 +56,21 @@ scripts/check-branch-name.sh           # validate the current branch name
   - Anything every target needs lives in `Shared/`, which never uses `#if os()`.
   - When targets differ, inject the difference: the shared type takes parameters, and the target supplies them.
   - Platform UI (navigation, sidebar, menu commands) lives in the target folder.
-- Tests use Swift Testing, with `MockItemRepository` or an in-memory container. `Tests/Shared/` compiles into every test bundle.
-- `Shared/Features/Items` is the reference implementation for new features.
+- Tests use Swift Testing, with a mock repository or an in-memory container. `Tests/Shared/` compiles into every test bundle.
+- Game rules live only in `Shared/Game/GameEngine` (pure value type, time passed in as `at:`, randomness injected). Views, transports and BLE call it with `GameCommand`s and never re-implement a rule. Call `advance(to:)` on a timer so timeouts emit events; `apply` is atomic and leaves state untouched when it throws.
+- No feature reference implementation exists yet: the sample Items feature was removed with spec 0002.
 
 ## Layout
 
 ```
 project.yml                  XcodeGen: one app target + one test bundle per platform
 Shared/App                   AppEnvironment (composition root)
-Shared/Features/Items        reference feature: list, detail, editor (View + ViewModel)
-Shared/Data                  ItemRepository (+ SwiftData impl), ModelContainerFactory, Schema/ (SchemaV1, AppMigrationPlan)
-Shared/Models                typealiases to current schema models
+Shared/Game                  pure game engine: GameEngine, GameState, GameCommand, GameEvent, GameTypes, SeededGenerator
+Shared/Data                  ModelContainerFactory, Schema/ (SchemaV1 currently has no models, AppMigrationPlan)
 Shared/Core                  DesignSystem tokens (Spacing, Radius)
 Shared/Resources             PrivacyInfo.xcprivacy
-iOS/                 MurderMysteryiOSApp, RootView (tabs in compact width, split view otherwise), assets, MurderMysteryiOS.xcconfig
-Admin/                 MurderMysteryAdminApp (min window 720×480), RootView (sidebar), assets, entitlements, MurderMysteryAdmin.xcconfig
+iOS/                 MurderMysteryiOSApp, RootView (placeholder), assets, MurderMysteryiOS.xcconfig
+Admin/                 MurderMysteryAdminApp (min window 720×480), RootView (placeholder), assets, entitlements, MurderMysteryAdmin.xcconfig
 Tests/Shared                 compiled into every test bundle
 Tests/<TargetDir>            target-only tests (bundle-identifier smoke test)
 fastlane/                    Fastfile (shared lanes + one platform block per target), Appfile, Matchfile, metadata/<slug>
