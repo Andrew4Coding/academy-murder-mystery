@@ -14,6 +14,7 @@ Tooling and refactors that users can't see don't go here.
 - Join a family with a code or QR, choose the head of family, and see your role and tasks ([0004](specs/features/0004-lobby-and-roles.md)).
 - Meeting tab with discussion and voting timers, announced deaths, head-only anonymous voting and results ([0005](specs/features/0005-meetings-and-voting.md)).
 - Werewolf Actions tab: eliminate a nearby villager family over Bluetooth, with cooldown ([0006](specs/features/0006-ble-kill.md)).
+- Sabotage: werewolves start Reactor or Oxygen sabotage, everyone sees an alert banner with the countdown ([0007](specs/features/0007-sabotage.md)).
 
 #### Removed
 
@@ -27,6 +28,7 @@ Tooling and refactors that users can't see don't go here.
 - Setup screen: families, join codes and QR, timings, OC PIN, Start Game and New Game ([0004](specs/features/0004-lobby-and-roles.md)).
 - Game screen: start discussion, proxy votes, results and a family status table with optional roles ([0005](specs/features/0005-meetings-and-voting.md)).
 - Bluetooth range settings, and Eliminate, Revive and End Game overrides ([0006](specs/features/0006-ble-kill.md)).
+- Sabotage status and a Resolve Sabotage button ([0007](specs/features/0007-sabotage.md)).
 
 #### Removed
 
