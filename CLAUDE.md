@@ -35,6 +35,7 @@ bundle exec fastlane ios test          # MurderMysteryiOS on iPhone 17 Pro; over
 bundle exec fastlane ios beta          # TestFlight; humans only (needs fastlane/.env)
 xcodebuild build -project MurderMystery.xcodeproj -scheme MurderMysteryAdmin -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
 bundle exec fastlane mac test          # MurderMysteryAdmin on macOS
+# Rehearsal: run the MurderMysteryAdmin-Testing scheme in Xcode (Debug, launches with -TestingTools)
 bundle exec fastlane mac beta          # TestFlight; humans only (needs fastlane/.env)
 bundle exec fastlane lint              # swiftlint --strict + swiftformat --lint
 bundle exec fastlane bump app:ios type:minor
@@ -67,6 +68,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 - The Mac Admin app is the only authority: `GameHost` validates every client message through `GameEngine`, persists, then broadcasts a per-identity `ClientView`. Clients never run authoritative timers: use `ServerClock` / `GameClient.serverNow`.
 - Network code uses closures that hop to the main actor via `MainActor.assumeIsolated`; keep logic in methods, not inside the closures (SwiftFormat strips the `self.` that the compiler wants there).
 - Smoke-test UI by building both apps with `-derivedDataPath`, opening the Mac app (unsigned builds run unsandboxed and store `~/Library/Application Support/default.store`), then launching the iOS app in a simulator: Bonjour works between them on one machine.
+- Rehearsal tools (one family and one phone is enough, chosen roles, sabotage trigger, adjustable cooldowns) sit behind `TestingTools.isEnabled` (`Shared/Host/TestingTools.swift`): Debug builds launched with `-TestingTools`, which only the `MurderMysteryAdmin-Testing` scheme passes. Never reach them from a normal path; `GameHost.startTestGame` refuses otherwise and marks the game `simulated` so a restart never restores it.
 - XcodeGen generates `iOS/Info.plist`; put new Info.plist keys in `project.yml`, not in the file.
 
 ## Layout
@@ -75,7 +77,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 project.yml                  XcodeGen: one app target + one test bundle per platform
 Shared/App                   AppEnvironment (composition root)
 Shared/Game                  pure game engine: GameEngine, GameState, GameCommand, GameEvent, GameTypes, SeededGenerator
-Shared/Host                  GameHost (authority, sessions, persistence), GameClient, HostController, HostState, ClientView, HostClock
+Shared/Host                  GameHost (authority, sessions, persistence), GameClient, HostController, HostState, ClientView, HostClock, TestingTools
 Shared/Net                   wire messages, length-prefixed Network.framework transports, loopback transport
 Shared/Data                  ModelContainerFactory, GameRepository (SwiftData + in-memory), Schema/ (SchemaV1: GameRecord, GameEventRecord)
 Shared/Features              feature views shared by targets (Connection, Meeting/CountdownView)
