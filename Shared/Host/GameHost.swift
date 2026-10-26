@@ -36,6 +36,7 @@ final class GameHost {
     private(set) var recentEvents: [GameEvent] = []
     private(set) var revision = 0
 
+    @ObservationIgnored var testingToolsEnabled = TestingTools.isEnabled
     @ObservationIgnored var sightings: [FamilyID: [FamilyID: SightingRecord]] = [:]
     @ObservationIgnored var stampTimes: [StampKey: Date] = [:]
     @ObservationIgnored var lastNearby: [FamilyID: Set<FamilyID>] = [:]

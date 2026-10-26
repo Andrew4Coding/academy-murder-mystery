@@ -1,8 +1,15 @@
 import Foundation
 
 extension HostState {
-    func setupIssues() -> [String] {
+    /// `testing` relaxes the rules for rehearsals: one family is enough, and families may be empty or have no head.
+    func setupIssues(testing: Bool = false) -> [String] {
         var issues: [String] = []
+        if testing {
+            if families.isEmpty {
+                issues.append("Create at least 1 family.")
+            }
+            return issues
+        }
         if families.count < 3 {
             issues.append("Create at least 3 families.")
         }
@@ -70,6 +77,34 @@ extension GameHost {
             using: &generator
         )
         state.engine = engine
+        commit(events: events)
+    }
+
+    /// Rehearsal start with chosen roles. Families without members stay in the game as stand-ins, and a family with
+    /// members but no head gets its first member as head. Marked simulated, so a restart never restores it as the real game.
+    func startTestGame(roles: [FamilyID: Role]) throws {
+        var generator = SystemRandomNumberGenerator()
+        try startTestGame(roles: roles, using: &generator)
+    }
+
+    func startTestGame(roles: [FamilyID: Role], using generator: inout some RandomNumberGenerator) throws {
+        guard testingToolsEnabled else {
+            throw HostError.setup("Testing tools are off. Run the MurderMysteryAdmin-Testing scheme.")
+        }
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        if let issue = state.setupIssues(testing: true).first {
+            throw HostError.setup(issue)
+        }
+        var chosen: [FamilyID: Role] = [:]
+        for id in state.families.keys {
+            chosen[id] = roles[id] ?? .villager
+            if state.families[id]?.head == nil, let first = state.members(of: id).first {
+                state.families[id]?.head = first.id
+            }
+        }
+        let (engine, events) = try GameEngine.startForTesting(roles: chosen, settings: state.settings, at: clock.now, using: &generator)
+        state.engine = engine
+        state.simulated = true
         commit(events: events)
     }
 
