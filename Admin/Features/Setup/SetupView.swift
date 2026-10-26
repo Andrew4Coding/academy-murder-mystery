@@ -3,12 +3,17 @@ import SwiftUI
 struct SetupView: View {
     let controller: HostController
 
-    @State private var familyCount = 12
+    @State private var familyCount = TestingTools.isEnabled ? 4 : 12
     @State private var werewolfCount = 2
     @State private var discussionMinutes = 2
     @State private var votingMinutes = 2
     @State private var rssiThreshold = -65.0
     @State private var sightingFreshness = 5
+    @State private var testRoles: [FamilyID: Role] = [:]
+    @State private var killCooldown = GameSettings.standard.killCooldown
+    @State private var sabotageCooldown = GameSettings.standard.sabotageCooldown
+    @State private var sabotageDuration = GameSettings.standard.sabotageDuration
+    @State private var gameMinutes = Int(GameSettings.standard.gameDuration / 60)
     @State private var qrFamily: FamilyInfo?
     @State private var errorMessage: String?
     @State private var confirmingNewGame = false
@@ -21,16 +26,26 @@ struct SetupView: View {
         host.state.isLobby
     }
 
+    private var testing: Bool {
+        host.testingToolsEnabled
+    }
+
     var body: some View {
-        let issues = host.state.setupIssues()
+        let issues = host.state.setupIssues(testing: testing)
         Form {
             Section("Game") {
-                Stepper("Families: \(familyCount)", value: $familyCount, in: 3 ... 40)
-                Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... max(1, (familyCount - 1) / 2))
+                Stepper("Families: \(familyCount)", value: $familyCount, in: (testing ? 1 : 3) ... 40)
+                if !testing {
+                    Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... max(1, (familyCount - 1) / 2))
+                }
                 Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
                 Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
             }
             .disabled(!isLobby)
+
+            if testing {
+                testingSection
+            }
 
             Section {
                 LabeledContent("Kill range") {
@@ -79,6 +94,10 @@ struct SetupView: View {
         .onChange(of: werewolfCount) { _, _ in apply() }
         .onChange(of: discussionMinutes) { _, _ in apply() }
         .onChange(of: votingMinutes) { _, _ in apply() }
+        .onChange(of: killCooldown) { _, _ in apply() }
+        .onChange(of: sabotageCooldown) { _, _ in apply() }
+        .onChange(of: sabotageDuration) { _, _ in apply() }
+        .onChange(of: gameMinutes) { _, _ in apply() }
         .onChange(of: rssiThreshold) { _, _ in applyProximity() }
         .onChange(of: sightingFreshness) { _, _ in applyProximity() }
         .toolbar {
@@ -87,7 +106,7 @@ struct SetupView: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Start Game", systemImage: "play.fill") {
-                    do { try host.startGame() } catch let error as HostError { errorMessage = error.message } catch {
+                    do { try startGame() } catch let error as HostError { errorMessage = error.message } catch {
                         errorMessage = "\(error)"
                     }
                 }
@@ -118,6 +137,43 @@ struct SetupView: View {
         }
     }
 
+    private func startGame() throws {
+        if testing {
+            try host.startTestGame(roles: testRoles)
+        } else {
+            try host.startGame()
+        }
+    }
+
+    private var testingSection: some View {
+        Section {
+            ForEach(host.state.families.values.sorted { $0.id < $1.id }, id: \.id) { family in
+                let members = host.state.members(of: family.id).count
+                Picker(selection: roleBinding(for: family.id)) {
+                    ForEach([Role.villager, .werewolf], id: \.self) { role in
+                        Label(role.title, systemImage: role.symbol).tag(role)
+                    }
+                } label: {
+                    Text(family.name)
+                    Text(members == 0 ? "No phone: stands in as a family" : "\(members) of \(host.state.maxFamilySize) joined")
+                }
+            }
+            Stepper("Kill cooldown: \(Int(killCooldown)) s", value: $killCooldown, in: 0 ... 300, step: 5)
+            Stepper("Sabotage cooldown: \(Int(sabotageCooldown)) s", value: $sabotageCooldown, in: 0 ... 300, step: 5)
+            Stepper("Sabotage countdown: \(Int(sabotageDuration)) s", value: $sabotageDuration, in: 10 ... 300, step: 5)
+            Stepper("Game length: \(gameMinutes) min", value: $gameMinutes, in: 1 ... 60)
+        } header: {
+            Text("Testing")
+        } footer: {
+            Text("Rehearsal only. Pick each family's role, then start with as few as one family and one phone. Families without a phone stand in for others: use the Game screen to stamp, eliminate, vote and trigger sabotage for them. The game can end early, because the usual win rules still apply.")
+        }
+        .disabled(!isLobby)
+    }
+
+    private func roleBinding(for id: FamilyID) -> Binding<Role> {
+        Binding(get: { testRoles[id] ?? .villager }, set: { testRoles[id] = $0 })
+    }
+
     private func loadDraft() {
         let state = host.state
         if !state.families.isEmpty {
@@ -128,6 +184,10 @@ struct SetupView: View {
         votingMinutes = max(1, Int(state.settings.votingDuration / 60))
         rssiThreshold = Double(state.rssiThreshold)
         sightingFreshness = Int(state.sightingFreshness)
+        killCooldown = state.settings.killCooldown
+        sabotageCooldown = state.settings.sabotageCooldown
+        sabotageDuration = state.settings.sabotageDuration
+        gameMinutes = max(1, Int(state.settings.gameDuration / 60))
         if state.families.isEmpty {
             apply()
         }
@@ -142,6 +202,12 @@ struct SetupView: View {
         var settings = host.state.settings
         settings.discussionDuration = TimeInterval(discussionMinutes * 60)
         settings.votingDuration = TimeInterval(votingMinutes * 60)
+        if testing {
+            settings.killCooldown = killCooldown
+            settings.sabotageCooldown = sabotageCooldown
+            settings.sabotageDuration = sabotageDuration
+            settings.gameDuration = TimeInterval(gameMinutes * 60)
+        }
         do {
             try host.configure(
                 familyCount: familyCount,

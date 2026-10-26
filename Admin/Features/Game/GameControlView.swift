@@ -130,6 +130,23 @@ struct GameControlView: View {
                 .help("Cast a vote for a family whose head can't, for example because their phone is offline")
             }
             ToolbarItem {
+                if host.testingToolsEnabled {
+                    Menu("Trigger Sabotage", systemImage: "exclamationmark.triangle") {
+                        ForEach(game.families.values.filter { $0.role == .werewolf }.sorted { $0.id < $1.id }, id: \.id) { family in
+                            Menu(name(family.id)) {
+                                ForEach(SabotageKind.allCases, id: \.self) { kind in
+                                    Button(kind.title) {
+                                        attempt { try host.applyAsOC(.requestSabotage(by: family.id, kind: kind)) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .disabled(game.sabotage != nil || game.phase != .running)
+                    .help("Testing: start a sabotage as a werewolf family, to see what villager phones show")
+                }
+            }
+            ToolbarItem {
                 Button("Resolve Sabotage", systemImage: "checkmark.shield") {
                     attempt { try host.applyAsOC(.resolveSabotage) }
                 }
