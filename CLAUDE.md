@@ -119,4 +119,4 @@ Targets are versioned independently: `bump app:<slug>` edits that target's xccon
 
 ## Before submitting
 
-Run `apple-compliance-checker`, plus `apple-design-skill` for a UI review. Fill in `fastlane/metadata/<slug>` (replace the `TODO`s) and add real app icons. The Admin icon is an Icon Composer bundle (`Admin/Resources/AppIcon.icon`), so don't also keep an `AppIcon.appiconset` there: both are named `AppIcon`.
+Run `apple-compliance-checker`, plus `apple-design-skill` for a UI review. Fill in `fastlane/metadata/<slug>` (replace the `TODO`s) and add real app icons. All three targets share one Icon Composer bundle (`Shared/Resources/AppIcon.icon`), so never add an `AppIcon.appiconset` to any target: both are named `AppIcon` and an empty set shows no icon.
