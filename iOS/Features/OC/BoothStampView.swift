@@ -119,7 +119,7 @@ struct BoothStampView: View {
             Text(family.name)
                 .font(.title3.bold())
                 .multilineTextAlignment(.center)
-            Text(isOut ? "\(family.stampsDone) of \(family.stampsTotal) stamps · out of game" : "\(family.stampsDone) of \(family.stampsTotal) stamps")
+            Text("\(family.stampsDone) of \(family.stampsTotal) stamps" + (isOut ? " · out of game" : ""))
                 .font(.caption)
             Text(isStamped ? "Stamped" : family.onList == false ? "Not on list" : "Tap to stamp")
                 .font(.caption.weight(.semibold))
