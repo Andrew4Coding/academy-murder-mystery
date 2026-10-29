@@ -17,8 +17,22 @@ Tooling and refactors that users can't see don't go here.
 - Sabotage: werewolves start Reactor or Oxygen sabotage, everyone sees an alert banner with the countdown ([0007](specs/features/0007-sabotage.md)).
 - Organiser mode: sign in with the OC PIN, stamp families at a booth with undo, resolve sabotage, or observe from the Town Hall ([0008](specs/features/0008-oc-mode-and-stamping.md)).
 
+- Leave a family from the lobby, a reconnecting state instead of the join screen, and a sync when a timer ends ([0011](specs/features/0011-lifecycle-bugfixes.md)).
+- Scan one game QR to be placed in a family automatically, with the first joiner as head, and rename your family ([0012](specs/features/0012-join-and-families.md)).
+- Full-screen notices when your family is killed and when the game ends with the winner ([0013](specs/features/0013-kill-notice-and-game-end.md)).
+- Selfie and head name on meeting cards, a vote to skip discussion, and a bar chart of vote results ([0014](specs/features/0014-meeting-upgrade.md)).
+- One sabotage card per booth, with its own fix time ([0015](specs/features/0015-sabotage-rework.md)).
+- Booth stamping as a grid of large family cards ([0016](specs/features/0016-oc-station-rework.md)).
+- Kill and sabotage App Intents, usable from Siri and Shortcuts, including on Apple Watch ([0018](specs/apps/ios/features/0018-watch-intents.md)).
+
+#### Changed
+
+- Kill and sabotage are ready at the start of the game, with no opening cooldown ([0011](specs/features/0011-lifecycle-bugfixes.md)).
+
 #### Removed
 
+- Hand Over and Become Head of Family ([0012](specs/features/0012-join-and-families.md)).
+- Town Hall observer station ([0016](specs/features/0016-oc-station-rework.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 
 ### MurderMysteryAdmin
@@ -34,9 +48,14 @@ Tooling and refactors that users can't see don't go here.
 - Public Display window for the lab screens: game clock, meeting timers, sabotage alarm, vote results and winner ([0009](specs/apps/admin/features/0009-public-display.md)).
 - Simulation mode: rehearse a full game with seeded bots at up to 60x speed, separate from the real game ([0010](specs/apps/admin/features/0010-simulation-mode.md)).
 
+- One join QR on the Public Display and in Setup, a players-per-family setting and family rename ([0012](specs/features/0012-join-and-families.md)).
+- Add time to a meeting, approve a skip-discussion vote, and vote result charts ([0014](specs/features/0014-meeting-upgrade.md)).
+- Fix time and cooldown per sabotage booth, and a looping alarm on the Public Display with a mute switch ([0015](specs/features/0015-sabotage-rework.md)).
+
 #### Changed
 
 - App icon is the Liquid Glass icon from Icon Composer.
+- Families are no longer set by a stepper: they fill from the game code ([0012](specs/features/0012-join-and-families.md)).
 
 #### Removed
 
