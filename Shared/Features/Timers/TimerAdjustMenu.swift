@@ -1,32 +1,55 @@
 import SwiftUI
 
 struct TimerAdjustMenu: View {
-    let title: String
-    let systemImage: String
-    let onAdjust: (TimeInterval) -> Void
+    struct Entry: Identifiable {
+        let target: TimerTarget
+        let title: String
+        let isEnabled: Bool
 
-    @State private var isCustomizing = false
+        var id: TimerTarget {
+            target
+        }
+    }
+
+    let entries: [Entry]
+    let onAdjust: (TimerTarget, TimeInterval) -> Void
+
+    @State private var customizing: Entry?
 
     private static let presets: [TimeInterval] = [30, 60, 300]
 
+    init(meeting: Bool, gameClock: Bool, sabotage: Bool, onAdjust: @escaping (TimerTarget, TimeInterval) -> Void) {
+        entries = [
+            Entry(target: .meeting, title: "Meeting Timer", isEnabled: meeting),
+            Entry(target: .finalVote, title: "Game Clock", isEnabled: gameClock),
+            Entry(target: .sabotage, title: "Sabotage Timer", isEnabled: sabotage)
+        ]
+        self.onAdjust = onAdjust
+    }
+
     var body: some View {
-        Menu(title, systemImage: systemImage) {
-            Section("Add time") {
-                ForEach(Self.presets, id: \.self) { seconds in
-                    Button("+\(Self.label(seconds))") { onAdjust(seconds) }
-                        .accessibilityLabel("Add \(Self.spoken(seconds)) to \(title)")
+        Menu("Timers", systemImage: "clock") {
+            ForEach(entries) { entry in
+                Menu(entry.title) {
+                    Section("Add time") {
+                        ForEach(Self.presets, id: \.self) { seconds in
+                            Button("+\(Self.label(seconds))") { onAdjust(entry.target, seconds) }
+                                .accessibilityLabel("Add \(Self.spoken(seconds)) to \(entry.title)")
+                        }
+                    }
+                    Section("Remove time") {
+                        ForEach(Self.presets, id: \.self) { seconds in
+                            Button("\u{2212}\(Self.label(seconds))") { onAdjust(entry.target, -seconds) }
+                                .accessibilityLabel("Remove \(Self.spoken(seconds)) from \(entry.title)")
+                        }
+                    }
+                    Button("Custom\u{2026}") { customizing = entry }
                 }
+                .disabled(!entry.isEnabled)
             }
-            Section("Remove time") {
-                ForEach(Self.presets, id: \.self) { seconds in
-                    Button("\u{2212}\(Self.label(seconds))") { onAdjust(-seconds) }
-                        .accessibilityLabel("Remove \(Self.spoken(seconds)) from \(title)")
-                }
-            }
-            Button("Custom\u{2026}") { isCustomizing = true }
         }
-        .sheet(isPresented: $isCustomizing) {
-            CustomTimerSheet(title: title) { onAdjust($0) }
+        .sheet(item: $customizing) { entry in
+            CustomTimerSheet(title: entry.title) { onAdjust(entry.target, $0) }
         }
     }
 

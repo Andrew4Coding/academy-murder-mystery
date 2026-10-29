@@ -35,7 +35,7 @@ private struct PinView: View {
                         .keyboardType(.numberPad)
                 } footer: {
                     if let error = client.lastError {
-                        Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                        StatusLabel.error(error)
                     } else {
                         Text("The PIN is shown in Setup on the Mac host.")
                     }
