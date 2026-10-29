@@ -11,8 +11,7 @@ enum HostError: Error, Equatable, Sendable {
     case unknownDevice
     case notAPlayer
     case notHead
-    case notInFamily
-    case headLocked
+    case invalidName
     case setup(String)
     case notNearby
     case notOC
@@ -34,8 +33,7 @@ enum HostError: Error, Equatable, Sendable {
         case .unknownDevice: "This device isn't registered with the host any more."
         case .notAPlayer: "Only players can do that."
         case .notHead: "Only the head of family can do that."
-        case .notInFamily: "That person isn't in your family."
-        case .headLocked: "The head of family can't change during a meeting."
+        case .invalidName: "Family names need 1 to 24 characters."
         case let .setup(reason): reason
         case .notNearby: "That family isn't close enough."
         case .notOC: "Only organisers can do that."

@@ -22,6 +22,7 @@ struct PublicDisplayState: Codable, Equatable, Sendable {
     var familiesRemaining: Int?
     var alarm: Alarm?
     var announcedDeaths: [String]
+    var joinCode: String?
 }
 
 extension GameHost {
@@ -30,7 +31,7 @@ extension GameHost {
             return PublicDisplayState(screen: .hostOffline, familiesRemaining: nil, alarm: nil, announcedDeaths: [])
         }
         guard let engine = state.engine else {
-            return PublicDisplayState(screen: .waiting, familiesRemaining: nil, alarm: nil, announcedDeaths: [])
+            return PublicDisplayState(screen: .waiting, familiesRemaining: nil, alarm: nil, announcedDeaths: [], joinCode: state.gameCode)
         }
         let game = engine.state
         let names = game.announcedDeaths.compactMap { state.families[$0]?.name }

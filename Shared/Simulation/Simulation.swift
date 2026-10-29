@@ -88,7 +88,6 @@ private extension Simulation {
                 }
                 members.append(Bot(clientID: clientID, playerID: playerID))
             }
-            host.receive(.claimHead, from: members[0].clientID)
             bots[family.id] = members
         }
     }

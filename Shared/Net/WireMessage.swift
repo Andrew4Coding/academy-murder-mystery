@@ -3,8 +3,7 @@ import Foundation
 enum ClientMessage: Codable, Equatable, Sendable {
     case hello(Hello)
     case probeReply(UUID)
-    case claimHead
-    case handOverHead(to: PlayerID)
+    case renameFamily(String)
     case vote(VoteChoice)
     case sightings([Sighting])
     case kill(victim: FamilyID)
