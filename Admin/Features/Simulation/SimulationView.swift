@@ -15,7 +15,6 @@ struct SimulationView: View {
                     value: $config.werewolfCount,
                     in: 1 ... max(1, (config.familyCount - 1) / 2)
                 )
-                Stepper("Members per family: \(config.membersPerFamily)", value: $config.membersPerFamily, in: 1 ... 6)
                 LabeledContent("Seed") {
                     HStack {
                         TextField("Seed", text: $seedText)

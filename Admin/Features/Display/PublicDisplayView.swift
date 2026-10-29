@@ -101,7 +101,7 @@ private struct JoinBlock: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(family.name)
                                     .font(.system(size: PublicDisplayLayout.detailFontSize, weight: .bold))
-                                Text(family.members.isEmpty ? "Waiting…" : family.members.joined(separator: ", "))
+                                Text(family.player ?? "Waiting…")
                                     .font(.system(size: PublicDisplayLayout.detailFontSize * 0.7))
                                     .foregroundStyle(.white.opacity(0.7))
                             }

@@ -18,7 +18,6 @@ struct SetupView: View {
     @State private var gameMinutes = Int(GameSettings.standard.gameDuration / 60)
     @State private var renaming: FamilyInfo?
     @State private var renameText = ""
-    @State private var capacity = 6
     @State private var errorMessage: String?
     @State private var confirmingNewGame = false
 
@@ -41,7 +40,6 @@ struct SetupView: View {
                 if testing {
                     Stepper("Families: \(familyCount)", value: $familyCount, in: 1 ... 40)
                 } else {
-                    Stepper("Players per family: \(capacity)", value: $capacity, in: 1 ... 12)
                     Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... 10)
                 }
                 Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
@@ -97,7 +95,7 @@ struct SetupView: View {
                 } header: {
                     Text("Join code")
                 } footer: {
-                    Text("The same QR is on the Public Display. Players fill Family 1 first, then Family 2, and so on.")
+                    Text("The same QR is on the Public Display. Each player who scans becomes their own family.")
                 }
             }
 
@@ -126,7 +124,6 @@ struct SetupView: View {
         .navigationTitle("Setup")
         .onAppear(perform: loadDraft)
         .onChange(of: familyCount) { _, _ in apply() }
-        .onChange(of: capacity) { _, new in applyCapacity(new) }
         .onChange(of: werewolfCount) { _, _ in apply() }
         .onChange(of: discussionMinutes) { _, _ in apply() }
         .onChange(of: votingMinutes) { _, _ in apply() }
@@ -194,14 +191,14 @@ struct SetupView: View {
     private var testingSection: some View {
         Section {
             ForEach(host.state.families.values.sorted { $0.id < $1.id }, id: \.id) { family in
-                let members = host.state.members(of: family.id).count
+                let player = host.state.player(of: family.id)
                 Picker(selection: roleBinding(for: family.id)) {
                     ForEach([Role.villager, .werewolf], id: \.self) { role in
                         Label(role.title, systemImage: role.symbol).tag(role)
                     }
                 } label: {
                     Text(family.name)
-                    Text(members == 0 ? "No phone: stands in as a family" : "\(members) of \(host.state.maxFamilySize) joined")
+                    Text(player.map { "\($0.name) joined" } ?? "No phone: stands in as a family")
                 }
             }
             Stepper("Kill cooldown: \(Int(killCooldown)) s", value: $killCooldown, in: 0 ... 300, step: 5)
@@ -223,7 +220,6 @@ struct SetupView: View {
         if !state.families.isEmpty {
             familyCount = state.families.count
         }
-        capacity = state.maxFamilySize
         werewolfCount = max(1, state.werewolfCount)
         discussionMinutes = max(1, Int(state.settings.discussionDuration / 60))
         votingMinutes = max(1, Int(state.settings.votingDuration / 60))
@@ -238,11 +234,6 @@ struct SetupView: View {
         if state.families.isEmpty {
             apply()
         }
-    }
-
-    private func applyCapacity(_ value: Int) {
-        guard isLobby, value != host.state.maxFamilySize else { return }
-        try? host.setFamilyCapacity(value)
     }
 
     private func applyProximity() {
@@ -287,11 +278,12 @@ private struct FamiliesTable: View {
     var body: some View {
         Table(families) {
             TableColumn("Family", value: \.name)
-            TableColumn("Members") { (family: FamilyInfo) in
-                Text("\(host.state.members(of: family.id).count) of \(host.state.maxFamilySize)")
-            }
-            TableColumn("Head of family") { (family: FamilyInfo) in
-                HeadCell(name: headName(of: family))
+            TableColumn("Player") { (family: FamilyInfo) in
+                if let name = host.state.player(of: family.id)?.name {
+                    Text(name)
+                } else {
+                    Text("Waiting…").foregroundStyle(.secondary)
+                }
             }
             TableColumn("Rename") { (family: FamilyInfo) in
                 Button("Rename", systemImage: "pencil") { onRename(family) }
@@ -305,19 +297,4 @@ private struct FamiliesTable: View {
         host.state.families.values.sorted { $0.id < $1.id }
     }
 
-    private func headName(of family: FamilyInfo) -> String? {
-        family.head.flatMap { host.state.players[$0]?.name }
-    }
-}
-
-private struct HeadCell: View {
-    let name: String?
-
-    var body: some View {
-        if let name {
-            Label(name, systemImage: "star.fill")
-        } else {
-            Text("Not chosen").foregroundStyle(.secondary)
-        }
-    }
 }

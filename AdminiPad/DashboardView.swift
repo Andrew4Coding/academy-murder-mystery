@@ -103,8 +103,7 @@ private struct FamiliesTable: View {
     var body: some View {
         Table(families) {
             TableColumn("Family", value: \.name)
-            TableColumn("Head") { Text($0.headName ?? "-") }
-            TableColumn("Members") { Text("\($0.members)") }
+            TableColumn("Player") { Text($0.playerName ?? "-") }
             TableColumn("Status") { Text($0.life.title) }
             TableColumn("Stamps") { Text($0.stampsTotal == 0 ? "-" : "\($0.stampsDone) of \($0.stampsTotal)") }
         }
