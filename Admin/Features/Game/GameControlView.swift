@@ -162,13 +162,25 @@ struct GameControlView: View {
                 .help("End the game now and declare a winner")
             }
             ToolbarItem {
-                Menu("Add Time", systemImage: "clock.badge.plus") {
-                    ForEach([1, 2, 5], id: \.self) { minutes in
-                        Button("+\(minutes) min") { attempt { try host.extendMeeting(seconds: TimeInterval(minutes * 60)) } }
-                    }
+                TimerAdjustMenu(title: "Meeting Timer", systemImage: "clock.badge.plus") { seconds in
+                    attempt { try host.applyAsOC(.adjustTimer(.meeting, seconds: seconds)) }
                 }
                 .disabled(!game.phase.isMeetingPhase)
-                .help("Give the current discussion or vote more time")
+                .help("Add or remove time on the current discussion or vote")
+            }
+            ToolbarItem {
+                TimerAdjustMenu(title: "Game Clock", systemImage: "hourglass") { seconds in
+                    attempt { try host.applyAsOC(.adjustTimer(.finalVote, seconds: seconds)) }
+                }
+                .disabled(game.outcome != nil || game.finalVoteStarted)
+                .help("Add or remove time before the final vote")
+            }
+            ToolbarItem {
+                TimerAdjustMenu(title: "Sabotage Timer", systemImage: "exclamationmark.triangle") { seconds in
+                    attempt { try host.applyAsOC(.adjustTimer(.sabotage, seconds: seconds)) }
+                }
+                .disabled(game.sabotage == nil)
+                .help("Add or remove time on the active sabotage countdown")
             }
             ToolbarItem {
                 Button("Approve Skip", systemImage: "forward.end.fill") {
