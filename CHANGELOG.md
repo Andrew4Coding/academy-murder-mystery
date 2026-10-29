@@ -34,6 +34,10 @@ Tooling and refactors that users can't see don't go here.
 - Public Display window for the lab screens: game clock, meeting timers, sabotage alarm, vote results and winner ([0009](specs/apps/admin/features/0009-public-display.md)).
 - Simulation mode: rehearse a full game with seeded bots at up to 60x speed, separate from the real game ([0010](specs/apps/admin/features/0010-simulation-mode.md)).
 
+#### Changed
+
+- App icon is the Liquid Glass icon from Icon Composer.
+
 #### Removed
 
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
