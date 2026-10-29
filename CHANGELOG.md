@@ -26,6 +26,10 @@ Tooling and refactors that users can't see don't go here.
 - Report a body: stand near a fallen family and tap Report to call a discussion ([0019](specs/features/0019-report-body.md)).
 - Kill and sabotage App Intents, usable from Siri and Shortcuts, including on Apple Watch ([0018](specs/apps/ios/features/0018-watch-intents.md)).
 
+#### Fixed
+
+- App icon now shows on the home screen.
+
 #### Changed
 
 - Kill and sabotage are ready at the start of the game, with no opening cooldown ([0011](specs/features/0011-lifecycle-bugfixes.md)).
@@ -38,6 +42,10 @@ Tooling and refactors that users can't see don't go here.
 
 ### MurderMysteryAdminiPad
 
+#### Fixed
+
+- App icon now shows on the home screen.
+
 #### Added
 
 - Delete a family from the dashboard's families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
@@ -47,6 +55,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- App icon is shared with the iOS apps, from one Icon Composer bundle.
 - Sidebar rows can be clicked again.
 
 #### Added
