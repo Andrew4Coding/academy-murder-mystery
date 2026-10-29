@@ -25,8 +25,8 @@ struct RoleView: View {
                         )
                         .foregroundStyle(.red)
                         Text(game.role == .werewolf
-                            ? "Sit at your assigned seat. Your werewolf family can still use sabotage."
-                            : "Sit at your assigned seat until the game ends.")
+                            ? "You can't vote anymore. Your werewolf family can still use sabotage."
+                            : "You can't vote anymore, but keep finishing your tasks: your team still wins when every villager family is done.")
                     }
                 }
 

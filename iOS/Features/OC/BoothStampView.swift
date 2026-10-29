@@ -70,7 +70,7 @@ struct BoothStampView: View {
                     ForEach(rows) { family in
                         Button { select(family) } label: { card(family) }
                             .buttonStyle(.plain)
-                            .disabled(family.life != .alive || family.stamped == true)
+                            .disabled(family.stamped == true)
                     }
                 }
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -112,16 +112,16 @@ struct BoothStampView: View {
     private func card(_ family: OCFamilyRow) -> some View {
         let isOut = family.life != .alive
         let isStamped = family.stamped == true
-        let tint: Color = isOut ? .gray : isStamped ? .green : family.onList == false ? .orange : .accentColor
+        let tint: Color = isStamped ? .green : family.onList == false ? .orange : isOut ? .gray : .accentColor
         return VStack(spacing: 6) {
             Image(systemName: isStamped ? "checkmark.seal.fill" : "seal")
                 .font(.title)
             Text(family.name)
                 .font(.title3.bold())
                 .multilineTextAlignment(.center)
-            Text("\(family.stampsDone) of \(family.stampsTotal) stamps")
+            Text(isOut ? "\(family.stampsDone) of \(family.stampsTotal) stamps · out of game" : "\(family.stampsDone) of \(family.stampsTotal) stamps")
                 .font(.caption)
-            Text(isOut ? "Out of game" : isStamped ? "Stamped" : family.onList == false ? "Not on list" : "Tap to stamp")
+            Text(isStamped ? "Stamped" : family.onList == false ? "Not on list" : "Tap to stamp")
                 .font(.caption.weight(.semibold))
         }
         .frame(maxWidth: .infinity, minHeight: 120)
