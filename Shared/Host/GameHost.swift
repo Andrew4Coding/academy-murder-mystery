@@ -123,6 +123,10 @@ final class GameHost {
                 try stamp(identity: signedIn(id), family: family, confirmOffList: confirmOffList)
             case let .undoStamp(family):
                 try undoStamp(identity: signedIn(id), family: family)
+            case .leave:
+                try leave(identity: signedIn(id), clientID: id)
+            case .sync:
+                try sync(clientID: id)
             }
         } catch let error as HostError {
             send(.rejected(error.message), to: id)

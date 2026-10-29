@@ -30,6 +30,7 @@ final class GameClient {
     private(set) var view: ClientView?
     private(set) var lastError: String?
     private(set) var isSignedIn = false
+    private(set) var isResuming = false
     private(set) var serverClock = ServerClock()
 
     @ObservationIgnored private let transport: any ClientTransport
@@ -40,6 +41,7 @@ final class GameClient {
     init(transport: any ClientTransport, store: any IdentityStore) {
         self.transport = transport
         self.store = store
+        isResuming = store.resumeID != nil
     }
 
     var serverNow: Date {
@@ -71,14 +73,22 @@ final class GameClient {
     }
 
     func send(_ message: ClientMessage) {
+        guard isSignedIn else { return }
         transport.send(message)
+    }
+
+    func leave() {
+        send(.leave)
+        signOut()
     }
 
     func signOut() {
         store.resumeID = nil
         view = nil
         isSignedIn = false
+        isResuming = false
         pendingHello = nil
+        lastError = nil
     }
 
     private func signIn(_ hello: Hello) {
@@ -95,6 +105,8 @@ final class GameClient {
             status = newStatus
             if newStatus == .connected {
                 announce()
+            } else {
+                isSignedIn = false
             }
         case let .message(message):
             handle(message)
@@ -115,6 +127,8 @@ final class GameClient {
             store.resumeID = welcome.resumeID
             pendingHello = nil
             isSignedIn = true
+            isResuming = true
+            lastError = nil
             serverClock.sync(serverTime: welcome.serverTime, receivedAt: Date())
         case let .state(newView):
             view = newView
@@ -123,12 +137,13 @@ final class GameClient {
             lastError = reason
             pendingHello = nil
             if reason == HostError.unknownDevice.message {
-                store.resumeID = nil
-                isSignedIn = false
-                view = nil
+                signOut()
+                lastError = reason
             }
         case let .probe(nonce):
             transport.send(.probeReply(nonce))
+        case .reset:
+            signOut()
         }
     }
 }

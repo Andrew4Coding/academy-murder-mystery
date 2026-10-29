@@ -12,6 +12,8 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case resolveSabotage
     case stamp(family: FamilyID, confirmOffList: Bool)
     case undoStamp(family: FamilyID)
+    case leave
+    case sync
 }
 
 enum ServerMessage: Codable, Equatable, Sendable {
@@ -19,6 +21,7 @@ enum ServerMessage: Codable, Equatable, Sendable {
     case state(ClientView)
     case rejected(String)
     case probe(UUID)
+    case reset
 }
 
 enum WireCodec {
