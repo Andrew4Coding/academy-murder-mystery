@@ -1,7 +1,7 @@
 ---
 id: 0027
 title: Apple HIG compliance pass
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-29
