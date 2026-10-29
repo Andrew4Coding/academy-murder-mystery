@@ -5,6 +5,8 @@ struct FamilyLobbyView: View {
     let client: GameClient
 
     @State private var confirmingLeave = false
+    @State private var isRenaming = false
+    @State private var renameText = ""
 
     var body: some View {
         NavigationStack {
@@ -26,20 +28,14 @@ struct FamilyLobbyView: View {
                 } header: {
                     Text(lobby.familyName)
                 } footer: {
-                    Text("Family code \(lobby.joinCode). Waiting for the game to start.")
+                    Text("Waiting for the game to start. Don't show your screen to anyone.")
                 }
 
                 Section {
                     if lobby.isHead {
-                        Menu("Hand Over to…", systemImage: "arrow.left.arrow.right") {
-                            ForEach(lobby.members.filter { !$0.isHead }) { member in
-                                Button(member.name) { client.send(.handOverHead(to: member.id)) }
-                            }
-                        }
-                        .disabled(lobby.members.count < 2)
-                    } else {
-                        Button(lobby.hasHead ? "Take Over as Head of Family" : "Become Head of Family", systemImage: "star") {
-                            client.send(.claimHead)
+                        Button("Rename Family", systemImage: "pencil") {
+                            renameText = lobby.familyName
+                            isRenaming = true
                         }
                     }
                 } footer: {
@@ -55,6 +51,11 @@ struct FamilyLobbyView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Leave", role: .destructive) { confirmingLeave = true }
                 }
+            }
+            .alert("Rename family", isPresented: $isRenaming) {
+                TextField("Name", text: $renameText)
+                Button("Cancel", role: .cancel) {}
+                Button("Rename") { client.send(.renameFamily(renameText)) }
             }
             .confirmationDialog("Leave this family?", isPresented: $confirmingLeave, titleVisibility: .visible) {
                 Button("Leave Family", role: .destructive) { client.leave() }

@@ -14,7 +14,7 @@ struct RoleView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                 } footer: {
-                    Text("Keep your role secret. It hides again when you leave the app.")
+                    Text("Keep your role secret. Never show your screen to anyone. It hides again when you leave the app.")
                 }
 
                 if game.life != .alive {
