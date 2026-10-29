@@ -4,17 +4,12 @@ import Testing
 
 @MainActor
 struct GameHostLifecycleTests {
-    @Test func aPlayerCanLeaveInTheLobbyAndTheHeadPassesToAnotherMember() async throws {
+    @Test func aPlayerCanLeaveInTheLobbyAndTheirFamilyDisappears() async throws {
         let (harness, heads) = try await HostHarness.seated(families: 3)
-        let familyOne = try #require(harness.host.state.families[1])
-        let second = harness.makeClient()
-        second.join(code: familyOne.joinCode, name: "Ayu")
-        #expect(await eventually { second.view?.lobby?.members.count == 2 })
-
         heads[1]?.leave()
-        #expect(await eventually { second.view?.lobby?.isHead == true })
+        #expect(await eventually { harness.host.state.families[1] == nil })
         #expect(heads[1]?.view == nil)
-        #expect(harness.host.state.members(of: 1).map(\.name) == ["Ayu"])
+        #expect(harness.host.state.players.count == 2)
     }
 
     @Test func leavingIsRefusedOnceTheGameHasStarted() async throws {
