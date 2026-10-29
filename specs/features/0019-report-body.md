@@ -1,7 +1,7 @@
 ---
 id: 0019
 title: Report body over BLE
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-30
@@ -62,4 +62,4 @@ Accessibility notes: the Report button is at least 44 pt and says whose body it 
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- `GameCommand.reportBody` starts a meeting for an unannounced killed body; `GameHost.nearbyBodies` / `reportBody` check the BLE sighting, `GameView.nearbyBodies` and `bodyActive` drive the UI. `GameTabsView.ProximityPlan`: killed families advertise while `bodyActive`, every alive phone scans. iOS Actions tab now shows for every alive player (kill and sabotage stay werewolf-only). Not run on real devices.

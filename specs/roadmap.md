@@ -17,6 +17,7 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0013 Kill notice and game end](features/0013-kill-notice-and-game-end.md): the dead-players-and-tasks question is still open.
 - [0014 Meeting upgrade](features/0014-meeting-upgrade.md)
 - [0015 Sabotage rework](features/0015-sabotage-rework.md)
+- [0019 Report body over BLE](features/0019-report-body.md): needs a real-device check.
 - [0016 OC station rework](features/0016-oc-station-rework.md)
 
 ## Now
