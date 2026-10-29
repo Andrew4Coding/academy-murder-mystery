@@ -80,6 +80,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 - The Mac Admin app is the only authority: `GameHost` validates every client message through `GameEngine`, persists, then broadcasts a per-identity `ClientView`. Clients never run authoritative timers: use `ServerClock` / `GameClient.serverNow`.
 - Network code uses closures that hop to the main actor via `MainActor.assumeIsolated`; keep logic in methods, not inside the closures (SwiftFormat strips the `self.` that the compiler wants there).
 - Smoke-test UI by building both apps with `-derivedDataPath`, opening the Mac app (unsigned builds run unsandboxed and store `~/Library/Application Support/default.store`), then launching the iOS app in a simulator: Bonjour works between them on one machine.
+- Debug Mode (`GameSettings.debugMode`, optional so stored games decode; read it via `isDebug`) allows 2 families, zeroes kill and sabotage cooldowns, and makes kills and parity never end the game. Rules live in `GameEngine` and `setupIssues`, not in views.
 - Rehearsal tools (one family and one phone is enough, chosen roles, sabotage trigger, adjustable cooldowns) sit behind `TestingTools.isEnabled` (`Shared/Host/TestingTools.swift`): Debug builds launched with `-TestingTools`, which only the `MoonfallAdmin-Testing` scheme passes. Never reach them from a normal path; `GameHost.startTestGame` refuses otherwise and marks the game `simulated` so a restart never restores it.
 - XcodeGen generates `iOS/Info.plist`; put new Info.plist keys in `project.yml`, not in the file.
 

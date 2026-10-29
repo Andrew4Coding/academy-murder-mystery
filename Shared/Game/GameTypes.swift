@@ -67,6 +67,11 @@ struct GameSettings: Codable, Equatable, Sendable {
     // Reactor keeps the original fields so stored games still decode; Oxygen overrides them when set.
     var oxygenDuration: TimeInterval?
     var oxygenCooldown: TimeInterval?
+    var debugMode: Bool?
+
+    var isDebug: Bool {
+        debugMode ?? false
+    }
 
     static let standard = GameSettings()
 
@@ -75,7 +80,8 @@ struct GameSettings: Codable, Equatable, Sendable {
     }
 
     func sabotageCooldown(for kind: SabotageKind) -> TimeInterval {
-        kind == .oxygen ? oxygenCooldown ?? sabotageCooldown : sabotageCooldown
+        if isDebug { return 0 }
+        return kind == .oxygen ? oxygenCooldown ?? sabotageCooldown : sabotageCooldown
     }
 }
 

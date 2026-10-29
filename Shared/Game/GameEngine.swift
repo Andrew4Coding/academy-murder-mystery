@@ -13,7 +13,7 @@ struct GameEngine: Codable, Equatable, Sendable {
         let ids = familyIDs.sorted()
         guard Set(ids).count == ids.count else { throw RuleError.invalidSetup("Family IDs must be unique") }
         guard werewolfCount >= 1 else { throw RuleError.invalidSetup("At least one werewolf family is required") }
-        guard werewolfCount * 2 < ids.count else {
+        guard settings.isDebug ? werewolfCount < ids.count : werewolfCount * 2 < ids.count else {
             throw RuleError.invalidSetup("Werewolf families must be fewer than half of all families")
         }
         guard (1 ... Booth.allCases.count).contains(settings.tasksPerFamily) else {
@@ -192,8 +192,9 @@ private extension GameEngine {
 
         state.families[victimID]?.life = .killed
         state.deadSinceLastMeeting.append(victimID)
-        state.families[killerID]?.killReadyAt = now.addingTimeInterval(state.settings.killCooldown)
-        return [GameEvent(at: now, kind: .familyKilled(victimID, by: killerID))] + evaluateWin(at: now)
+        state.families[killerID]?.killReadyAt = now.addingTimeInterval(state.settings.isDebug ? 0 : state.settings.killCooldown)
+        let killed = GameEvent(at: now, kind: .familyKilled(victimID, by: killerID))
+        return state.settings.isDebug ? [killed] : [killed] + evaluateWin(at: now)
     }
 
     mutating func requestSabotage(by id: FamilyID, kind: SabotageKind, at now: Date) throws -> [GameEvent] {
@@ -461,7 +462,7 @@ private extension GameEngine {
         if !villagers.isEmpty, villagers.allSatisfy(\.hasCompletedTasks) {
             return end(.villagers, .allTasksDone, at: now)
         }
-        if aliveVillagers <= aliveWerewolves {
+        if !state.settings.isDebug, aliveVillagers <= aliveWerewolves {
             return end(.werewolves, .parity, at: now)
         }
         return []

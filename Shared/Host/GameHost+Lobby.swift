@@ -10,13 +10,14 @@ extension HostState {
             }
             return issues
         }
-        if families.count < 3 {
-            issues.append("Create at least 3 families.")
+        let debug = settings.isDebug
+        if families.count < (debug ? 2 : 3) {
+            issues.append("Create at least \(debug ? 2 : 3) families.")
         }
         if werewolfCount < 1 {
             issues.append("At least one family must be werewolves.")
         }
-        if werewolfCount * 2 >= families.count, !families.isEmpty {
+        if !debug, werewolfCount * 2 >= families.count, !families.isEmpty {
             issues.append("Werewolf families must be fewer than half of all families.")
         }
         if !(1 ... Booth.allCases.count).contains(settings.tasksPerFamily) {

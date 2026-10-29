@@ -64,6 +64,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Debug Mode toggle in Setup: 2 families are enough, no kill or sabotage cooldown, and a kill never ends the game ([0028](specs/features/0028-debug-mode.md)).
 - Game toolbar is grouped into five items (Show Roles, Meeting, Timers, Game, Start Discussion), with Shift-Cmd-K to approve a skip and Shift-Cmd-R to resolve a sabotage ([0027](specs/features/0027-hig-compliance.md)).
 - Add or remove time on the meeting timer, game clock and sabotage countdown from the Game toolbar ([0025](specs/features/0025-editable-timers.md)).
 - Public Display shows every family with its selfie and marks the werewolves when they win ([0026](specs/features/0026-werewolf-win-reveal.md)).
