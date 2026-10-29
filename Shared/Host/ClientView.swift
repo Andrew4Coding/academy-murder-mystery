@@ -85,6 +85,29 @@ struct OCFamilyRow: Codable, Equatable, Sendable, Identifiable {
     let stamped: Bool?
 }
 
+struct AdminFamilyRow: Codable, Equatable, Sendable, Identifiable {
+    let id: FamilyID
+    let name: String
+    let members: Int
+    let headName: String?
+    let life: LifeState
+    let stampsDone: Int
+    let stampsTotal: Int
+}
+
+struct AdminView: Codable, Equatable, Sendable {
+    let joinCode: String?
+    let playersJoined: Int
+    let isLobby: Bool
+    let phase: PhaseView
+    let gameEndsAt: Date?
+    let families: [AdminFamilyRow]
+    let sabotage: SabotageView?
+    let skipVotes: Int
+    let votersTotal: Int
+    let skipRequested: Bool
+}
+
 struct OCView: Codable, Equatable, Sendable {
     let sabotage: SabotageView?
     let families: [OCFamilyRow]
@@ -136,6 +159,7 @@ struct ClientView: Codable, Equatable, Sendable {
     var lobby: LobbyView?
     var game: GameView?
     var oc: OCView?
+    var admin: AdminView?
 }
 
 struct Welcome: Codable, Equatable, Sendable {

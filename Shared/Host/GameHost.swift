@@ -116,6 +116,8 @@ final class GameHost {
                 }
             case let .renameFamily(name):
                 try renameFamily(identity: signedIn(id), to: name)
+            case let .admin(command):
+                try adminCommand(command, identity: signedIn(id))
             case let .reportBody(body):
                 try reportBody(identity: signedIn(id), body: body)
             case .voteSkipDiscussion:
@@ -325,6 +327,7 @@ extension OCStation {
         case let .booth(booth): booth.title
         case let .sabotage(kind): kind.title
         case .townHall: "Town Hall"
+        case .admin: "iPad dashboard"
         }
     }
 }

@@ -25,11 +25,47 @@ extension GameHost {
         case let .oc(id):
             guard let device = state.ocDevices[id] else { return nil }
             var view = ClientView(serverTime: clock.now, identity: .oc(id: id, station: device.station), familyName: nil)
-            if let engine = state.engine {
+            if device.station == .admin {
+                view.admin = adminView()
+            } else if let engine = state.engine {
                 view.oc = OCView(sabotage: sabotageView(engine), families: ocRows(engine, station: device.station))
             }
             return view
         }
+    }
+
+    func adminView() -> AdminView {
+        let engine = state.engine
+        let phase: PhaseView = switch engine?.state.phase {
+        case .none, .running?: .running
+        case let .discussion(until)?: .discussion(until: until)
+        case let .voting(until, isFinal)?: .voting(until: until, isFinal: isFinal)
+        case let .ended(outcome)?: .ended(outcome)
+        }
+        let rows = state.families.values.sorted { $0.id < $1.id }.map { info -> AdminFamilyRow in
+            let game = engine?.state.families[info.id]
+            return AdminFamilyRow(
+                id: info.id,
+                name: info.name,
+                members: state.members(of: info.id).count,
+                headName: info.head.flatMap { state.players[$0]?.name },
+                life: game?.life ?? .alive,
+                stampsDone: game?.stamps.intersection(game?.tasks ?? []).count ?? 0,
+                stampsTotal: game?.tasks.count ?? 0
+            )
+        }
+        return AdminView(
+            joinCode: state.gameCode,
+            playersJoined: state.players.count,
+            isLobby: engine == nil,
+            phase: phase,
+            gameEndsAt: engine?.state.finalVoteAt,
+            families: rows,
+            sabotage: engine.flatMap { sabotageView($0) },
+            skipVotes: engine?.state.skipVotes.count ?? 0,
+            votersTotal: engine?.state.aliveFamilies().count ?? 0,
+            skipRequested: engine?.state.skipRequested ?? false
+        )
     }
 
     func ocRows(_ engine: GameEngine, station: OCStation) -> [OCFamilyRow] {

@@ -7,6 +7,7 @@ enum OCStation: Hashable, Codable, Sendable {
     case booth(Booth)
     case sabotage(SabotageKind)
     case townHall
+    case admin
 }
 
 struct Player: Codable, Equatable, Sendable {
