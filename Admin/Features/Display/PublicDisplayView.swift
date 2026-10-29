@@ -1,3 +1,4 @@
+import Charts
 import SwiftUI
 
 enum PublicDisplayWindow {
@@ -177,6 +178,22 @@ private struct ResultBlock: View {
             } else {
                 Text("Nobody was voted out")
                     .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold))
+            }
+            if !result.rows.isEmpty {
+                Chart(result.rows) { row in
+                    BarMark(x: .value("Votes", row.count), y: .value("Candidate", row.name))
+                        .foregroundStyle(row.isSkip ? Color.gray : Color.red)
+                        .annotation(position: .trailing) {
+                            Text("\(row.count)").font(.system(size: PublicDisplayLayout.detailFontSize, design: .rounded))
+                        }
+                }
+                .chartXAxis(.hidden)
+                .chartYAxis {
+                    AxisMarks { _ in
+                        AxisValueLabel().font(.system(size: PublicDisplayLayout.detailFontSize * 0.8))
+                    }
+                }
+                .frame(maxWidth: 1000, maxHeight: 420)
             }
         }
         .multilineTextAlignment(.center)

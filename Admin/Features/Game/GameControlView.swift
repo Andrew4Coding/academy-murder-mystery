@@ -161,6 +161,22 @@ struct GameControlView: View {
                 .disabled(game.outcome != nil)
                 .help("End the game now and declare a winner")
             }
+            ToolbarItem {
+                Menu("Add Time", systemImage: "clock.badge.plus") {
+                    ForEach([1, 2, 5], id: \.self) { minutes in
+                        Button("+\(minutes) min") { attempt { try host.extendMeeting(seconds: TimeInterval(minutes * 60)) } }
+                    }
+                }
+                .disabled(!game.phase.isMeetingPhase)
+                .help("Give the current discussion or vote more time")
+            }
+            ToolbarItem {
+                Button("Approve Skip", systemImage: "forward.end.fill") {
+                    attempt { try host.approveSkipDiscussion() }
+                }
+                .disabled(!(game.phase.isDiscussionPhase && game.skipRequested))
+                .help("Most families voted to skip the discussion: open voting now")
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Start Discussion", systemImage: "bell.fill") {
                     attempt { try host.applyAsOC(.startMeeting) }
@@ -252,6 +268,7 @@ private struct PhaseRow: View {
             }
         case let .discussion(until):
             LabeledContent("Phase", value: "Discussion")
+            LabeledContent("Skip votes", value: "\(game.skipVotes.count) of \(game.aliveFamilies().count)")
             LabeledContent("Time left") { CountdownView(until: until, now: { _ in clock.now }) }
         case let .voting(until, isFinal):
             LabeledContent("Phase", value: isFinal ? "Final vote" : "Voting")
@@ -332,5 +349,22 @@ private struct OffListStamp: Identifiable {
 
     var id: String {
         "\(booth.rawValue)-\(ids.map(\.rawValue).sorted())"
+    }
+}
+
+private extension Phase {
+    var isMeetingPhase: Bool {
+        switch self {
+        case .discussion, .voting: true
+        case .running, .ended: false
+        }
+    }
+
+    var isDiscussionPhase: Bool {
+        if case .discussion = self {
+            true
+        } else {
+            false
+        }
     }
 }
