@@ -24,7 +24,7 @@ struct ActionsView: View {
                     SabotageSection(game: game, client: client)
                 }
                 if let error = client.lastError {
-                    Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red) }
+                    Section { StatusLabel.error(error) }
                 }
             }
             .navigationTitle("Actions")
@@ -120,7 +120,7 @@ struct ActionsView: View {
                         if remaining > 0 {
                             CountdownView(until: readyAt, now: serverNow)
                         } else {
-                            Text("Ready").foregroundStyle(.green)
+                            StatusLabel("Ready", systemImage: "checkmark.circle.fill", tint: .green)
                         }
                     }
                 }
@@ -146,8 +146,7 @@ struct ActionsView: View {
 private struct BluetoothOffRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Bluetooth is off", systemImage: "bolt.horizontal.circle")
-                .foregroundStyle(.orange)
+            StatusLabel("Bluetooth is off", systemImage: "bolt.horizontal.circle", tint: .orange)
             Text("Turn on Bluetooth and allow it for this app, so the game can tell who is close.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

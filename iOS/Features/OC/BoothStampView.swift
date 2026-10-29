@@ -41,7 +41,7 @@ struct BoothStampView: View {
     private var list: some View {
         List {
             if let error = client.lastError {
-                Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red) }
+                Section { StatusLabel.error(error) }
             }
             if !recent.isEmpty {
                 Section("Just stamped") {

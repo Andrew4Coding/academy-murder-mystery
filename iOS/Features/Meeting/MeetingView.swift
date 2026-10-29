@@ -46,7 +46,7 @@ struct MeetingView: View {
                 VStack(spacing: 4) {
                     Text("Discussion").font(.headline)
                     CountdownView(until: until, now: serverNow)
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
+                        .countdownDisplay()
                     Text("Heads of family gather at the Town Hall. Everyone else sits at their assigned seat.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -90,7 +90,7 @@ struct MeetingView: View {
                 VStack(spacing: 4) {
                     Text(isFinal ? "Final vote" : "Voting").font(.headline)
                     CountdownView(until: until, now: serverNow)
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
+                        .countdownDisplay()
                     Text("\(game.votesCast) of \(game.votersTotal) families have voted")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -118,7 +118,7 @@ struct MeetingView: View {
             }
 
             if let error = client.lastError {
-                Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red) }
+                Section { StatusLabel.error(error) }
             }
         }
         .sensoryFeedback(.selection, trigger: game.myVote)
@@ -174,7 +174,7 @@ private struct DeathsSection: View {
                 Text("No families were eliminated.")
             } else {
                 ForEach(families) { family in
-                    Label(family.name, systemImage: "xmark.circle.fill").foregroundStyle(.red)
+                    StatusLabel(family.name, systemImage: "xmark.circle.fill", tint: .red)
                 }
             }
         }

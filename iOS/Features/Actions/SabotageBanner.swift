@@ -5,6 +5,8 @@ struct SabotageBanner: View {
     let sabotage: SabotageView
     let client: GameClient
 
+    private static let alertTint = Color(red: 0.66, green: 0.1, blue: 0.1)
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -21,7 +23,7 @@ struct SabotageBanner: View {
         }
         .padding()
         .foregroundStyle(.white)
-        .background(.red, in: .rect(cornerRadius: 16))
+        .glassEffect(.regular.tint(Self.alertTint), in: .rect(cornerRadius: 16))
         .padding(.horizontal)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
