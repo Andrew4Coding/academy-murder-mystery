@@ -7,6 +7,7 @@ struct MurderMysteryiOSApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(client: client)
+                .onAppear { GameClientRegistry.client = client }
         }
     }
 }

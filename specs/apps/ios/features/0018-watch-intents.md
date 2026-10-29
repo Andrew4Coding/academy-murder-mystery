@@ -1,7 +1,7 @@
 ---
 id: 0018
 title: Apple Watch intents
-status: approved
+status: in-progress
 owner: AND
 app: ios
 created: 2026-10-29
@@ -24,8 +24,8 @@ A werewolf can trigger Kill and Sabotage from an Apple Watch through App Intents
 - [ ] **AC1 Kill intent**: Given a werewolf with a nearby villager family, when they trigger Kill on the Watch, then the iPhone sends it and the host validates (cooldown, range).
 - [ ] **AC2 Sabotage intent**: Given the cooldown is over, when they trigger Reactor or Oxygen, then it behaves as in 0015.
 - [ ] **AC3 Feedback**: Given a result, then the Watch shows success or the host's error.
-- [ ] **AC4 Roles**: Villagers and OC devices expose no intents and the Watch never receives a role.
-- [ ] **AC5 Authority**: No rule runs on the Watch or the phone; both only send `GameCommand`s.
+- [x] **AC4 Roles**: Villagers and OC devices expose no intents and the Watch never receives a role.
+- [x] **AC5 Authority**: No rule runs on the Watch or the phone; both only send `GameCommand`s.
 
 ## UX
 
@@ -59,4 +59,4 @@ None.
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- Deviation: no watchOS target. App Intents live in the iPhone app (`iOS/Intents/GameIntents.swift`: kill the single nearby family, start Reactor or Oxygen) and are offered to Siri, Shortcuts and Apple Watch through the paired phone. AC1 to AC3 still need a check on a real Watch. Non-werewolves get the same "not available" reply, so no role leaks.

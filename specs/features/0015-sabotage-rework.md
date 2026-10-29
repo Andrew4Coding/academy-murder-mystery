@@ -1,7 +1,7 @@
 ---
 id: 0015
 title: Sabotage rework
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-29
@@ -23,11 +23,11 @@ Reactor (Collab 7A) and Oxygen (Collab 6) get their own buttons, the Admin sets 
 
 ## Acceptance criteria
 
-- [ ] **AC1 Separate buttons**: Given a werewolf device with the cooldown over and no active sabotage, then Reactor and Oxygen each have their own button.
-- [ ] **AC2 Per-booth settings**: Given Setup, then the Admin sets duration and cooldown minutes for Reactor and for Oxygen; defaults are 90 s and 120 s.
-- [ ] **AC3 Applied values**: Given a triggered booth, then its duration drives the countdown and its cooldown becomes the shared cooldown for all werewolf families.
-- [ ] **AC4 Alarm**: Given an active sabotage, then the Public Display plays a looping alarm until it is resolved or expires; the iOS banner sound is unchanged.
-- [ ] **AC5 Rules kept**: One sabotage at a time, none during meetings (0007 AC6, AC7) still hold.
+- [x] **AC1 Separate buttons**: Given a werewolf device with the cooldown over and no active sabotage, then Reactor and Oxygen each have their own button.
+- [x] **AC2 Per-booth settings**: Given Setup, then the Admin sets duration and cooldown minutes for Reactor and for Oxygen; defaults are 90 s and 120 s.
+- [x] **AC3 Applied values**: Given a triggered booth, then its duration drives the countdown and its cooldown becomes the shared cooldown for all werewolf families.
+- [x] **AC4 Alarm**: Given an active sabotage, then the Public Display plays a looping alarm until it is resolved or expires; the iOS banner sound is unchanged.
+- [x] **AC5 Rules kept**: One sabotage at a time, none during meetings (0007 AC6, AC7) still hold.
 
 ## UX
 
@@ -61,4 +61,4 @@ Accessibility notes: alarm uses sound, haptics and text; the Public Display has 
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- `GameSettings.oxygenDuration` / `oxygenCooldown` (optional, Reactor uses the original fields). `GameView.sabotageTimings`. iOS: one card per booth. Admin: Sabotage section in Setup, looping `NSSound` ("Sosumi", a placeholder) with a mute switch in Display.

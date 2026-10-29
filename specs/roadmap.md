@@ -13,20 +13,19 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0008 OC mode and task stamping](features/0008-oc-mode-and-stamping.md)
 - [0009 Public Display](apps/admin/features/0009-public-display.md)
 - [0010 Simulation mode](apps/admin/features/0010-simulation-mode.md)
-
-## Now
-
-- [0011 Lifecycle bugfixes](features/0011-lifecycle-bugfixes.md)
 - [0012 Join and families](features/0012-join-and-families.md)
-
-## Next
-
-- [0013 Kill notice and game end](features/0013-kill-notice-and-game-end.md)
+- [0013 Kill notice and game end](features/0013-kill-notice-and-game-end.md): the dead-players-and-tasks question is still open.
 - [0014 Meeting upgrade](features/0014-meeting-upgrade.md)
 - [0015 Sabotage rework](features/0015-sabotage-rework.md)
 - [0016 OC station rework](features/0016-oc-station-rework.md)
-- [0017 iPad admin dashboard](apps/admin/features/0017-ipad-admin.md)
-- [0018 Apple Watch intents](apps/ios/features/0018-watch-intents.md)
+
+## Now
+
+- [0011 Lifecycle bugfixes](features/0011-lifecycle-bugfixes.md): AC5 (nearby flashing) needs a real-device check.
+- [0017 iPad admin dashboard](apps/admin/features/0017-ipad-admin.md): not started.
+- [0018 Apple Watch intents](apps/ios/features/0018-watch-intents.md): intents built on the iPhone; check on a real Watch.
+
+## Next
 
 
 ## Later
