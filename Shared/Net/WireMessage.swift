@@ -33,6 +33,7 @@ enum AdminCommand: Codable, Equatable, Sendable {
     case extendMeeting(seconds: TimeInterval)
     case approveSkipDiscussion
     case resolveSabotage
+    case removeFamily(FamilyID)
 }
 
 struct Selfie: Codable, Equatable, Sendable {

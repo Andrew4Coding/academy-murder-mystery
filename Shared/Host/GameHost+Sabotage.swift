@@ -14,6 +14,7 @@ extension GameHost {
         case let .extendMeeting(seconds): try extendMeeting(seconds: seconds)
         case .approveSkipDiscussion: try approveSkipDiscussion()
         case .resolveSabotage: try applyAsOC(.resolveSabotage)
+        case let .removeFamily(family): try removeFamily(family)
         }
     }
 

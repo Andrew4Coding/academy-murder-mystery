@@ -149,6 +149,28 @@ extension GameHost {
         commit()
     }
 
+    func removeFamily(_ id: FamilyID) throws {
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        guard state.families[id] != nil else { throw RuleError.unknownFamily(id) }
+        let removed = Set(state.players.values.filter { $0.family == id }.map(\.id))
+        for playerID in removed {
+            state.players[playerID] = nil
+            selfies[playerID] = nil
+        }
+        for (clientID, session) in sessions {
+            if case let .player(playerID)? = session.identity, removed.contains(playerID) {
+                sessions[clientID]?.identity = nil
+                send(.reset, to: clientID)
+            }
+        }
+        state.families[id] = nil
+        let update = ServerMessage.selfies(selfieList)
+        for (clientID, session) in sessions where session.identity != nil {
+            send(update, to: clientID)
+        }
+        commit()
+    }
+
     func sync(clientID: ClientID) throws {
         tick()
         let identity = try signedIn(clientID)

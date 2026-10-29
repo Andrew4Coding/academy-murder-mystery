@@ -40,6 +40,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Delete a family from the dashboard's families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
 - iPad dashboard: connect to the Mac host with the OC PIN, see game status and families, start a discussion, add time, approve a skip and resolve a sabotage ([0017](specs/apps/admin/features/0017-ipad-admin.md)).
 
 ### MurderMysteryAdmin
@@ -50,6 +51,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Delete a family from the Setup families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
 - Hosts the game on the local network and lists connected devices, with a connectivity check ([0003](specs/features/0003-lan-host-transport.md)).
 - Setup screen: families, join codes and QR, timings, OC PIN, Start Game and New Game ([0004](specs/features/0004-lobby-and-roles.md)).
 - Game screen: start discussion, proxy votes, results and a family status table with optional roles ([0005](specs/features/0005-meetings-and-voting.md)).

@@ -20,7 +20,7 @@ struct DashboardView: View {
             .navigationSplitViewColumnWidth(min: 320, ideal: 380)
             .toolbar { ToolbarItem { Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right") { client.signOut() } } }
         } detail: {
-            FamiliesTable(families: admin.families)
+            FamiliesTable(families: admin.families, canDelete: admin.isLobby) { client.send(.admin(.removeFamily($0))) }
                 .navigationTitle("Families")
         }
     }
@@ -99,6 +99,10 @@ struct DashboardView: View {
 
 private struct FamiliesTable: View {
     let families: [AdminFamilyRow]
+    let canDelete: Bool
+    let onDelete: (FamilyID) -> Void
+
+    @State private var deleting: AdminFamilyRow?
 
     var body: some View {
         Table(families) {
@@ -106,6 +110,25 @@ private struct FamiliesTable: View {
             TableColumn("Player") { Text($0.playerName ?? "-") }
             TableColumn("Status") { Text($0.life.title) }
             TableColumn("Stamps") { Text($0.stampsTotal == 0 ? "-" : "\($0.stampsDone) of \($0.stampsTotal)") }
+            TableColumn("Delete") { family in
+                Button("Delete \(family.name)", systemImage: "trash", role: .destructive) { deleting = family }
+                    .labelStyle(.iconOnly)
+                    .disabled(!canDelete)
+            }
+        }
+        .confirmationDialog(
+            deleting.map { "Delete \($0.name)?" } ?? "",
+            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            titleVisibility: .visible
+        ) {
+            if let family = deleting {
+                Button("Delete \(family.name)", role: .destructive) {
+                    onDelete(family.id)
+                    deleting = nil
+                }
+            }
+        } message: {
+            Text("The player in this family goes back to the join screen.")
         }
     }
 }
