@@ -60,15 +60,21 @@ struct BoothStampView: View {
                 }
             }
             Section {
-                ForEach(rows) { family in
-                    Button { select(family) } label: { row(family) }
-                        .foregroundStyle(.primary)
-                        .disabled(family.life != .alive || family.stamped == true)
-                }
+                Label("Stamp the family's card, then tap that family below.", systemImage: "hand.tap")
+                    .font(.headline)
             } header: {
-                Text("Families")
-            } footer: {
-                Text("Stamp the family's card, then confirm here.")
+                Text("Stamp a family")
+            }
+            Section {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
+                    ForEach(rows) { family in
+                        Button { select(family) } label: { card(family) }
+                            .buttonStyle(.plain)
+                            .disabled(family.life != .alive || family.stamped == true)
+                    }
+                }
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
             }
         }
         .searchable(text: $search, prompt: "Find a family")
@@ -103,24 +109,28 @@ struct BoothStampView: View {
 
     @State private var offList: OCFamilyRow?
 
-    private func row(_ family: OCFamilyRow) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(family.name)
-                Text("\(family.stampsDone) of \(family.stampsTotal) stamps")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            if family.life != .alive {
-                Text("Out of game").foregroundStyle(.secondary)
-            } else if family.stamped == true {
-                Label("Stamped", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-            } else if family.onList == false {
-                Text("Not on list").foregroundStyle(.secondary)
-            }
+    private func card(_ family: OCFamilyRow) -> some View {
+        let isOut = family.life != .alive
+        let isStamped = family.stamped == true
+        let tint: Color = isOut ? .gray : isStamped ? .green : family.onList == false ? .orange : .accentColor
+        return VStack(spacing: 6) {
+            Image(systemName: isStamped ? "checkmark.seal.fill" : "seal")
+                .font(.title)
+            Text(family.name)
+                .font(.title3.bold())
+                .multilineTextAlignment(.center)
+            Text("\(family.stampsDone) of \(family.stampsTotal) stamps")
+                .font(.caption)
+            Text(isOut ? "Out of game" : isStamped ? "Stamped" : family.onList == false ? "Not on list" : "Tap to stamp")
+                .font(.caption.weight(.semibold))
         }
+        .frame(maxWidth: .infinity, minHeight: 120)
+        .padding(8)
+        .foregroundStyle(tint)
+        .background(tint.opacity(0.14), in: .rect(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(tint.opacity(0.5), lineWidth: 1.5))
         .contentShape(.rect)
+        .accessibilityElement(children: .combine)
     }
 
     private func select(_ family: OCFamilyRow) {
