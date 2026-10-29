@@ -62,9 +62,9 @@ struct GameEngineWinTests {
     @Test func werewolvesWinOnParity() throws {
         var fixture = try Fixture(families: 4, werewolves: 1)
         let wolf = fixture.werewolves[0]
-        try fixture.apply(.kill(killer: wolf, victim: fixture.villagers[0]), at: 60)
+        try fixture.apply(.kill(killer: wolf, victim: fixture.villagers[0]), at: 0)
         #expect(fixture.engine.state.outcome == nil)
-        let events = try fixture.apply(.kill(killer: wolf, victim: fixture.villagers[1]), at: 120)
+        let events = try fixture.apply(.kill(killer: wolf, victim: fixture.villagers[1]), at: 60)
         #expect(events.outcome == Outcome(winner: .werewolves, reason: .parity))
     }
 
