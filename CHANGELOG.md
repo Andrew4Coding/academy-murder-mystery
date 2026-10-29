@@ -24,7 +24,7 @@ Tooling and refactors that users can't see don't go here.
 - One sabotage card per booth, with its own fix time ([0015](specs/features/0015-sabotage-rework.md)).
 - Booth stamping as a grid of large family cards ([0016](specs/features/0016-oc-station-rework.md)).
 - Report a body: stand near a fallen family and tap Report to call a discussion ([0019](specs/features/0019-report-body.md)).
-- Kill and sabotage App Intents, usable from Siri and Shortcuts, including on Apple Watch ([0018](specs/apps/ios/features/0018-watch-intents.md)).
+- Kill, sabotage and voting App Intents (vote for a family, vote skip, skip discussion), usable from Siri and Shortcuts, including on Apple Watch, and they work when the app is in the background ([0018](specs/apps/ios/features/0018-watch-intents.md)).
 
 #### Fixed
 

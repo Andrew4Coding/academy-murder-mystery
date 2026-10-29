@@ -50,6 +50,7 @@ final class GameClient {
     }
 
     func start() {
+        guard pump == nil else { return }
         pump?.cancel()
         pump = Task { [weak self, transport] in
             for await event in transport.events {
@@ -60,8 +61,13 @@ final class GameClient {
         transport.start()
     }
 
+    func clearError() {
+        lastError = nil
+    }
+
     func stop() {
         pump?.cancel()
+        pump = nil
         transport.stop()
     }
 
