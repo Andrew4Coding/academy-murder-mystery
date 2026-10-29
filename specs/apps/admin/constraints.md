@@ -3,7 +3,7 @@ status: draft
 updated: 2026-10-22
 ---
 
-# Constraints: MurderMysteryAdmin (macOS)
+# Constraints: MoonfallAdmin (macOS)
 
 These add to [../../constraints.md](../../constraints.md) and never contradict it.
 

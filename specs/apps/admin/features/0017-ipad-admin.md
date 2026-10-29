@@ -21,7 +21,7 @@ The Admin runs on macOS only. A new iPad target gives organisers a dashboard (ga
 
 ## Acceptance criteria
 
-- [x] **AC1 Target**: `project.yml` defines `MurderMysteryAdminiPad` (iPad, iOS 26+) with its own scheme and test bundle.
+- [x] **AC1 Target**: `project.yml` defines `MoonfallAdminiPad` (iPad, iOS 26+) with its own scheme and test bundle.
 - [ ] **AC2 Reuse**: Admin views used by both Mac and iPad live in `Shared/` with no `#if os()`; platform differences are injected.
 - [x] **AC3 Dashboard**: The iPad shows game status, families, meeting controls (add time, start discussion, approve skip) and Resolve Sabotage.
 - [x] **AC4 Host model**: One authority only. The iPad is a client of the Mac host (not a second host) unless an ADR changes ADR-0002.
@@ -58,6 +58,6 @@ New admin-client message identity on the wire; no schema change.
 
 ## Implementation notes
 
-- Target `MurderMysteryAdminiPad` (`AdminiPad/`, scheme only, no test bundle yet). The iPad is an OC device with `OCStation.admin`, authenticated by the OC PIN (answers the PIN open question); `GameHost.adminView()` builds `AdminView` and `GameHost.adminCommand` runs `AdminCommand`s. No roles are sent.
+- Target `MoonfallAdminiPad` (`AdminiPad/`, scheme only, no test bundle yet). The iPad is an OC device with `OCStation.admin`, authenticated by the OC PIN (answers the PIN open question); `GameHost.adminView()` builds `AdminView` and `GameHost.adminCommand` runs `AdminCommand`s. No roles are sent.
 - Deviation from AC2: the Mac admin views use macOS-only APIs (`Table` windows, `NSSound`, toolbars), so they were not moved into `Shared/`. The iPad has its own small dashboard on the shared client types. AC2 stays unticked.
 - Not run on a real iPad.
