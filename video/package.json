@@ -1,0 +1,28 @@
+{
+  "name": "moonfall-explainer",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Explainer out/explainer.mp4",
+    "still": "remotion still src/index.ts Explainer",
+    "script": "tsx scripts/make-script.ts",
+    "audio": "tsx scripts/make-audio.ts",
+    "voiceover": "tsx scripts/make-voiceover.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.539",
+    "@remotion/google-fonts": "^4.0.539",
+    "@remotion/media": "^4.0.539",
+    "@remotion/player": "^4.0.539",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.539"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
