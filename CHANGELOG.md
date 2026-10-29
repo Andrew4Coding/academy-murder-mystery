@@ -11,14 +11,14 @@ Tooling and refactors that users can't see don't go here.
 #### Added
 
 - Finds the game host on the local network and shows connection status ([0003](specs/features/0003-lan-host-transport.md)).
-- Join a family with a code or QR, choose the head of family, and see your role and tasks ([0004](specs/features/0004-lobby-and-roles.md)).
+- Join with a code or QR and see your role and tasks ([0004](specs/features/0004-lobby-and-roles.md)).
 - Meeting tab with discussion and voting timers, announced deaths, head-only anonymous voting and results ([0005](specs/features/0005-meetings-and-voting.md)).
 - Werewolf Actions tab: eliminate a nearby villager family over Bluetooth, with cooldown ([0006](specs/features/0006-ble-kill.md)).
 - Sabotage: werewolves start Reactor or Oxygen sabotage, everyone sees an alert banner with the countdown ([0007](specs/features/0007-sabotage.md)).
 - Organiser mode: sign in with the OC PIN, stamp families at a booth with undo, resolve sabotage, or observe from the Town Hall ([0008](specs/features/0008-oc-mode-and-stamping.md)).
 
 - Leave a family from the lobby, a reconnecting state instead of the join screen, and a sync when a timer ends ([0011](specs/features/0011-lifecycle-bugfixes.md)).
-- Scan one game QR to be placed in a family automatically, with the first joiner as head, and rename your family ([0012](specs/features/0012-join-and-families.md)).
+- Scan one game QR to be placed in a family automatically, as your own family, and rename it ([0012](specs/features/0012-join-and-families.md)).
 - Full-screen notices when your family is killed and when the game ends with the winner ([0013](specs/features/0013-kill-notice-and-game-end.md)).
 - Selfie and head name on meeting cards, a vote to skip discussion, and a bar chart of vote results ([0014](specs/features/0014-meeting-upgrade.md)).
 - One sabotage card per booth, with its own fix time ([0015](specs/features/0015-sabotage-rework.md)).
@@ -32,7 +32,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Removed
 
-- Hand Over and Become Head of Family ([0012](specs/features/0012-join-and-families.md)).
+- Hand Over, Become Head of Family and the member list: one family is one player ([0020](specs/features/0020-one-person-per-family.md)).
 - Town Hall observer station ([0016](specs/features/0016-oc-station-rework.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 
@@ -40,6 +40,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Delete a family from the dashboard's families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
 - iPad dashboard: connect to the Mac host with the OC PIN, see game status and families, start a discussion, add time, approve a skip and resolve a sabotage ([0017](specs/apps/admin/features/0017-ipad-admin.md)).
 
 ### MurderMysteryAdmin
@@ -50,6 +51,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Delete a family from the Setup families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
 - Hosts the game on the local network and lists connected devices, with a connectivity check ([0003](specs/features/0003-lan-host-transport.md)).
 - Setup screen: families, join codes and QR, timings, OC PIN, Start Game and New Game ([0004](specs/features/0004-lobby-and-roles.md)).
 - Game screen: start discussion, proxy votes, results and a family status table with optional roles ([0005](specs/features/0005-meetings-and-voting.md)).
@@ -59,7 +61,7 @@ Tooling and refactors that users can't see don't go here.
 - Public Display window for the lab screens: game clock, meeting timers, sabotage alarm, vote results and winner ([0009](specs/apps/admin/features/0009-public-display.md)).
 - Simulation mode: rehearse a full game with seeded bots at up to 60x speed, separate from the real game ([0010](specs/apps/admin/features/0010-simulation-mode.md)).
 
-- One join QR on the Public Display and in Setup, a players-per-family setting and family rename ([0012](specs/features/0012-join-and-families.md)).
+- One join QR on the Public Display and in Setup, and family rename ([0012](specs/features/0012-join-and-families.md)).
 - Add time to a meeting, approve a skip-discussion vote, and vote result charts ([0014](specs/features/0014-meeting-upgrade.md)).
 - Open Display button in the toolbar, and the Public Display lobby screen lists families and members beside the join QR ([0012](specs/features/0012-join-and-families.md)).
 - Fix time and cooldown per sabotage booth, and a looping alarm on the Public Display with a mute switch ([0015](specs/features/0015-sabotage-rework.md)).

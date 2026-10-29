@@ -6,9 +6,8 @@ Domain terms. Use the **Code name** in Swift identifiers, so specs and code read
 |---|---|---|---|
 | Item | `Item` | Sample record from the scaffold. Removed when spec 0002 is implemented. | scaffold |
 | Game | `Game` | One play session with its families, rules and clock; hosted by the Mac Admin. | draft |
-| Family | `Family` | A team of 6 players moving together. Role, stamps, vote and life state are per family. | draft |
+| Family | `Family` | One player and their phone: the unit for role, stamps and vote. Role, stamps, vote and life state are per family. | draft |
 | Player | `Player` | One person with the iOS app who belongs to exactly one family. | draft |
-| Head of family | `headOfFamily` | The family member who attends the Town Hall and casts the family's vote. Can change only between meetings. | draft |
 | Werewolf (Impostor) | `Role.werewolf` | Hidden role. Kills villager families and triggers sabotage. | draft |
 | Villager (Crewmate) | `Role.villager` | Role that completes tasks and votes out werewolves. | draft |
 | OC | `OC` | Organiser. Either the Town Hall OC on the Mac or a booth OC in the iOS app's OC mode. | draft |

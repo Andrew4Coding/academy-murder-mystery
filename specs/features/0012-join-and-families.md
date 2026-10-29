@@ -64,5 +64,6 @@ Accessibility notes: the QR also shows the typed fallback code; rename field has
 
 ## Implementation notes
 
+- Capacity and head rules were superseded by [0020](0020-one-person-per-family.md).
 - `HostState.gameCode`, `GameHost.assignFamily`, `renameFamily`, `setFamilyCapacity`; ADR 0006. Admin Setup shows the QR and a players-per-family stepper; the Public Display waiting screen shows the QR. `FamilyInfo.joinCode` is kept for stored games, rehearsals and simulation.
 - Open: what happens when the last family is partly filled at start.

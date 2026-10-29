@@ -20,7 +20,7 @@ struct GameHostSabotageTests {
             let client = harness.makeClient()
             client.join(code: family.joinCode, name: "H\(family.id.rawValue)")
             _ = await eventually { client.isSignedIn }
-            _ = await eventually { client.view?.lobby?.isHead == true }
+            _ = await eventually { client.view?.lobby != nil }
             heads[family.id] = client
         }
         try harness.host.startGame()

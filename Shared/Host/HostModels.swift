@@ -21,7 +21,6 @@ struct FamilyInfo: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     var name: String
     let joinCode: String
-    var head: PlayerID?
 }
 
 struct OCDevice: Codable, Equatable, Sendable {
