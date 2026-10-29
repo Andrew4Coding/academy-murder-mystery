@@ -8,8 +8,8 @@ import { Roles } from "./scenes/Roles";
 import { Round } from "./scenes/Round";
 import { SabotageScene } from "./scenes/SabotageScene";
 import { WinScene } from "./scenes/WinScene";
-import { TOTAL_FRAMES, timeline } from "./script";
-import { VOICEOVER_FILE } from "./config";
+import { TOTAL_FRAMES, VO_DELAY_FRAMES, timeline } from "./script";
+const hasVoiceover = timeline.some((s) => s.lines.some((l) => l.vo));
 
 const at = (id: string, line: number, offset = 0) => {
   const s = timeline.find((t) => t.id === id)!;
@@ -54,10 +54,18 @@ export const Explainer: React.FC = () => (
       src={staticFile("audio/music.wav")}
       volume={(f) =>
         interpolate(f, [0, 60, TOTAL_FRAMES - 90, TOTAL_FRAMES], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) *
-        (VOICEOVER_FILE ? 0.12 : 0.3)
+        (hasVoiceover ? 0.14 : 0.3)
       }
     />
-    {VOICEOVER_FILE && <Audio src={staticFile(VOICEOVER_FILE)} />}
+    {timeline.flatMap((s) =>
+      s.lines.map((l, i) =>
+        l.vo ? (
+          <Sequence key={`${s.id}-${i}`} from={l.startFrame + VO_DELAY_FRAMES} durationInFrames={l.endFrame - l.startFrame}>
+            <Audio src={staticFile(l.vo)} />
+          </Sequence>
+        ) : null,
+      ),
+    )}
     {sfx.map((e, i) => (
       <Sequence key={i} from={e.from} durationInFrames={e.dur ?? 150}>
         <Audio

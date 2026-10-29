@@ -1,0 +1,134 @@
+[
+  {
+    "file": "audio/vo/01-intro.mp3",
+    "seconds": 1.49
+  },
+  {
+    "file": "audio/vo/02-intro.mp3",
+    "seconds": 2.28
+  },
+  {
+    "file": "audio/vo/03-intro.mp3",
+    "seconds": 3.2
+  },
+  {
+    "file": "audio/vo/04-intro.mp3",
+    "seconds": 2.32
+  },
+  {
+    "file": "audio/vo/05-roles.mp3",
+    "seconds": 3.99
+  },
+  {
+    "file": "audio/vo/06-roles.mp3",
+    "seconds": 2.37
+  },
+  {
+    "file": "audio/vo/07-roles.mp3",
+    "seconds": 3.85
+  },
+  {
+    "file": "audio/vo/08-roles.mp3",
+    "seconds": 5.8
+  },
+  {
+    "file": "audio/vo/09-map.mp3",
+    "seconds": 2.46
+  },
+  {
+    "file": "audio/vo/10-map.mp3",
+    "seconds": 3.95
+  },
+  {
+    "file": "audio/vo/11-map.mp3",
+    "seconds": 2.32
+  },
+  {
+    "file": "audio/vo/12-round.mp3",
+    "seconds": 7.11
+  },
+  {
+    "file": "audio/vo/13-round.mp3",
+    "seconds": 4.55
+  },
+  {
+    "file": "audio/vo/14-round.mp3",
+    "seconds": 6.78
+  },
+  {
+    "file": "audio/vo/15-round.mp3",
+    "seconds": 3.39
+  },
+  {
+    "file": "audio/vo/16-round.mp3",
+    "seconds": 5.15
+  },
+  {
+    "file": "audio/vo/17-round.mp3",
+    "seconds": 5.9
+  },
+  {
+    "file": "audio/vo/18-round.mp3",
+    "seconds": 4.04
+  },
+  {
+    "file": "audio/vo/19-app.mp3",
+    "seconds": 2.32
+  },
+  {
+    "file": "audio/vo/20-app.mp3",
+    "seconds": 4.27
+  },
+  {
+    "file": "audio/vo/21-app.mp3",
+    "seconds": 3.2
+  },
+  {
+    "file": "audio/vo/22-app.mp3",
+    "seconds": 3.62
+  },
+  {
+    "file": "audio/vo/23-app.mp3",
+    "seconds": 4.83
+  },
+  {
+    "file": "audio/vo/24-app.mp3",
+    "seconds": 2.51
+  },
+  {
+    "file": "audio/vo/25-sabotage.mp3",
+    "seconds": 5.39
+  },
+  {
+    "file": "audio/vo/26-sabotage.mp3",
+    "seconds": 4.78
+  },
+  {
+    "file": "audio/vo/27-sabotage.mp3",
+    "seconds": 3.25
+  },
+  {
+    "file": "audio/vo/28-sabotage.mp3",
+    "seconds": 4.37
+  },
+  {
+    "file": "audio/vo/29-win.mp3",
+    "seconds": 5.62
+  },
+  {
+    "file": "audio/vo/30-win.mp3",
+    "seconds": 3.95
+  },
+  {
+    "file": "audio/vo/31-win.mp3",
+    "seconds": 5.29
+  },
+  {
+    "file": "audio/vo/32-win.mp3",
+    "seconds": 5.53
+  },
+  {
+    "file": "audio/vo/33-win.mp3",
+    "seconds": 1.86
+  }
+]

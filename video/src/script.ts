@@ -1,3 +1,5 @@
+import voiceover from "./voiceover.json";
+
 export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
@@ -89,17 +91,23 @@ export type SceneTiming = {
   startFrame: number;
   durationInFrames: number;
   lineStarts: number[];
-  lines: (Line & { startFrame: number; endFrame: number })[];
+  lines: (Line & { startFrame: number; endFrame: number; vo?: string })[];
 };
 
+export const VO_DELAY_FRAMES = 5;
+const VO_TAIL_SECONDS = 0.5;
+
 let cursor = 0;
+let lineIndex = 0;
 export const timeline: SceneTiming[] = scenes.map((s) => {
   const startFrame = cursor;
   let local = 0;
   const lines = s.lines.map((l) => {
+    const vo = voiceover[lineIndex++] as { file: string; seconds: number } | undefined;
+    const dur = vo ? Math.max(l.dur, vo.seconds + VO_TAIL_SECONDS) : l.dur;
     const startF = local;
-    local += Math.round(l.dur * FPS);
-    return { ...l, startFrame: cursor + startF, endFrame: cursor + local, local: startF };
+    local += Math.round(dur * FPS);
+    return { ...l, dur, vo: vo?.file, startFrame: cursor + startF, endFrame: cursor + local, local: startF };
   });
   cursor += local;
   return {
