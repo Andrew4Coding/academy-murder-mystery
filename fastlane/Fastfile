@@ -140,7 +140,7 @@ end
 desc "Register the bundle IDs and create the apps in App Store Connect (needs an Apple ID login, not the API key)"
 lane :create_apps do |options|
   [
-    [:ios, ENV.fetch("ASC_NAME_IOS", "Moonfall"), "ios"],
+    [:ios, ENV.fetch("ASC_NAME_IOS", "Moonfall Werewolf Night"), "ios"],
     [:admin, ENV.fetch("ASC_NAME_ADMIN", "Moonfall Admin"), "osx"],
     [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Moonfall OC"), "ios"]
   ].each do |key, name, platform|
