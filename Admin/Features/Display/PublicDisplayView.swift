@@ -50,7 +50,7 @@ struct PublicDisplayView: View {
         case .hostOffline:
             Headline("Host offline", detail: "The game host isn't running.")
         case .waiting:
-            JoinBlock(code: display.joinCode, joined: controller.host.state.players.count)
+            JoinBlock(code: display.joinCode, joined: controller.host.state.players.count, families: display.lobbyFamilies)
         case let .playing(gameEndsAt):
             TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: now)
         case let .discussion(until):
@@ -74,23 +74,43 @@ struct PublicDisplayView: View {
 private struct JoinBlock: View {
     let code: String?
     let joined: Int
+    let families: [LobbyFamily]
 
     var body: some View {
-        VStack(spacing: 24) {
-            Text("Scan to join")
-                .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .semibold))
-            if let code {
-                QRCodeView(text: code)
-                    .frame(width: 420, height: 420)
-                    .padding(16)
-                    .background(.white)
-                Text(code)
-                    .font(.system(size: PublicDisplayLayout.detailFontSize, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.8))
+        HStack(alignment: .top, spacing: 64) {
+            VStack(spacing: 24) {
+                Text("Scan to join")
+                    .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .semibold))
+                if let code {
+                    QRCodeView(text: code)
+                        .frame(width: 420, height: 420)
+                        .padding(16)
+                        .background(.white)
+                    Text(code)
+                        .font(.system(size: PublicDisplayLayout.detailFontSize, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                Text("\(joined) players joined")
+                    .font(.system(size: PublicDisplayLayout.detailFontSize))
+                    .foregroundStyle(.white.opacity(0.7))
             }
-            Text("\(joined) players joined")
-                .font(.system(size: PublicDisplayLayout.detailFontSize))
-                .foregroundStyle(.white.opacity(0.7))
+            if !families.isEmpty {
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 24)], alignment: .leading, spacing: 24) {
+                        ForEach(families) { family in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(family.name)
+                                    .font(.system(size: PublicDisplayLayout.detailFontSize, weight: .bold))
+                                Text(family.members.isEmpty ? "Waiting…" : family.members.joined(separator: ", "))
+                                    .font(.system(size: PublicDisplayLayout.detailFontSize * 0.7))
+                                    .foregroundStyle(.white.opacity(0.7))
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+                .frame(maxWidth: 1000)
+            }
         }
         .accessibilityElement(children: .combine)
     }
