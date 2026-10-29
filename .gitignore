@@ -50,3 +50,8 @@ vendor/bundle/
 
 # SwiftData store created when unsigned test hosts run
 default.store*
+
+# video
+video/node_modules/
+video/out/
+video/public/audio/*.wav
