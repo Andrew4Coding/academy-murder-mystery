@@ -171,6 +171,9 @@ private extension GameEngine {
         case .startMeeting: try startMeeting(at: now)
         case let .castVote(by, choice): try castVote(by: by, choice: choice, at: now)
         case let .proxyVote(family, choice): try proxyVote(for: family, choice: choice, at: now)
+        case let .extendMeeting(seconds): try extendMeeting(by: seconds)
+        case let .voteSkipDiscussion(by): try voteSkipDiscussion(by: by)
+        case .approveSkipDiscussion: try approveSkipDiscussion(at: now)
         case let .override(override): try applyOverride(override, at: now)
         }
     }
@@ -232,8 +235,41 @@ private extension GameEngine {
         state.announcedDeaths = dead
         state.lastResult = nil
         state.votes = [:]
+        state.skipVotes = []
         state.phase = .discussion(until: now.addingTimeInterval(state.settings.discussionDuration))
         return [GameEvent(at: now, kind: .meetingStarted(deadFamilies: dead))]
+    }
+
+    mutating func extendMeeting(by seconds: TimeInterval) throws -> [GameEvent] {
+        guard seconds > 0 else { throw RuleError.wrongPhase }
+        switch state.phase {
+        case let .discussion(until):
+            state.phase = .discussion(until: until.addingTimeInterval(seconds))
+        case let .voting(until, isFinal):
+            state.phase = .voting(until: until.addingTimeInterval(seconds), isFinal: isFinal)
+        case .running, .ended:
+            throw RuleError.wrongPhase
+        }
+        return []
+    }
+
+    mutating func voteSkipDiscussion(by id: FamilyID) throws -> [GameEvent] {
+        guard case .discussion = state.phase else { throw RuleError.wrongPhase }
+        guard try state.family(id).isAlive else { throw RuleError.familyNotAlive(id) }
+        if state.skipVotes.contains(id) {
+            state.skipVotes.remove(id)
+        } else {
+            state.skipVotes.insert(id)
+        }
+        return []
+    }
+
+    mutating func approveSkipDiscussion(at now: Date) throws -> [GameEvent] {
+        guard case .discussion = state.phase else { throw RuleError.wrongPhase }
+        guard state.skipRequested else { throw RuleError.skipNotRequested }
+        state.skipVotes = []
+        state.phase = .voting(until: now.addingTimeInterval(state.settings.votingDuration), isFinal: false)
+        return [GameEvent(at: now, kind: .votingOpened(isFinal: false))]
     }
 
     mutating func castVote(by id: FamilyID, choice: VoteChoice, at now: Date) throws -> [GameEvent] {

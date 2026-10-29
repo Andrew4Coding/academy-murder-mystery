@@ -65,7 +65,9 @@ extension GameHost {
             id: id,
             name: info.name,
             life: family.life,
-            revealedRole: family.life == .expelled ? family.role : nil
+            revealedRole: family.life == .expelled ? family.role : nil,
+            headID: info.head,
+            headName: info.head.flatMap { state.players[$0]?.name }
         )
     }
 
@@ -106,7 +108,10 @@ extension GameHost {
                 : [],
             killReadyAt: engineFamily.role == .werewolf && engineFamily.isAlive ? engineFamily.killReadyAt : nil,
             sabotage: sabotageView(engine),
-            sabotageReadyAt: engineFamily.role == .werewolf ? engine.state.sabotageReadyAt : nil
+            sabotageReadyAt: engineFamily.role == .werewolf ? engine.state.sabotageReadyAt : nil,
+            skipVotes: engine.state.skipVotes.count,
+            mySkipVote: engine.state.skipVotes.contains(info.id),
+            skipRequested: engine.state.skipRequested
         )
     }
 }

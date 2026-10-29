@@ -16,6 +16,9 @@ enum GameCommand: Codable, Equatable, Sendable {
     case startMeeting
     case castVote(by: FamilyID, choice: VoteChoice)
     case proxyVote(for: FamilyID, choice: VoteChoice)
+    case extendMeeting(seconds: TimeInterval)
+    case voteSkipDiscussion(by: FamilyID)
+    case approveSkipDiscussion
     case override(OCOverride)
 }
 
@@ -34,4 +37,5 @@ enum RuleError: Error, Equatable, Sendable {
     case notStamped
     case invalidVoteTarget
     case notDead(FamilyID)
+    case skipNotRequested
 }

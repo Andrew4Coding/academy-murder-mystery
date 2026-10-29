@@ -12,6 +12,7 @@ enum HostError: Error, Equatable, Sendable {
     case notAPlayer
     case notHead
     case invalidName
+    case photoTooLarge
     case setup(String)
     case notNearby
     case notOC
@@ -33,6 +34,7 @@ enum HostError: Error, Equatable, Sendable {
         case .unknownDevice: "This device isn't registered with the host any more."
         case .notAPlayer: "Only players can do that."
         case .notHead: "Only the head of family can do that."
+        case .photoTooLarge: "That photo is too large."
         case .invalidName: "Family names need 1 to 24 characters."
         case let .setup(reason): reason
         case .notNearby: "That family isn't close enough."
@@ -56,6 +58,7 @@ extension RuleError {
         case .notWerewolf: "Only werewolf families can do that."
         case .notVillager: "That family can't be targeted."
         case .wrongPhase: "That isn't allowed right now."
+        case .skipNotRequested: "Most families haven't voted to skip yet."
         case .cooldownActive: "Still on cooldown."
         case .sabotageAlreadyActive: "A sabotage is already running."
         case .noActiveSabotage: "There's no sabotage to resolve."

@@ -4,6 +4,8 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case hello(Hello)
     case probeReply(UUID)
     case renameFamily(String)
+    case voteSkipDiscussion
+    case selfie(Data)
     case vote(VoteChoice)
     case sightings([Sighting])
     case kill(victim: FamilyID)
@@ -21,6 +23,12 @@ enum ServerMessage: Codable, Equatable, Sendable {
     case rejected(String)
     case probe(UUID)
     case reset
+    case selfies([Selfie])
+}
+
+struct Selfie: Codable, Equatable, Sendable {
+    let player: PlayerID
+    let jpeg: Data
 }
 
 enum WireCodec {

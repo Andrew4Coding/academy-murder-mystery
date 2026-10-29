@@ -16,6 +16,8 @@ struct FamilySummary: Codable, Equatable, Sendable, Identifiable {
     let name: String
     let life: LifeState
     let revealedRole: Role?
+    var headID: PlayerID?
+    var headName: String?
 }
 
 struct TaskProgress: Codable, Equatable, Sendable, Identifiable {
@@ -110,6 +112,9 @@ struct GameView: Codable, Equatable, Sendable {
     let killReadyAt: Date?
     let sabotage: SabotageView?
     let sabotageReadyAt: Date?
+    var skipVotes = 0
+    var mySkipVote = false
+    var skipRequested = false
 }
 
 struct ClientView: Codable, Equatable, Sendable {
