@@ -18,6 +18,7 @@ struct SetupView: View {
     @State private var gameMinutes = Int(GameSettings.standard.gameDuration / 60)
     @State private var renaming: FamilyInfo?
     @State private var renameText = ""
+    @State private var deleting: FamilyInfo?
     @State private var errorMessage: String?
     @State private var confirmingNewGame = false
 
@@ -108,7 +109,7 @@ struct SetupView: View {
             }
 
             Section("Families") {
-                FamiliesTable(host: host, onRename: { renameText = $0.name; renaming = $0 })
+                FamiliesTable(host: host, onRename: { renameText = $0.name; renaming = $0 }, onDelete: { deleting = $0 })
                     .frame(minHeight: 220)
             }
 
@@ -161,6 +162,22 @@ struct SetupView: View {
                 }
                 renaming = nil
             }
+        }
+        .confirmationDialog(
+            deleting.map { "Delete \($0.name)?" } ?? "",
+            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            titleVisibility: .visible
+        ) {
+            if let family = deleting {
+                Button("Delete \(family.name)", role: .destructive) {
+                    do { try host.removeFamily(family.id) } catch let error as HostError {
+                        errorMessage = error.message
+                    } catch { errorMessage = "\(error)" }
+                    deleting = nil
+                }
+            }
+        } message: {
+            Text("The player in this family goes back to the join screen.")
         }
         .alert("Can't change setup", isPresented: .constant(errorMessage != nil)) {
             Button("OK") { errorMessage = nil; loadDraft() }
@@ -274,6 +291,7 @@ struct SetupView: View {
 private struct FamiliesTable: View {
     let host: GameHost
     let onRename: (FamilyInfo) -> Void
+    let onDelete: (FamilyInfo) -> Void
 
     var body: some View {
         Table(families) {
@@ -289,6 +307,12 @@ private struct FamiliesTable: View {
                 Button("Rename", systemImage: "pencil") { onRename(family) }
                     .labelStyle(.iconOnly)
                     .help("Rename \(family.name)")
+            }
+            TableColumn("Delete") { (family: FamilyInfo) in
+                Button("Delete \(family.name)", systemImage: "trash", role: .destructive) { onDelete(family) }
+                    .labelStyle(.iconOnly)
+                    .disabled(!host.state.isLobby)
+                    .help("Delete \(family.name)")
             }
         }
     }
