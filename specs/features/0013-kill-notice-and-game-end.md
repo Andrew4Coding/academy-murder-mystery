@@ -1,7 +1,7 @@
 ---
 id: 0013
 title: Kill notice and game end
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-29
@@ -22,10 +22,10 @@ Today a killed player gets no clear signal and nobody is told who won when the g
 
 ## Acceptance criteria
 
-- [ ] **AC1 Victim notice**: Given a kill, then the victim's devices show a full-screen "You were killed" and play a haptic; the killer is not shown.
-- [ ] **AC2 No leak**: Given a kill, then other players see nothing new until the next meeting announces the deaths.
-- [ ] **AC3 Winner screen**: Given the game ends, then every iOS device and the Public Display show the winning side and the `Outcome.Reason` explanation from `GameLabels`.
-- [ ] **AC4 Reset from end**: Given the end screen, when the Admin starts a new game, then clients leave the end screen without a relaunch (the reset itself is 0011 AC3).
+- [x] **AC1 Victim notice**: Given a kill, then the victim's devices show a full-screen "You were killed" and play a haptic; the killer is not shown.
+- [x] **AC2 No leak**: Given a kill, then other players see nothing new until the next meeting announces the deaths.
+- [x] **AC3 Winner screen**: Given the game ends, then every iOS device and the Public Display show the winning side and the `Outcome.Reason` explanation from `GameLabels`.
+- [x] **AC4 Reset from end**: Given the end screen, when the Admin starts a new game, then clients leave the end screen without a relaunch (the reset itself is 0011 AC3).
 
 ## UX
 
@@ -59,4 +59,4 @@ Accessibility notes: notice is text plus haptic, never colour alone; respects Re
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- iOS: `GameNotice` covers in `GameTabsView` (`KilledNoticeView`, `GameOverView`). The victim notice is derived from the alive-to-killed transition, so there is no `killedNotice` field. Reset is spec 0011.

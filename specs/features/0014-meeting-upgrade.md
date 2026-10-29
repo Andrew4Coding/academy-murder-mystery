@@ -1,7 +1,7 @@
 ---
 id: 0014
 title: Meeting upgrade
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-29
@@ -23,12 +23,12 @@ Meetings gain four things: the Admin can add time manually, family cards show a 
 
 ## Acceptance criteria
 
-- [ ] **AC1 Add time**: Given discussion or voting, when the Admin taps "+1 min" (or sets a custom amount), then every device and the Public Display show the new end time via the server clock.
-- [ ] **AC2 Selfie**: Given the lobby, when a player takes a selfie, then it is compressed (about 100 KB), sent to the host and kept only for the game; it is deleted when the game ends.
-- [ ] **AC3 Names**: Given a meeting, then family and member cards show name and selfie.
-- [ ] **AC4 Skip-discussion vote**: Given discussion, when more than half of the living families vote to skip, then the Admin sees a request and, once approved, voting opens immediately.
-- [ ] **AC5 Vote chart**: Given a closed vote, then every device and the Public Display show a horizontal Swift Charts bar chart of counts per candidate plus Skip; ballots stay anonymous and `GameState.votes` remains excluded from `Codable`.
-- [ ] **AC6 Unchanged ballot**: Given voting, then the existing Skip option on the expulsion ballot and tie handling (a tie or skip lead expels no one) are unchanged.
+- [x] **AC1 Add time**: Given discussion or voting, when the Admin taps "+1 min" (or sets a custom amount), then every device and the Public Display show the new end time via the server clock.
+- [x] **AC2 Selfie**: Given the lobby, when a player takes a selfie, then it is compressed (about 100 KB), sent to the host and kept only for the game; it is deleted when the game ends.
+- [x] **AC3 Names**: Given a meeting, then family and member cards show name and selfie.
+- [x] **AC4 Skip-discussion vote**: Given discussion, when more than half of the living families vote to skip, then the Admin sees a request and, once approved, voting opens immediately.
+- [x] **AC5 Vote chart**: Given a closed vote, then every device and the Public Display show a horizontal Swift Charts bar chart of counts per candidate plus Skip; ballots stay anonymous and `GameState.votes` remains excluded from `Codable`.
+- [x] **AC6 Unchanged ballot**: Given voting, then the existing Skip option on the expulsion ballot and tie handling (a tie or skip lead expels no one) are unchanged.
 
 ## UX
 
@@ -63,4 +63,4 @@ Accessibility notes: the chart exposes a VoiceOver summary (candidate and count)
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- Engine: `extendMeeting`, `voteSkipDiscussion`, `approveSkipDiscussion`; skip votes are not encoded. Selfies live in `GameHost.selfies` (memory only), sent as `ServerMessage.selfies`, kept in `GameClient.selfies`. iOS: `SelfieCamera`, `VoteChart` (Swift Charts); Admin: Add Time and Approve Skip toolbar items, chart on the Public Display.

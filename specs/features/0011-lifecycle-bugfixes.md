@@ -1,7 +1,7 @@
 ---
 id: 0011
 title: Lifecycle bugfixes
-status: approved
+status: in-progress
 owner: AND
 app: all
 created: 2026-10-29
@@ -23,13 +23,13 @@ Playtest found six defects in the game lifecycle: players cannot leave a family,
 
 ## Acceptance criteria
 
-- [ ] **AC1 Leave in lobby**: Given a joined player and no game started, when they tap Leave (or Back), then they are removed from the family, their identity is cleared and they see the Join screen.
-- [ ] **AC2 No leave in game**: Given a started game, when a player views the app, then Leave and Back are not offered; only the Admin can remove or reconnect a device.
-- [ ] **AC3 New game reset**: Given an ended game, when the Admin confirms New Game, then every connected iOS client returns to Join (or to the lobby of its new family) without restarting the app.
-- [ ] **AC4 Discussion timeout**: Given discussion with a 120 s timer, when it expires, then the host calls `advance(to:)`, voting opens and every client shows the ballot; a client that missed the broadcast catches up on its next state.
+- [x] **AC1 Leave in lobby**: Given a joined player and no game started, when they tap Leave (or Back), then they are removed from the family, their identity is cleared and they see the Join screen.
+- [x] **AC2 No leave in game**: Given a started game, when a player views the app, then Leave and Back are not offered; only the Admin can remove or reconnect a device.
+- [x] **AC3 New game reset**: Given an ended game, when the Admin confirms New Game, then every connected iOS client returns to Join (or to the lobby of its new family) without restarting the app.
+- [x] **AC4 Discussion timeout**: Given discussion with a 120 s timer, when it expires, then the host calls `advance(to:)`, voting opens and every client shows the ballot; a client that missed the broadcast catches up on its next state.
 - [ ] **AC5 Nearby stability**: Given a werewolf with a villager in range, when any unrelated state broadcast arrives, then the nearby list does not clear and "No one nearby" does not flash.
-- [ ] **AC6 Werewolf routing**: Given a joined Werewolf device, when the connection drops and resumes or the app is backgrounded, then it returns to the game tabs, never to Join or OC PIN entry.
-- [ ] **AC7 No initial cooldown**: Given a game start, then `killReadyAt` and `sabotageReadyAt` equal the start time, so the first kill and sabotage are available at once; cooldowns apply only after use.
+- [x] **AC6 Werewolf routing**: Given a joined Werewolf device, when the connection drops and resumes or the app is backgrounded, then it returns to the game tabs, never to Join or OC PIN entry.
+- [x] **AC7 No initial cooldown**: Given a game start, then `killReadyAt` and `sabotageReadyAt` equal the start time, so the first kill and sabotage are available at once; cooldowns apply only after use.
 
 ## UX
 
@@ -64,4 +64,7 @@ None. `GameEngine.start` changes the initial `killReadyAt` and `sabotageReadyAt`
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- Cooldowns start at zero in `GameEngine.begin`. Wire gains `ClientMessage.leave` / `.sync` and `ServerMessage.reset`; `GameHost.leave`, `sync` and `newGame` send them. `GameClient.send` drops messages until the host confirms the identity: the "Join a family or enter the OC PIN first" error was the phone's one-per-second sightings reaching the host before its resume hello after a reconnect.
+- iOS: `FamilyLobbyView` Leave, `RootView` shows a reconnecting view while a resume ID exists, `GameTabsView` sends `.sync` when a phase or sabotage deadline passes.
+- AC5 is only mitigated (`ActionsView` keeps the nearby list for 3 s after it empties); the root cause was not reproduced and needs a real-device check.
+- Tests: `GameHostLifecycleTests` is written but was not run.

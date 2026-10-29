@@ -1,7 +1,7 @@
 ---
 id: 0016
 title: OC station rework
-status: approved
+status: implemented
 owner: AND
 app: ios
 created: 2026-10-29
@@ -21,11 +21,11 @@ The booth OC screen does not make it obvious that the OC must stamp a family. It
 
 ## Acceptance criteria
 
-- [ ] **AC1 Title**: Given a task-booth OC signed in, then the screen is titled "Stamp a family" with a one-line instruction.
-- [ ] **AC2 Card grid**: Given families, then each is a large card; tap, confirm and stamp.
-- [ ] **AC3 States**: Given a card, then stamped families are green, families without this booth are disabled, and off-list stamps still ask for confirmation.
-- [ ] **AC4 Observer removed**: Given the station picker, then only Task booths (7) and Sabotage booths (2) are offered; the Town Hall observer view is deleted.
-- [ ] **AC5 No roles**: OC devices still never receive roles (`OCView` rows carry stamp progress only).
+- [x] **AC1 Title**: Given a task-booth OC signed in, then the screen is titled "Stamp a family" with a one-line instruction.
+- [x] **AC2 Card grid**: Given families, then each is a large card; tap, confirm and stamp.
+- [x] **AC3 States**: Given a card, then stamped families are green, families without this booth are disabled, and off-list stamps still ask for confirmation.
+- [x] **AC4 Observer removed**: Given the station picker, then only Task booths (7) and Sabotage booths (2) are offered; the Town Hall observer view is deleted.
+- [x] **AC5 No roles**: OC devices still never receive roles (`OCView` rows carry stamp progress only).
 
 ## UX
 
@@ -59,4 +59,4 @@ None.
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- `BoothStampView` card grid. The `OCStation.townHall` case stays so stored OC devices still decode; its view is gone and the picker no longer offers it.

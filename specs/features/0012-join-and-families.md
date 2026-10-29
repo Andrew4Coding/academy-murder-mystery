@@ -1,7 +1,7 @@
 ---
 id: 0012
 title: Join and families
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-29
@@ -23,13 +23,13 @@ Joining becomes one QR on the Public Display. Scans fill Family 1 until it reach
 
 ## Acceptance criteria
 
-- [ ] **AC1 Single QR**: Given the lobby, then the Public Display shows one join QR and the Admin Setup shows the same one.
-- [ ] **AC2 Auto-assign**: Given capacity N, when players scan, then they fill Family 1 up to N, then Family 2, and so on, in join order.
-- [ ] **AC3 Family count**: Given the Admin starts the game, then the family count is derived from the joined players and capacity; the old manual families stepper is gone.
-- [ ] **AC4 Auto head**: Given a family, then its first joiner is head; if the head leaves in the lobby, the longest-present member becomes head.
-- [ ] **AC5 No hand-over**: Hand Over and Become Head of Family are removed from the app, and `.handOverHead` and `.claimHead` from the wire protocol.
-- [ ] **AC6 Rename**: Given the lobby, when the head or the Admin renames a family, then every device and the Public Display show the new name; others cannot rename, and rename is refused once the game has started.
-- [ ] **AC7 Phone-screen reminder**: Given the join and role-reveal screens, then they show "Don't show your screen to anyone."
+- [x] **AC1 Single QR**: Given the lobby, then the Public Display shows one join QR and the Admin Setup shows the same one.
+- [x] **AC2 Auto-assign**: Given capacity N, when players scan, then they fill Family 1 up to N, then Family 2, and so on, in join order.
+- [x] **AC3 Family count**: Given the Admin starts the game, then the family count is derived from the joined players and capacity; the old manual families stepper is gone.
+- [x] **AC4 Auto head**: Given a family, then its first joiner is head; if the head leaves in the lobby, the longest-present member becomes head.
+- [x] **AC5 No hand-over**: Hand Over and Become Head of Family are removed from the app, and `.handOverHead` and `.claimHead` from the wire protocol.
+- [x] **AC6 Rename**: Given the lobby, when the head or the Admin renames a family, then every device and the Public Display show the new name; others cannot rename, and rename is refused once the game has started.
+- [x] **AC7 Phone-screen reminder**: Given the join and role-reveal screens, then they show "Don't show your screen to anyone."
 
 ## UX
 
@@ -64,4 +64,5 @@ Accessibility notes: the QR also shows the typed fallback code; rename field has
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- `HostState.gameCode`, `GameHost.assignFamily`, `renameFamily`, `setFamilyCapacity`; ADR 0006. Admin Setup shows the QR and a players-per-family stepper; the Public Display waiting screen shows the QR. `FamilyInfo.joinCode` is kept for stored games, rehearsals and simulation.
+- Open: what happens when the last family is partly filled at start.
