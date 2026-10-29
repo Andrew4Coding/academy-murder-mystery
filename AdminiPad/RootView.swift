@@ -46,7 +46,7 @@ private struct PinView: View {
                         .disabled(pin.isEmpty || client.status != .connected)
                 }
             }
-            .navigationTitle("Murder Mystery Admin")
+            .navigationTitle("Moonfall OC")
             .frame(maxWidth: 520)
         }
     }

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import MurderMystery
+@testable import Moonfall
 
 @MainActor
 struct GameHostTestingToolsTests {
@@ -28,7 +28,7 @@ struct GameHostTestingToolsTests {
         let harness = try HostHarness()
         #expect(harness.host.testingToolsEnabled == TestingTools.isEnabled)
         harness.host.testingToolsEnabled = false
-        #expect(throws: HostError.setup("Testing tools are off. Run the MurderMysteryAdmin-Testing scheme.")) {
+        #expect(throws: HostError.setup("Testing tools are off. Run the MoonfallAdmin-Testing scheme.")) {
             try harness.host.startTestGame(roles: [1: .werewolf])
         }
         #expect(harness.host.state.isLobby)

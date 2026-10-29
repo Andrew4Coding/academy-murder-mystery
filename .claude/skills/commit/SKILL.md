@@ -8,7 +8,7 @@ description: Turn working-tree changes into convention-compliant microcommits ("
 The rules are in `.claude/rules/commits.md` and `.claude/rules/branches.md`. This is the procedure.
 
 1. **Branch.** Check `git branch --show-current`. If you're on `main`, `staging` or `dev`, create a branch from an up-to-date `dev` first: `git switch -c <type>/<optional-spec-id->kebab-name`, then run `scripts/check-branch-name.sh`.
-2. **Code.** Get the committer code with `scripts/commit-code.sh`. If that fails, ask the user for their 3-letter code and run `git config murdermystery.code ABC`.
+2. **Code.** Get the committer code with `scripts/commit-code.sh`. If that fails, ask the user for their 3-letter code and run `git config moonfall.code ABC`.
 3. **Group.** Run `git status --short` and `git diff`. Group the hunks by concern: one feature step, one fix, one refactor, one test addition, or one docs update.
    - `Shared/` changes affect every target. Keep them in their own commit, separate from target-folder changes (`iOS/`, `Admin/`).
 4. **Scope.** Pick it by where the change lives:

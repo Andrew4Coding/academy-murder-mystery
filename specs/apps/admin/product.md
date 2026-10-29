@@ -4,7 +4,7 @@ owner: AND
 updated: 2026-10-22
 ---
 
-# Target product: MurderMysteryAdmin (macOS)
+# Target product: MoonfallAdmin (macOS)
 
 The target-specific detail for [the product](../../product.md).
 

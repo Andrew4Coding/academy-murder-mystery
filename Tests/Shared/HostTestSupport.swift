@@ -1,5 +1,5 @@
 import Foundation
-@testable import MurderMystery
+@testable import Moonfall
 
 @MainActor
 func eventually(timeout: TimeInterval = 2, _ condition: () -> Bool) async -> Bool {

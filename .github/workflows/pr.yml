@@ -99,7 +99,7 @@ jobs:
       - run: bundle exec fastlane lint
 
   ios:
-    name: MurderMysteryiOS build and test
+    name: MoonfalliOS build and test
     needs: changes
     if: needs.changes.outputs.full == 'true' && needs.changes.outputs.ios == 'true'
     runs-on: macos-26
@@ -117,7 +117,7 @@ jobs:
       - run: bundle exec fastlane ios test
 
   admin:
-    name: MurderMysteryAdmin build and test
+    name: MoonfallAdmin build and test
     needs: changes
     if: needs.changes.outputs.full == 'true' && needs.changes.outputs.admin == 'true'
     runs-on: macos-26

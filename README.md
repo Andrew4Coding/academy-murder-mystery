@@ -1,19 +1,19 @@
-# Murder Mystery
+# Moonfall
 
 | Target | Platform | Bundle ID |
 |---|---|---|
-| `MurderMysteryiOS` | iOS 26.0+ (iPhone and iPad) | `com.andrew4coding.MurderMystery` |
-| `MurderMysteryAdmin` | macOS 26.0+ | `com.andrew4coding.MurderMystery.admin` |
+| `MoonfalliOS` | iOS 26.0+ (iPhone and iPad) | `com.andrew4coding.Moonfall` |
+| `MoonfallAdmin` | macOS 26.0+ | `com.andrew4coding.Moonfall.admin` |
 
 ## Setup
 
 ```bash
 scripts/bootstrap.sh
-open MurderMystery.xcodeproj
+open Moonfall.xcodeproj
 ```
 
-`bootstrap.sh` turns on the git hooks (`core.hooksPath .githooks`), installs the tools from `Brewfile` and `Gemfile`, and generates `MurderMystery.xcodeproj` from `project.yml`.
-Your committer code defaults to the first 3 letters of `git config user.name`. To use your own: `git config murdermystery.code ABC`.
+`bootstrap.sh` turns on the git hooks (`core.hooksPath .githooks`), installs the tools from `Brewfile` and `Gemfile`, and generates `Moonfall.xcodeproj` from `project.yml`.
+Your committer code defaults to the first 3 letters of `git config user.name`. To use your own: `git config moonfall.code ABC`.
 
 ## How we work
 
@@ -32,10 +32,10 @@ Your committer code defaults to the first 3 letters of `git config user.name`. T
 | Lane | What it does |
 |---|---|
 | `lint` | SwiftLint and SwiftFormat over the whole repo |
-| `generate` | Regenerate `MurderMystery.xcodeproj` |
+| `generate` | Regenerate `Moonfall.xcodeproj` |
 | `bump app:<ios|admin> type:patch\|minor\|major` | Bump one target's `MARKETING_VERSION` (in its `.xcconfig`) |
-| `ios test` / `ios signing` / `ios beta` / `ios release` | MurderMysteryiOS: tests on iPhone 17 Pro, signing assets, TestFlight, App Store (`submit_for_review:true` to submit) |
-| `mac test` / `mac signing` / `mac beta` / `mac release` | MurderMysteryAdmin: tests on macOS, signing assets, TestFlight, App Store |
+| `ios test` / `ios signing` / `ios beta` / `ios release` | MoonfalliOS: tests on iPhone 17 Pro, signing assets, TestFlight, App Store (`submit_for_review:true` to submit) |
+| `mac test` / `mac signing` / `mac beta` / `mac release` | MoonfallAdmin: tests on macOS, signing assets, TestFlight, App Store |
 
 ## Release setup (one time)
 

@@ -1,16 +1,16 @@
-# Murder Mystery
+# Moonfall
 
-One SwiftUI codebase (`project.yml` → `MurderMystery.xcodeproj`): a `Shared/` folder plus one app target per platform.
+One SwiftUI codebase (`project.yml` → `Moonfall.xcodeproj`): a `Shared/` folder plus one app target per platform.
 
 ## Targets
 
 | Target / scheme | Display name | Platform | Bundle ID | Version file | Specs |
 |---|---|---|---|---|---|
-| `MurderMysteryiOS` | Murder Mystery | iOS 26.0+, iPhone and iPad | `com.andrew4coding.MurderMystery` | `iOS/MurderMysteryiOS.xcconfig` | `specs/apps/ios/` |
-| `MurderMysteryAdmin` | Murder Mystery Admin | macOS 26.0+ | `com.andrew4coding.MurderMystery.admin` | `Admin/MurderMysteryAdmin.xcconfig` | `specs/apps/admin/` |
-| `MurderMysteryAdminiPad` | Murder Mystery Admin | iOS 26.0+, iPad only | `com.andrew4coding.MurderMystery.adminpad` | `AdminiPad/MurderMysteryAdminiPad.xcconfig` | `specs/apps/admin/` |
+| `MoonfalliOS` | Moonfall | iOS 26.0+, iPhone and iPad | `com.andrew4coding.Moonfall` | `iOS/MoonfalliOS.xcconfig` | `specs/apps/ios/` |
+| `MoonfallAdmin` | Moonfall Admin | macOS 26.0+ | `com.andrew4coding.Moonfall.admin` | `Admin/MoonfallAdmin.xcconfig` | `specs/apps/admin/` |
+| `MoonfallAdminiPad` | Moonfall OC | iOS 26.0+, iPad only | `com.andrew4coding.Moonfall.adminpad` | `AdminiPad/MoonfallAdminiPad.xcconfig` | `specs/apps/admin/` |
 
-App targets use the Swift module name `MurderMystery`, so tests write `@testable import MurderMystery`. Signing team: `92QV2QPDKA`.
+App targets use the Swift module name `Moonfall`, so tests write `@testable import Moonfall`. Signing team: `92QV2QPDKA`.
 
 Branches: `dev` (integration) → `staging` (release candidate) → `main` (released). Only `main` runs the CI build and test jobs.
 
@@ -31,20 +31,23 @@ Branches: `dev` (integration) → `staging` (release candidate) → `main` (rele
 ```bash
 scripts/bootstrap.sh                   # hooks, brew bundle, bundle install, xcodegen generate
 xcodegen generate                      # after adding, moving or removing files
-xcodebuild build -project MurderMystery.xcodeproj -scheme MurderMysteryiOS -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
-bundle exec fastlane ios test          # MurderMysteryiOS on iPhone 17 Pro; override with TEST_DEVICE
+xcodebuild build -project Moonfall.xcodeproj -scheme MoonfalliOS -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+bundle exec fastlane ios test          # MoonfalliOS on iPhone 17 Pro; override with TEST_DEVICE
 bundle exec fastlane ios beta          # TestFlight; humans only (needs fastlane/.env)
-xcodebuild build -project MurderMystery.xcodeproj -scheme MurderMysteryAdmin -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
-bundle exec fastlane mac test          # MurderMysteryAdmin on macOS
-# Rehearsal: run the MurderMysteryAdmin-Testing scheme in Xcode (Debug, launches with -TestingTools)
+xcodebuild build -project Moonfall.xcodeproj -scheme MoonfallAdmin -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+bundle exec fastlane mac test          # MoonfallAdmin on macOS
+# Rehearsal: run the MoonfallAdmin-Testing scheme in Xcode (Debug, launches with -TestingTools)
 bundle exec fastlane mac beta          # TestFlight; humans only (needs fastlane/.env)
 bundle exec fastlane lint              # swiftlint --strict + swiftformat --lint
+bundle exec fastlane ios adminpad_beta # TestFlight for MoonfallAdminiPad; humans only
+bundle exec fastlane create_apps      # one-time: bundle IDs and ASC apps for all three targets (Apple ID login)
+scripts/setup-ci.sh --dry-run          # validate fastlane/.env and upload the three ASC secrets to GitHub
 bundle exec fastlane bump app:ios type:minor
 scripts/commit-code.sh                 # your committer code
 scripts/check-branch-name.sh           # validate the current branch name
 ```
 
-`project.yml` is the source of truth. `MurderMystery.xcodeproj` is generated and gitignored, so never edit it.
+`project.yml` is the source of truth. `Moonfall.xcodeproj` is generated and gitignored, so never edit it.
 
 ## Architecture rules
 
@@ -78,7 +81,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 - Network code uses closures that hop to the main actor via `MainActor.assumeIsolated`; keep logic in methods, not inside the closures (SwiftFormat strips the `self.` that the compiler wants there).
 - Smoke-test UI by building both apps with `-derivedDataPath`, opening the Mac app (unsigned builds run unsandboxed and store `~/Library/Application Support/default.store`), then launching the iOS app in a simulator: Bonjour works between them on one machine.
 - Debug Mode (`GameSettings.debugMode`, optional so stored games decode; read it via `isDebug`) allows 2 families, zeroes kill and sabotage cooldowns, and makes kills and parity never end the game. Rules live in `GameEngine` and `setupIssues`, not in views.
-- Rehearsal tools (one family and one phone is enough, chosen roles, sabotage trigger, adjustable cooldowns) sit behind `TestingTools.isEnabled` (`Shared/Host/TestingTools.swift`): Debug builds launched with `-TestingTools`, which only the `MurderMysteryAdmin-Testing` scheme passes. Never reach them from a normal path; `GameHost.startTestGame` refuses otherwise and marks the game `simulated` so a restart never restores it.
+- Rehearsal tools (one family and one phone is enough, chosen roles, sabotage trigger, adjustable cooldowns) sit behind `TestingTools.isEnabled` (`Shared/Host/TestingTools.swift`): Debug builds launched with `-TestingTools`, which only the `MoonfallAdmin-Testing` scheme passes. Never reach them from a normal path; `GameHost.startTestGame` refuses otherwise and marks the game `simulated` so a restart never restores it.
 - XcodeGen generates `iOS/Info.plist`; put new Info.plist keys in `project.yml`, not in the file.
 
 ## Layout
@@ -96,9 +99,9 @@ Shared/Core                  DesignSystem tokens, QRCodeView
 iOS/Bluetooth                ProximityService (CoreBluetooth advertise and scan)
 Shared/Core                  DesignSystem tokens (Spacing, Radius)
 Shared/Resources             PrivacyInfo.xcprivacy
-iOS/                 MurderMysteryiOSApp, Intents/ (kill and sabotage App Intents), Features/Selfie, RootView (join, family lobby, game tabs), Features/ (Join, Lobby, Role, Meeting, Actions incl. sabotage, OC, Game), Info.plist (generated by XcodeGen), assets, MurderMysteryiOS.xcconfig
-Admin/                 MurderMysteryAdminApp (min window 720×480), RootView (sidebar: Setup, Game, Display, Simulation, Devices), a separate Public Display window, Features/ (Setup, Game, Display, Simulation, Devices), assets, entitlements, MurderMysteryAdmin.xcconfig
-AdminiPad/             MurderMysteryAdminiPadApp, RootView (OC PIN sign-in), DashboardView (status, controls, family table); a client of the Mac host, never a host
+iOS/                 MoonfalliOSApp, Intents/ (kill and sabotage App Intents), Features/Selfie, RootView (join, family lobby, game tabs), Features/ (Join, Lobby, Role, Meeting, Actions incl. sabotage, OC, Game), Info.plist (generated by XcodeGen), assets, MoonfalliOS.xcconfig
+Admin/                 MoonfallAdminApp (min window 720×480), RootView (sidebar: Setup, Game, Display, Simulation, Devices), a separate Public Display window, Features/ (Setup, Game, Display, Simulation, Devices), assets, entitlements, MoonfallAdmin.xcconfig
+AdminiPad/             MoonfallAdminiPadApp, RootView (OC PIN sign-in), DashboardView (status, controls, family table); a client of the Mac host, never a host
 Tests/Shared                 compiled into every test bundle
 Tests/<TargetDir>            target-only tests (bundle-identifier smoke test)
 fastlane/                    Fastfile (shared lanes + one platform block per target), Appfile, Matchfile, metadata/<slug>
@@ -112,11 +115,11 @@ CHANGELOG.md                 one file, with a subsection per target
 
 ## Releases
 
-Targets are versioned independently: `bump app:<slug>` edits that target's xcconfig. TestFlight betas are cut from `staging`. Tag releases on `main` as `<slug>/vX.Y.Z`.
+Targets are versioned independently: `bump app:<slug>` edits that target's xcconfig. TestFlight betas are cut from `staging`: a push there runs `.github/workflows/beta.yml`, which builds all three targets in parallel (`scripts/setup-ci.sh` uploads its secrets). Tag releases on `main` as `<slug>/vX.Y.Z`.
 
 ## Gotchas
 
-- `PRODUCT_MODULE_NAME: MurderMystery` must stay on the app targets only. Project-wide, it renames the test bundles too and causes "Multiple commands produce MurderMystery.swiftmodule".
+- `PRODUCT_MODULE_NAME: Moonfall` must stay on the app targets only. Project-wide, it renames the test bundles too and causes "Multiple commands produce Moonfall.swiftmodule".
 - `.claude/sync-state` holds a content fingerprint, not a commit SHA, so it survives squash merges. Update it only with `.claude/hooks/sync-state.sh record`.
 - The hook scripts target macOS's stock bash 3.2: no `mapfile`, and no empty `"${array[@]}"` under `set -u`.
 - `swiftlint` must be installed (`brew bundle`) for `fastlane lint`. Fastlane wants a UTF-8 locale (`export LC_ALL=en_US.UTF-8`).

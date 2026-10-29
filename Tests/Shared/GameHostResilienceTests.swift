@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import MurderMystery
+@testable import Moonfall
 
 @MainActor
 struct GameHostResilienceTests {

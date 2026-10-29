@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MurderMysteryAdminApp: App {
+struct MoonfallAdminApp: App {
     @State private var environment: AppEnvironment
     @State private var controller: HostController
     @State private var simulation = SimulationController()

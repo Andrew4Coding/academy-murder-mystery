@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import MurderMystery
+@testable import Moonfall
 
 struct GameEngineMeetingStateTests {
     private func openVoting(_ fixture: inout Fixture) throws {

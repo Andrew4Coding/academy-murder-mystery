@@ -4,7 +4,7 @@ import Network
 final class MessageFramer: NWProtocolFramerImplementation {
     static let definition = NWProtocolFramer.Definition(implementation: MessageFramer.self)
 
-    static let label = "MurderMysteryFramer"
+    static let label = "MoonfallFramer"
     private static let headerSize = MemoryLayout<UInt32>.size
 
     required init(framer _: NWProtocolFramer.Instance) {}
@@ -45,7 +45,7 @@ final class MessageFramer: NWProtocolFramerImplementation {
 }
 
 extension NWParameters {
-    static func murderMystery() -> NWParameters {
+    static func moonfall() -> NWParameters {
         let parameters = NWParameters.tcp
         parameters.defaultProtocolStack.applicationProtocols.insert(NWProtocolFramer.Options(definition: MessageFramer.definition), at: 0)
         return parameters

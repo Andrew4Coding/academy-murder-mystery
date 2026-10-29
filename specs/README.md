@@ -15,8 +15,8 @@ specs/
   templates/            feature.md, adr.md: copy these, never edit them in place for a feature
   features/             specs that span every target (app: all)
   apps/
-    ios/       MurderMysteryiOS (iOS): product.md, constraints.md, features/
-    admin/       MurderMysteryAdmin (macOS): product.md, constraints.md, features/
+    ios/       MoonfalliOS (iOS): product.md, constraints.md, features/
+    admin/       MoonfallAdmin (macOS): product.md, constraints.md, features/
 ```
 
 A target's `constraints.md` adds to the root one and never contradicts it. To change a root rule, write an ADR.

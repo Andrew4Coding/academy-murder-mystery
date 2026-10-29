@@ -15,7 +15,7 @@ struct OCRootView: View {
                 ContentUnavailableView {
                     Label("Use the iPad dashboard", systemImage: "ipad")
                 } description: {
-                    Text("This station belongs to the Murder Mystery Admin iPad app.")
+                    Text("This station belongs to the Moonfall OC app.")
                 } actions: {
                     OCSignOutButton(client: client)
                 }

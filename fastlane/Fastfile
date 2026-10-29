@@ -1,23 +1,31 @@
+require "base64"
+require "tmpdir"
+
 default_platform(:ios)
 
 ROOT = File.expand_path("..", __dir__)
-PROJECT = File.join(ROOT, "MurderMystery.xcodeproj")
+PROJECT = File.join(ROOT, "Moonfall.xcodeproj")
 TEAM_ID = ENV.fetch("APP_TEAM_ID", "92QV2QPDKA")
-MAC_INSTALLER_CERT = ENV.fetch("MAC_INSTALLER_CERT", "Mac Installer Distribution")
 
 APPS = {
   ios: {
-    scheme: "MurderMysteryiOS",
-    bundle_id: "com.andrew4coding.MurderMystery",
-    xcconfig: File.join(ROOT, "iOS/MurderMysteryiOS.xcconfig"),
+    scheme: "MoonfalliOS",
+    bundle_id: "com.andrew4coding.Moonfall",
+    xcconfig: File.join(ROOT, "iOS/MoonfalliOS.xcconfig"),
     metadata: File.join(ROOT, "fastlane/metadata/ios")
   },
   admin: {
-    scheme: "MurderMysteryAdmin",
-    bundle_id: "com.andrew4coding.MurderMystery.admin",
-    xcconfig: File.join(ROOT, "Admin/MurderMysteryAdmin.xcconfig"),
+    scheme: "MoonfallAdmin",
+    bundle_id: "com.andrew4coding.Moonfall.admin",
+    xcconfig: File.join(ROOT, "Admin/MoonfallAdmin.xcconfig"),
     metadata: File.join(ROOT, "fastlane/metadata/admin")
   },
+  adminpad: {
+    scheme: "MoonfallAdminiPad",
+    bundle_id: "com.andrew4coding.Moonfall.adminpad",
+    xcconfig: File.join(ROOT, "AdminiPad/MoonfallAdminiPad.xcconfig"),
+    metadata: File.join(ROOT, "fastlane/metadata/adminpad")
+  }
 }.freeze
 
 def app(name)
@@ -25,11 +33,12 @@ def app(name)
 end
 
 def api_key
+  content = ENV.fetch("ASC_KEY_CONTENT")
   app_store_connect_api_key(
     key_id: ENV.fetch("ASC_KEY_ID"),
     issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-    key_content: ENV.fetch("ASC_KEY_CONTENT"),
-    is_key_content_base64: true,
+    key_content: content,
+    is_key_content_base64: !content.include?("BEGIN"),
     in_house: false
   )
 end
@@ -42,16 +51,39 @@ def next_build_number(key, target, platform)
   latest_testflight_build_number(api_key: key, app_identifier: target[:bundle_id], platform: platform) + 1
 end
 
-def sign_for(target, profile_env, identity)
-  update_code_signing_settings(
-    use_automatic_signing: false,
-    path: PROJECT,
-    targets: [target[:scheme]],
-    team_id: TEAM_ID,
-    bundle_identifier: target[:bundle_id],
-    code_signing_identity: identity,
-    profile_name: ENV.fetch(profile_env)
-  )
+def asc_key_path
+  content = ENV.fetch("ASC_KEY_CONTENT")
+  pem = content.include?("BEGIN") ? content : Base64.decode64(content)
+  path = File.join(Dir.tmpdir, "AuthKey_#{ENV.fetch('ASC_KEY_ID')}.p8")
+  File.write(path, pem, perm: 0o600)
+  path
+end
+
+def provisioning_args
+  [
+    "-allowProvisioningUpdates",
+    "-authenticationKeyPath #{asc_key_path}",
+    "-authenticationKeyID #{ENV.fetch('ASC_KEY_ID')}",
+    "-authenticationKeyIssuerID #{ENV.fetch('ASC_ISSUER_ID')}"
+  ].join(" ")
+end
+
+def build_signed(platform, target, key, **extra)
+  build_number = next_build_number(key, target, platform == :mac ? "osx" : "ios")
+  args = {
+    project: PROJECT,
+    scheme: target[:scheme],
+    configuration: "Release",
+    destination: platform == :mac ? "generic/platform=macOS" : "generic/platform=iOS",
+    export_method: "app-store-connect",
+    export_options: { signingStyle: "automatic", teamID: TEAM_ID },
+    skip_profile_detection: true,
+    xcargs: "#{provisioning_args} CURRENT_PROJECT_VERSION=#{build_number}",
+    export_xcargs: provisioning_args,
+    output_directory: File.join(ROOT, "build", target[:scheme]),
+    clean: true
+  }.merge(extra)
+  platform == :mac ? build_mac_app(**args) : build_app(**args)
 end
 
 def bump_marketing_version(xcconfig, type)
@@ -100,57 +132,72 @@ lane :lint do
   sh("cd #{ROOT} && swiftformat --lint .")
 end
 
-desc "Regenerate MurderMystery.xcodeproj from project.yml"
+desc "Regenerate Moonfall.xcodeproj from project.yml"
 lane :generate do
   generate_project
 end
 
-desc "Bump one app's MARKETING_VERSION (app:ios|admin type:patch|minor|major)"
+desc "Register the bundle IDs and create the apps in App Store Connect (needs an Apple ID login, not the API key)"
+lane :create_apps do |options|
+  [
+    [:ios, ENV.fetch("ASC_NAME_IOS", "Moonfall: Werewolf Night"), "ios"],
+    [:admin, ENV.fetch("ASC_NAME_ADMIN", "Moonfall Admin"), "osx"],
+    [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Moonfall OC"), "ios"]
+  ].each do |key, name, platform|
+    target = app(key)
+    UI.user_error!("App name '#{name}' is #{name.length} characters; App Store Connect allows 30") if name.length > 30
+    common = {
+      username: ENV["FASTLANE_APPLE_ID"],
+      app_identifier: target[:bundle_id],
+      language: options[:language] || "en-US",
+      sku: "moonfall-#{key}",
+      platform: platform,
+      team_id: ENV["FASTLANE_TEAM_ID"] || TEAM_ID,
+      itc_team_id: ENV["FASTLANE_ITC_TEAM_ID"]
+    }
+    # The developer portal rejects punctuation in App ID names, App Store Connect does not.
+    produce(**common, app_name: name.gsub(/[^0-9A-Za-z ]/, ""), skip_itc: true)
+    produce(**common, app_name: name, skip_devcenter: true)
+  end
+end
+
+desc "Bump one app's MARKETING_VERSION (app:ios|admin|adminpad type:patch|minor|major)"
 lane :bump do |options|
   bump_marketing_version(app(options[:app] || APPS.keys.first)[:xcconfig], options[:type] || "patch")
 end
 
 platform :ios do
   ios_app = APPS[:ios]
+  adminpad_app = APPS[:adminpad]
 
-  desc "Run MurderMysteryiOS tests on iPhone 17 Pro"
+  desc "Run MoonfalliOS tests on iPhone 17 Pro"
   lane :test do
     generate_project
     run_tests(project: PROJECT, scheme: ios_app[:scheme], device: ENV["TEST_DEVICE"] || "iPhone 17 Pro", clean: true)
   end
 
-  desc "Create MurderMysteryiOS signing assets (run once, interactive)"
-  lane :signing do
-    match(type: "appstore", platform: "ios", app_identifier: ios_app[:bundle_id], api_key: api_key, readonly: false)
-  end
-
-  desc "Build MurderMysteryiOS and upload it to TestFlight"
+  desc "Build MoonfalliOS and upload it to TestFlight"
   lane :beta do
     key = prepare_ios(ios_app)
     upload_to_testflight(api_key: key, app_identifier: ios_app[:bundle_id], skip_waiting_for_build_processing: true)
   end
 
-  desc "Upload MurderMysteryiOS build and metadata to App Store Connect (submit_for_review:true to submit)"
+  desc "Upload MoonfalliOS build and metadata to App Store Connect (submit_for_review:true to submit)"
   lane :release do |options|
     key = prepare_ios(ios_app)
     upload_metadata(ios_app, key, options[:submit_for_review], app_identifier: ios_app[:bundle_id])
   end
 
+  desc "Build MoonfallAdminiPad and upload it to TestFlight"
+  lane :adminpad_beta do
+    key = prepare_ios(adminpad_app)
+    upload_to_testflight(api_key: key, app_identifier: adminpad_app[:bundle_id], skip_waiting_for_build_processing: true)
+  end
+
   private_lane :prepare_ios do |target|
     generate_project
     key = api_key
-    match(type: "appstore", platform: "ios", app_identifier: target[:bundle_id], api_key: key, readonly: is_ci)
-    sign_for(target, "sigh_#{target[:bundle_id]}_appstore_profile-name", "Apple Distribution")
-    build_app(
-      project: PROJECT,
-      scheme: target[:scheme],
-      configuration: "Release",
-      destination: "generic/platform=iOS",
-      export_method: "app-store",
-      xcargs: "CURRENT_PROJECT_VERSION=#{next_build_number(key, target, 'ios')}",
-      output_directory: File.join(ROOT, "build/ios"),
-      clean: true
-    )
+    build_signed(:ios, target, key)
     key
   end
 end
@@ -158,25 +205,13 @@ end
 platform :mac do
   mac_app = APPS[:admin]
 
-  desc "Run MurderMysteryAdmin tests on macOS"
+  desc "Run MoonfallAdmin tests on macOS"
   lane :test do
     generate_project
     run_tests(project: PROJECT, scheme: mac_app[:scheme], destination: "platform=macOS", xcargs: "CODE_SIGNING_ALLOWED=NO", clean: true)
   end
 
-  desc "Create MurderMysteryAdmin signing assets (run once, interactive)"
-  lane :signing do
-    match(
-      type: "appstore",
-      platform: "macos",
-      app_identifier: mac_app[:bundle_id],
-      api_key: api_key,
-      additional_cert_types: ["mac_installer_distribution"],
-      readonly: false
-    )
-  end
-
-  desc "Build MurderMysteryAdmin and upload it to TestFlight"
+  desc "Build MoonfallAdmin and upload it to TestFlight"
   lane :beta do
     key = prepare_mac(mac_app)
     upload_to_testflight(
@@ -188,7 +223,7 @@ platform :mac do
     )
   end
 
-  desc "Upload MurderMysteryAdmin build and metadata to App Store Connect (submit_for_review:true to submit)"
+  desc "Upload MoonfallAdmin build and metadata to App Store Connect (submit_for_review:true to submit)"
   lane :release do |options|
     key = prepare_mac(mac_app)
     upload_metadata(
@@ -204,26 +239,7 @@ platform :mac do
   private_lane :prepare_mac do |target|
     generate_project
     key = api_key
-    match(
-      type: "appstore",
-      platform: "macos",
-      app_identifier: target[:bundle_id],
-      api_key: key,
-      additional_cert_types: ["mac_installer_distribution"],
-      readonly: is_ci
-    )
-    sign_for(target, "sigh_#{target[:bundle_id]}_appstore_macos_profile-name", "Apple Distribution")
-    build_mac_app(
-      project: PROJECT,
-      scheme: target[:scheme],
-      configuration: "Release",
-      destination: "generic/platform=macOS",
-      export_method: "app-store",
-      installer_cert_name: MAC_INSTALLER_CERT,
-      xcargs: "CURRENT_PROJECT_VERSION=#{next_build_number(key, target, 'osx')}",
-      output_directory: File.join(ROOT, "build/admin"),
-      clean: true
-    )
+    build_signed(:mac, target, key)
     key
   end
 end

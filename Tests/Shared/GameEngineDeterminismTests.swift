@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import MurderMystery
+@testable import Moonfall
 
 struct GameEngineDeterminismTests {
     private func playScript(seed: UInt64) throws -> (events: [GameEvent], engine: GameEngine) {

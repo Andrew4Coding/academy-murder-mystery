@@ -4,7 +4,7 @@ owner: AND
 updated: 2026-10-22
 ---
 
-# Product: Murder Mystery
+# Product: Moonfall
 
 ## One-liner
 
@@ -22,8 +22,8 @@ Participants play without friction: they get a role, see their five tasks, get s
 
 | Target | Platform | Primary user | Role in the product | Details |
 |---|---|---|---|---|
-| `MurderMysteryiOS` | iOS | Player (family member or head); booth OC | Join a family, see role and tasks, kill, sabotage, vote; OC mode for stamping and resolving sabotage | [apps/ios/product.md](apps/ios/product.md) |
-| `MurderMysteryAdmin` | macOS | Town Hall OC | Authoritative LAN host, game setup, meetings, overrides, public display, simulation | [apps/admin/product.md](apps/admin/product.md) |
+| `MoonfalliOS` | iOS | Player (family member or head); booth OC | Join a family, see role and tasks, kill, sabotage, vote; OC mode for stamping and resolving sabotage | [apps/ios/product.md](apps/ios/product.md) |
+| `MoonfallAdmin` | macOS | Town Hall OC | Authoritative LAN host, game setup, meetings, overrides, public display, simulation | [apps/admin/product.md](apps/admin/product.md) |
 
 ## Venue
 
