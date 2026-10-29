@@ -1,7 +1,7 @@
 ---
 id: 0025
 title: Editable timers for the OC
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-29

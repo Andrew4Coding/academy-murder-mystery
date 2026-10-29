@@ -1,7 +1,7 @@
 ---
 id: 0024
 title: Dead families keep doing tasks
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-29
