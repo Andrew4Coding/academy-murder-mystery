@@ -169,6 +169,7 @@ private extension GameEngine {
         case let .recordStamp(family, booth): try recordStamp(family: family, booth: booth, at: now)
         case let .undoStamp(family, booth): try undoStamp(family: family, booth: booth, at: now)
         case .startMeeting: try startMeeting(at: now)
+        case let .reportBody(by, body): try reportBody(by: by, body: body, at: now)
         case let .castVote(by, choice): try castVote(by: by, choice: choice, at: now)
         case let .proxyVote(family, choice): try proxyVote(for: family, choice: choice, at: now)
         case let .extendMeeting(seconds): try extendMeeting(by: seconds)
@@ -226,6 +227,15 @@ private extension GameEngine {
         guard family.stamps.contains(booth) else { throw RuleError.notStamped }
         state.families[id]?.stamps.remove(booth)
         return [GameEvent(at: now, kind: .stampUndone(id, booth))]
+    }
+
+    mutating func reportBody(by id: FamilyID, body: FamilyID, at now: Date) throws -> [GameEvent] {
+        guard case .running = state.phase else { throw RuleError.wrongPhase }
+        guard try state.family(id).isAlive else { throw RuleError.familyNotAlive(id) }
+        guard state.deadSinceLastMeeting.contains(body), try state.family(body).life == .killed else {
+            throw RuleError.notDead(body)
+        }
+        return try startMeeting(at: now)
     }
 
     mutating func startMeeting(at now: Date) throws -> [GameEvent] {

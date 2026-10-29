@@ -14,6 +14,7 @@ enum GameCommand: Codable, Equatable, Sendable {
     case recordStamp(family: FamilyID, booth: Booth)
     case undoStamp(family: FamilyID, booth: Booth)
     case startMeeting
+    case reportBody(by: FamilyID, body: FamilyID)
     case castVote(by: FamilyID, choice: VoteChoice)
     case proxyVote(for: FamilyID, choice: VoteChoice)
     case extendMeeting(seconds: TimeInterval)

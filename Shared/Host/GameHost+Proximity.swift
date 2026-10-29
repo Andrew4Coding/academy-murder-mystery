@@ -36,6 +36,28 @@ extension GameHost {
             .sorted()
     }
 
+    func nearbyBodies(of viewer: FamilyID) -> [FamilyID] {
+        guard let engine = state.engine, engine.state.families[viewer]?.isAlive == true else { return [] }
+        let now = clock.now
+        return (sightings[viewer] ?? [:])
+            .filter { target, record in
+                engine.state.families[target]?.life == .killed
+                    && engine.state.deadSinceLastMeeting.contains(target)
+                    && record.rssi >= state.rssiThreshold
+                    && now.timeIntervalSince(record.at) <= state.sightingFreshness
+            }
+            .keys
+            .sorted()
+    }
+
+    func reportBody(identity: Identity, body: FamilyID) throws {
+        guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
+        guard state.engine != nil else { throw HostError.notInGame }
+        guard nearbyBodies(of: player.family).contains(body) else { throw HostError.notNearBody }
+        try applyAsOC(.reportBody(by: player.family, body: body))
+        refreshNearby()
+    }
+
     func refreshNearby() {
         guard let engine = state.engine else { return }
         var changed = false
@@ -43,6 +65,13 @@ extension GameHost {
             let current = Set(nearbyFamilies(of: family.id))
             if lastNearby[family.id] != current {
                 lastNearby[family.id] = current
+                changed = true
+            }
+        }
+        for family in engine.state.families.values where family.isAlive {
+            let current = Set(nearbyBodies(of: family.id))
+            if lastBodies[family.id] ?? [] != current {
+                lastBodies[family.id] = current
                 changed = true
             }
         }

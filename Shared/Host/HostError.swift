@@ -13,6 +13,7 @@ enum HostError: Error, Equatable, Sendable {
     case notHead
     case invalidName
     case photoTooLarge
+    case notNearBody
     case setup(String)
     case notNearby
     case notOC
@@ -34,6 +35,7 @@ enum HostError: Error, Equatable, Sendable {
         case .unknownDevice: "This device isn't registered with the host any more."
         case .notAPlayer: "Only players can do that."
         case .notHead: "Only the head of family can do that."
+        case .notNearBody: "Get closer to the body to report it."
         case .photoTooLarge: "That photo is too large."
         case .invalidName: "Family names need 1 to 24 characters."
         case let .setup(reason): reason
