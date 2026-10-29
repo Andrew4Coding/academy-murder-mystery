@@ -37,11 +37,13 @@ struct RootView: View {
     let simulation: SimulationController
 
     @State private var selection: AdminSection? = .setup
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         NavigationSplitView {
             List(AdminSection.allCases, selection: $selection) { section in
                 Label(section.title, systemImage: section.symbol)
+                    .tag(section)
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 220)
         } detail: {
@@ -56,6 +58,14 @@ struct RootView: View {
                 SimulationView(controller: simulation)
             case .devices:
                 DevicesView(controller: controller)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button("Open Display", systemImage: "play.rectangle.fill") {
+                    openWindow(id: PublicDisplayWindow.id)
+                }
+                .help("Open the Public Display: join QR and families for the lab screens")
             }
         }
         .task { await controller.start() }
