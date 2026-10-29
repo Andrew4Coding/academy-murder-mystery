@@ -3,6 +3,8 @@ import SwiftUI
 struct RootView: View {
     let client: GameClient
 
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         Group {
             if let view = client.view {
@@ -25,6 +27,14 @@ struct RootView: View {
             }
         }
         .task { client.start() }
+        .onChange(of: client.view) { _, view in LiveStatusController.shared.update(with: view) }
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .background: LiveStatusController.shared.appDidEnterBackground()
+            case .active: LiveStatusController.shared.appDidBecomeActive()
+            default: break
+            }
+        }
     }
 }
 

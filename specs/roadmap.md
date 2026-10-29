@@ -18,6 +18,7 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0014 Meeting upgrade](features/0014-meeting-upgrade.md)
 - [0015 Sabotage rework](features/0015-sabotage-rework.md)
 - [0017 iPad admin dashboard](apps/admin/features/0017-ipad-admin.md): AC2 (shared admin views) open; check on a real iPad.
+- [0023 Live status on the Lock Screen](features/0023-live-status.md): measure background time on devices.
 - [0019 Report body over BLE](features/0019-report-body.md): needs a real-device check.
 - [0016 OC station rework](features/0016-oc-station-rework.md)
 - [0020 One person per family](features/0020-one-person-per-family.md)

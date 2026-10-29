@@ -29,10 +29,17 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSBonjourServices:
           - _murdermystery._tcp
+        NSSupportsLiveActivities: true
+        UIBackgroundModes:
+          - bluetooth-central
+          - bluetooth-peripheral
     sources:
       - Shared
+      - path: LiveActivity/GameActivityAttributes.swift
       - path: iOS
         excludes: ["*.xcconfig"]
+    dependencies:
+      - target: MurderMysteryLive
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery
@@ -52,6 +59,28 @@ targets:
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+  MurderMysteryLive:
+    type: app-extension
+    supportedDestinations: [iOS]
+    info:
+      path: LiveActivity/Widget/Info.plist
+      properties:
+        CFBundleDisplayName: Murder Mystery Live
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    configFiles:
+      Debug: iOS/MurderMysteryiOS.xcconfig
+      Release: iOS/MurderMysteryiOS.xcconfig
+    sources:
+      - path: LiveActivity
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.live
+        PRODUCT_NAME: MurderMysteryLive
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
   MurderMysteryiOSTests:
     type: bundle.unit-test
     supportedDestinations: [iOS]
