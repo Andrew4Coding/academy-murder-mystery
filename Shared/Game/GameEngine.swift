@@ -216,7 +216,6 @@ private extension GameEngine {
 
     mutating func recordStamp(family id: FamilyID, booth: Booth, at now: Date) throws -> [GameEvent] {
         let family = try state.family(id)
-        guard family.isAlive else { throw RuleError.familyNotAlive(id) }
         guard !family.stamps.contains(booth) else { throw RuleError.alreadyStamped }
         state.families[id]?.stamps.insert(booth)
         return [GameEvent(at: now, kind: .stampRecorded(id, booth))] + evaluateWin(at: now)
