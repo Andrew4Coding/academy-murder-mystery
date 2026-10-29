@@ -62,10 +62,5 @@ const burst = (seconds: number, fn: (t: number) => number) => {
 };
 
 wav("music.wav", music(172));
-wav("bell.wav", burst(2.6, (t) => (tone(523, t) * 0.5 + tone(1046, t) * 0.25 + tone(1568, t) * 0.12) * Math.exp(-t * 2.2)));
-wav("stamp.wav", burst(0.35, (t) => (tone(110, t) * 0.8 + (Math.random() * 2 - 1) * 0.3) * Math.exp(-t * 14)));
-wav("kill.wav", burst(0.9, (t) => (tone(70 - t * 40, t) * 0.9 + (Math.random() * 2 - 1) * 0.25 * Math.exp(-t * 20)) * Math.exp(-t * 4)));
-wav("alert.wav", burst(1.6, (t) => tone(t % 0.4 < 0.2 ? 880 : 660, t) * 0.35 * (t < 1.4 ? 1 : 0)));
-wav("whoosh.wav", burst(0.8, (t) => (Math.random() * 2 - 1) * 0.25 * Math.sin(Math.PI * Math.min(1, t / 0.8)) ** 2));
 wav("chime.wav", burst(1.8, (t) => (tone(659, t) * 0.4 + tone(988, t) * 0.25) * Math.exp(-t * 2.5)));
 console.log("audio written to", out);
