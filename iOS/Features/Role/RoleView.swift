@@ -68,9 +68,6 @@ struct RoleView: View {
 
                 Section {
                     LabeledContent("Family", value: game.familyName)
-                    if game.isHead {
-                        Label("You are the head of family", systemImage: "star.fill").foregroundStyle(.orange)
-                    }
                 }
             }
             .navigationTitle(game.familyName)

@@ -11,6 +11,14 @@ struct OCRootView: View {
                 BoothStampView(booth: booth, oc: view.oc, client: client)
             case let .sabotage(kind):
                 SabotageStationView(kind: kind, oc: view.oc, client: client)
+            case .admin:
+                ContentUnavailableView {
+                    Label("Use the iPad dashboard", systemImage: "ipad")
+                } description: {
+                    Text("This station belongs to the Murder Mystery Admin iPad app.")
+                } actions: {
+                    OCSignOutButton(client: client)
+                }
             case .townHall:
                 ContentUnavailableView {
                     Label("Station removed", systemImage: "xmark.circle")

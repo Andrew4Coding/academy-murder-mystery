@@ -46,11 +46,9 @@ struct GameHostTestingToolsTests {
         #expect(await eventually { client.view?.game != nil })
         let game = try #require(client.view?.game)
         #expect(game.role == .werewolf)
-        #expect(game.isHead)
         #expect(game.tasks.count == 5)
         #expect(game.allies?.isEmpty == true)
         #expect(harness.host.state.simulated)
-        #expect(harness.host.state.families[2]?.head == nil)
         #expect(harness.host.state.engine?.state.families[2]?.role == .villager)
     }
 }

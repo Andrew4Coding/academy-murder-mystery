@@ -70,7 +70,7 @@ struct MeetingView: View {
 
     @ViewBuilder
     private var skipSection: some View {
-        if game.isHead, game.life == .alive {
+        if game.life == .alive {
             Section {
                 Button(
                     game.mySkipVote ? "Withdraw skip vote" : "Vote to skip discussion",
@@ -108,16 +108,12 @@ struct MeetingView: View {
                 Section {
                     Label("Your family can't vote any more.", systemImage: "xmark.circle")
                 }
-            } else if game.isHead {
+            } else {
                 Section("Vote for a family") {
                     ForEach(game.families.filter { $0.life == .alive }) { family in
                         ballot(title: family.name, choice: .family(family.id), family: family)
                     }
                     ballot(title: "Skip", choice: .skip)
-                }
-            } else {
-                Section {
-                    Label("Only your head of family votes. Talk to them before time runs out.", systemImage: "star.fill")
                 }
             }
 
@@ -134,11 +130,11 @@ struct MeetingView: View {
         } label: {
             HStack {
                 if let family {
-                    AvatarView(name: family.headName ?? family.name, jpeg: family.headID.flatMap { client.selfies[$0] })
+                    AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] })
                     VStack(alignment: .leading) {
                         Text(title)
-                        if let head = family.headName {
-                            Text("Head: \(head)").font(.caption).foregroundStyle(.secondary)
+                        if let player = family.playerName {
+                            Text(player).font(.caption).foregroundStyle(.secondary)
                         }
                     }
                 } else {
@@ -227,11 +223,11 @@ private struct FamilyRow: View {
 
     var body: some View {
         HStack {
-            AvatarView(name: family.headName ?? family.name, jpeg: family.headID.flatMap { client.selfies[$0] })
+            AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] })
             VStack(alignment: .leading) {
                 Text(family.name)
-                if let head = family.headName {
-                    Text("Head: \(head)").font(.caption).foregroundStyle(.secondary)
+                if let player = family.playerName {
+                    Text(player).font(.caption).foregroundStyle(.secondary)
                 }
             }
         }

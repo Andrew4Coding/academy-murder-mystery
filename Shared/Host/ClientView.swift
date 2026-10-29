@@ -5,19 +5,13 @@ enum IdentityView: Codable, Equatable, Sendable {
     case oc(id: UUID, station: OCStation)
 }
 
-struct MemberView: Codable, Equatable, Sendable, Identifiable {
-    let id: PlayerID
-    let name: String
-    let isHead: Bool
-}
-
 struct FamilySummary: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let name: String
     let life: LifeState
     let revealedRole: Role?
-    var headID: PlayerID?
-    var headName: String?
+    var playerID: PlayerID?
+    var playerName: String?
 }
 
 struct TaskProgress: Codable, Equatable, Sendable, Identifiable {
@@ -39,9 +33,8 @@ enum PhaseView: Codable, Equatable, Sendable {
 struct LobbyView: Codable, Equatable, Sendable {
     let familyName: String
     let joinCode: String
-    let members: [MemberView]
-    let isHead: Bool
-    let hasHead: Bool
+    let playerID: PlayerID
+    let playerName: String
 }
 
 struct ResultRow: Codable, Equatable, Sendable, Identifiable {
@@ -85,6 +78,28 @@ struct OCFamilyRow: Codable, Equatable, Sendable, Identifiable {
     let stamped: Bool?
 }
 
+struct AdminFamilyRow: Codable, Equatable, Sendable, Identifiable {
+    let id: FamilyID
+    let name: String
+    let playerName: String?
+    let life: LifeState
+    let stampsDone: Int
+    let stampsTotal: Int
+}
+
+struct AdminView: Codable, Equatable, Sendable {
+    let joinCode: String?
+    let playersJoined: Int
+    let isLobby: Bool
+    let phase: PhaseView
+    let gameEndsAt: Date?
+    let families: [AdminFamilyRow]
+    let sabotage: SabotageView?
+    let skipVotes: Int
+    let votersTotal: Int
+    let skipRequested: Bool
+}
+
 struct OCView: Codable, Equatable, Sendable {
     let sabotage: SabotageView?
     let families: [OCFamilyRow]
@@ -104,8 +119,6 @@ struct GameView: Codable, Equatable, Sendable {
     let family: FamilyID
     let familyName: String
     let life: LifeState
-    let isHead: Bool
-    let members: [MemberView]
     let tasks: [TaskProgress]
     let allies: [FamilySummary]?
     let families: [FamilySummary]
@@ -136,6 +149,7 @@ struct ClientView: Codable, Equatable, Sendable {
     var lobby: LobbyView?
     var game: GameView?
     var oc: OCView?
+    var admin: AdminView?
 }
 
 struct Welcome: Codable, Equatable, Sendable {

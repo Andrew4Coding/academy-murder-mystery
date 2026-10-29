@@ -7,6 +7,17 @@ extension GameHost {
         try applyAsOC(.requestSabotage(by: player.family, kind: kind))
     }
 
+    func adminCommand(_ command: AdminCommand, identity: Identity) throws {
+        guard case let .oc(id) = identity, state.ocDevices[id]?.station == .admin else { throw HostError.notOC }
+        switch command {
+        case .startMeeting: try applyAsOC(.startMeeting)
+        case let .extendMeeting(seconds): try extendMeeting(seconds: seconds)
+        case .approveSkipDiscussion: try approveSkipDiscussion()
+        case .resolveSabotage: try applyAsOC(.resolveSabotage)
+        case let .removeFamily(family): try removeFamily(family)
+        }
+    }
+
     func resolveSabotage(identity: Identity) throws {
         guard case let .oc(id) = identity, let device = state.ocDevices[id] else { throw HostError.notOC }
         guard let active = state.engine?.state.sabotage else { throw RuleError.noActiveSabotage }

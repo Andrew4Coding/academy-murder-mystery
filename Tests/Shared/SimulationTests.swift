@@ -12,8 +12,8 @@ struct SimulationTests {
         let sim = try make()
         let state = sim.host.state
         #expect(state.families.count == 10)
-        #expect(state.players.count == 30)
-        #expect(state.families.values.allSatisfy { $0.head != nil })
+        #expect(state.players.count == 10)
+        #expect(state.families.keys.allSatisfy { state.player(of: $0) != nil })
         #expect(state.engine?.state.families.values.filter { $0.role == .werewolf }.count == 2)
     }
 

@@ -16,20 +16,54 @@ extension GameHost {
                 view.lobby = LobbyView(
                     familyName: family.name,
                     joinCode: state.gameCode ?? family.joinCode,
-                    members: memberViews(of: family),
-                    isHead: family.head == id,
-                    hasHead: family.head != nil
+                    playerID: id,
+                    playerName: player.name
                 )
             }
             return view
         case let .oc(id):
             guard let device = state.ocDevices[id] else { return nil }
             var view = ClientView(serverTime: clock.now, identity: .oc(id: id, station: device.station), familyName: nil)
-            if let engine = state.engine {
+            if device.station == .admin {
+                view.admin = adminView()
+            } else if let engine = state.engine {
                 view.oc = OCView(sabotage: sabotageView(engine), families: ocRows(engine, station: device.station))
             }
             return view
         }
+    }
+
+    func adminView() -> AdminView {
+        let engine = state.engine
+        let phase: PhaseView = switch engine?.state.phase {
+        case .none, .running?: .running
+        case let .discussion(until)?: .discussion(until: until)
+        case let .voting(until, isFinal)?: .voting(until: until, isFinal: isFinal)
+        case let .ended(outcome)?: .ended(outcome)
+        }
+        let rows = state.families.values.sorted { $0.id < $1.id }.map { info -> AdminFamilyRow in
+            let game = engine?.state.families[info.id]
+            return AdminFamilyRow(
+                id: info.id,
+                name: info.name,
+                playerName: state.player(of: info.id)?.name,
+                life: game?.life ?? .alive,
+                stampsDone: game?.stamps.intersection(game?.tasks ?? []).count ?? 0,
+                stampsTotal: game?.tasks.count ?? 0
+            )
+        }
+        return AdminView(
+            joinCode: state.gameCode,
+            playersJoined: state.players.count,
+            isLobby: engine == nil,
+            phase: phase,
+            gameEndsAt: engine?.state.finalVoteAt,
+            families: rows,
+            sabotage: engine.flatMap { sabotageView($0) },
+            skipVotes: engine?.state.skipVotes.count ?? 0,
+            votersTotal: engine?.state.aliveFamilies().count ?? 0,
+            skipRequested: engine?.state.skipRequested ?? false
+        )
     }
 
     func ocRows(_ engine: GameEngine, station: OCStation) -> [OCFamilyRow] {
@@ -55,10 +89,6 @@ extension GameHost {
         engine.state.sabotage.map { SabotageView(kind: $0.kind, startedAt: $0.startedAt, endsAt: $0.endsAt) }
     }
 
-    func memberViews(of family: FamilyInfo) -> [MemberView] {
-        state.members(of: family.id).map { MemberView(id: $0.id, name: $0.name, isHead: family.head == $0.id) }
-    }
-
     func summary(of id: FamilyID, in engine: GameEngine) -> FamilySummary? {
         guard let info = state.families[id], let family = engine.state.families[id] else { return nil }
         return FamilySummary(
@@ -66,8 +96,8 @@ extension GameHost {
             name: info.name,
             life: family.life,
             revealedRole: family.life == .expelled ? family.role : nil,
-            headID: info.head,
-            headName: info.head.flatMap { state.players[$0]?.name }
+            playerID: state.player(of: id)?.id,
+            playerName: state.player(of: id)?.name
         )
     }
 
@@ -89,15 +119,13 @@ extension GameHost {
             family: info.id,
             familyName: info.name,
             life: engineFamily.life,
-            isHead: info.head == viewer,
-            members: memberViews(of: info),
             tasks: engineFamily.tasks.sorted { $0.rawValue < $1.rawValue }
                 .map { TaskProgress(booth: $0, done: engineFamily.stamps.contains($0)) },
             allies: allies,
             families: state.families.keys.sorted().compactMap { summary(of: $0, in: engine) },
             phase: phase,
             announcedDeaths: engine.state.announcedDeaths.compactMap { summary(of: $0, in: engine) },
-            myVote: info.head == viewer ? engine.state.votes[info.id] : nil,
+            myVote: engine.state.votes[info.id],
             votesCast: engine.state.votes.count,
             votersTotal: engine.state.aliveFamilies().count,
             lastResult: engine.state.lastResult.map(publicResult),

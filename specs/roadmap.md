@@ -17,13 +17,14 @@ Each item links to a spec once one exists. Move items between sections at every 
 - [0013 Kill notice and game end](features/0013-kill-notice-and-game-end.md): the dead-players-and-tasks question is still open.
 - [0014 Meeting upgrade](features/0014-meeting-upgrade.md)
 - [0015 Sabotage rework](features/0015-sabotage-rework.md)
+- [0017 iPad admin dashboard](apps/admin/features/0017-ipad-admin.md): AC2 (shared admin views) open; check on a real iPad.
 - [0019 Report body over BLE](features/0019-report-body.md): needs a real-device check.
 - [0016 OC station rework](features/0016-oc-station-rework.md)
+- [0020 One person per family](features/0020-one-person-per-family.md)
 
 ## Now
 
 - [0011 Lifecycle bugfixes](features/0011-lifecycle-bugfixes.md): AC5 (nearby flashing) needs a real-device check.
-- [0017 iPad admin dashboard](apps/admin/features/0017-ipad-admin.md): not started.
 - [0018 Apple Watch intents](apps/ios/features/0018-watch-intents.md): intents built on the iPhone; check on a real Watch.
 
 ## Next

@@ -66,6 +66,36 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/MurderMysteryiOS.app/MurderMysteryiOS
         BUNDLE_LOADER: $(TEST_HOST)
+  MurderMysteryAdminiPad:
+    type: application
+    supportedDestinations: [iOS]
+    configFiles:
+      Debug: AdminiPad/MurderMysteryAdminiPad.xcconfig
+      Release: AdminiPad/MurderMysteryAdminiPad.xcconfig
+    info:
+      path: AdminiPad/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSBonjourServices:
+          - _murdermystery._tcp
+    sources:
+      - Shared
+      - path: AdminiPad
+        excludes: ["*.xcconfig"]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.adminpad
+        PRODUCT_NAME: MurderMysteryAdminiPad
+        PRODUCT_MODULE_NAME: MurderMystery
+        INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery Admin
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Murder Mystery Admin connects to the Mac host on the event Wi-Fi to control the game.
+        TARGETED_DEVICE_FAMILY: "2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait"
   MurderMysteryAdmin:
     type: application
     supportedDestinations: [macOS]
@@ -108,6 +138,14 @@ schemes:
       config: Debug
       targets:
         - MurderMysteryiOSTests
+    archive:
+      config: Release
+  MurderMysteryAdminiPad:
+    build:
+      targets:
+        MurderMysteryAdminiPad: all
+    run:
+      config: Debug
     archive:
       config: Release
   MurderMysteryAdmin-Testing:

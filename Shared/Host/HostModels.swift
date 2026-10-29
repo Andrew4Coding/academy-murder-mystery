@@ -7,6 +7,7 @@ enum OCStation: Hashable, Codable, Sendable {
     case booth(Booth)
     case sabotage(SabotageKind)
     case townHall
+    case admin
 }
 
 struct Player: Codable, Equatable, Sendable {
@@ -20,7 +21,6 @@ struct FamilyInfo: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     var name: String
     let joinCode: String
-    var head: PlayerID?
 }
 
 struct OCDevice: Codable, Equatable, Sendable {

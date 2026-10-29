@@ -3,7 +3,6 @@ import Foundation
 struct HostState: Codable, Equatable, Sendable {
     var settings = GameSettings.standard
     var werewolfCount = 1
-    var maxFamilySize = 6
     var gameCode: String?
     var families: [FamilyID: FamilyInfo] = [:]
     var players: [PlayerID: Player] = [:]
@@ -18,7 +17,7 @@ struct HostState: Codable, Equatable, Sendable {
         engine == nil
     }
 
-    func members(of family: FamilyID) -> [Player] {
-        players.values.filter { $0.family == family }.sorted { $0.name < $1.name }
+    func player(of family: FamilyID) -> Player? {
+        players.values.first { $0.family == family }
     }
 }

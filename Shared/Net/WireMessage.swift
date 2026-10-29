@@ -6,6 +6,7 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case renameFamily(String)
     case voteSkipDiscussion
     case reportBody(FamilyID)
+    case admin(AdminCommand)
     case selfie(Data)
     case vote(VoteChoice)
     case sightings([Sighting])
@@ -25,6 +26,14 @@ enum ServerMessage: Codable, Equatable, Sendable {
     case probe(UUID)
     case reset
     case selfies([Selfie])
+}
+
+enum AdminCommand: Codable, Equatable, Sendable {
+    case startMeeting
+    case extendMeeting(seconds: TimeInterval)
+    case approveSkipDiscussion
+    case resolveSabotage
+    case removeFamily(FamilyID)
 }
 
 struct Selfie: Codable, Equatable, Sendable {
