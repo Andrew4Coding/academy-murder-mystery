@@ -14,7 +14,7 @@ Enforced by `.githooks/commit-msg` (enable with `scripts/bootstrap.sh` or `git c
 - **scope**: optional, lowercase kebab-case. Use `shared` or a target slug (`ios`, `admin`) for target-wide changes, and a feature or area for narrower ones (`home`, `schema`, `fastlane`, `specs`, `claude`). Keep `Shared/` changes and target-only changes in separate commits.
 - **`!`**: breaking change (schema migration, removed public behaviour)
 - **[ABC]**: the committer code, from `scripts/commit-code.sh`:
-  `git config murdermystery.code` if set, otherwise the first 3 letters of the first word of `git config user.name`, uppercased.
+  `git config moonfall.code` if set, otherwise the first 3 letters of the first word of `git config user.name`, uppercased.
   The agent always commits as the human it works for, with that human's code. Never invent a code.
 - **summary**: lowercase, imperative mood ("add", not "added"/"adds"), no trailing period, whole subject ≤ 72 chars.
 

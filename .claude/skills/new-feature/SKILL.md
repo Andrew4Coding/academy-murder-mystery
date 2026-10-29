@@ -1,6 +1,6 @@
 ---
 name: new-feature
-description: Spec-first recipe for adding a feature or screen to the MurderMysteryiOS target, the MurderMysteryAdmin target. Use when the user asks for a new feature, screen, flow or data type. Starts from specs/, then creates a feature/ branch from dev and builds View + ViewModel + repository following the MVVM rules.
+description: Spec-first recipe for adding a feature or screen to the MoonfalliOS target, the MoonfallAdmin target. Use when the user asks for a new feature, screen, flow or data type. Starts from specs/, then creates a feature/ branch from dev and builds View + ViewModel + repository following the MVVM rules.
 ---
 
 # New feature (spec-driven)

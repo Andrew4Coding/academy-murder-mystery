@@ -12,4 +12,4 @@ bundle install
 xcodegen generate
 
 echo "Committer code: $(scripts/commit-code.sh)"
-echo "Override with: git config murdermystery.code ABC"
+echo "Override with: git config moonfall.code ABC"

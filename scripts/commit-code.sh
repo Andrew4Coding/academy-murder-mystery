@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-code="$(git config --get murdermystery.code || true)"
+code="$(git config --get moonfall.code || true)"
 
 if [[ -z "$code" ]]; then
   name="$(git config --get user.name || true)"
@@ -14,7 +14,7 @@ fi
 code="$(printf '%s' "$code" | tr '[:lower:]' '[:upper:]')"
 
 if [[ ! "$code" =~ ^[A-Z]{3}$ ]]; then
-  echo "Cannot derive a 3-letter committer code. Set one: git config murdermystery.code ABC" >&2
+  echo "Cannot derive a 3-letter committer code. Set one: git config moonfall.code ABC" >&2
   exit 1
 fi
 
