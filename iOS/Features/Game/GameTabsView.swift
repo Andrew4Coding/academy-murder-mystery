@@ -23,7 +23,7 @@ struct GameTabsView: View {
             Tab("Meeting", systemImage: "person.3", value: .meeting) {
                 MeetingView(game: game, client: client)
             }
-            if game.role == .werewolf {
+            if game.role == .werewolf || game.life == .alive {
                 Tab("Actions", systemImage: "scope", value: .actions) {
                     ActionsView(game: game, client: client, proximity: proximity)
                 }
@@ -72,9 +72,9 @@ struct GameTabsView: View {
 
         init(game: GameView, isActive: Bool) {
             token = game.bleToken
-            let inPlay = isActive && game.life == .alive && !game.phase.isEnded
-            advertise = inPlay
-            scan = inPlay && game.role == .werewolf
+            let inPlay = isActive && !game.phase.isEnded
+            advertise = inPlay && (game.life == .alive || game.bodyActive)
+            scan = inPlay && game.life == .alive
         }
     }
 

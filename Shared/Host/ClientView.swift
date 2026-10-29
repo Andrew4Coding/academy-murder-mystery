@@ -122,6 +122,8 @@ struct GameView: Codable, Equatable, Sendable {
     let sabotage: SabotageView?
     let sabotageReadyAt: Date?
     var sabotageTimings: [SabotageTiming] = []
+    var nearbyBodies: [FamilySummary] = []
+    var bodyActive = false
     var skipVotes = 0
     var mySkipVote = false
     var skipRequested = false

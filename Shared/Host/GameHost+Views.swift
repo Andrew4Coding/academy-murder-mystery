@@ -110,6 +110,8 @@ extension GameHost {
             sabotage: sabotageView(engine),
             sabotageReadyAt: engineFamily.role == .werewolf ? engine.state.sabotageReadyAt : nil,
             sabotageTimings: SabotageKind.allCases.map { SabotageTiming(kind: $0, duration: engine.state.settings.sabotageDuration(for: $0)) },
+            nearbyBodies: engineFamily.isAlive ? nearbyBodies(of: info.id).compactMap { summary(of: $0, in: engine) } : [],
+            bodyActive: engineFamily.life == .killed && engine.state.deadSinceLastMeeting.contains(info.id),
             skipVotes: engine.state.skipVotes.count,
             mySkipVote: engine.state.skipVotes.contains(info.id),
             skipRequested: engine.state.skipRequested

@@ -5,6 +5,7 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case probeReply(UUID)
     case renameFamily(String)
     case voteSkipDiscussion
+    case reportBody(FamilyID)
     case selfie(Data)
     case vote(VoteChoice)
     case sightings([Sighting])

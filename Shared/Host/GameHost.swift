@@ -41,6 +41,7 @@ final class GameHost {
     @ObservationIgnored var sightings: [FamilyID: [FamilyID: SightingRecord]] = [:]
     @ObservationIgnored var stampTimes: [StampKey: Date] = [:]
     @ObservationIgnored var lastNearby: [FamilyID: Set<FamilyID>] = [:]
+    @ObservationIgnored var lastBodies: [FamilyID: Set<FamilyID>] = [:]
     @ObservationIgnored let clock: any HostClock
     @ObservationIgnored private let repository: any GameRepository
     @ObservationIgnored private var transport: (any HostTransport)?
@@ -115,6 +116,8 @@ final class GameHost {
                 }
             case let .renameFamily(name):
                 try renameFamily(identity: signedIn(id), to: name)
+            case let .reportBody(body):
+                try reportBody(identity: signedIn(id), body: body)
             case .voteSkipDiscussion:
                 try voteSkipDiscussion(identity: signedIn(id))
             case let .selfie(data):
