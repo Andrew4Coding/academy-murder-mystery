@@ -40,6 +40,7 @@ bundle exec fastlane mac test          # MoonfallAdmin on macOS
 bundle exec fastlane mac beta          # TestFlight; humans only (needs fastlane/.env)
 bundle exec fastlane lint              # swiftlint --strict + swiftformat --lint
 bundle exec fastlane ios adminpad_beta # TestFlight for MoonfallAdminiPad; humans only
+bundle exec fastlane ios beta_external # also mac beta_external, ios adminpad_beta_external: submit the latest build to external testers (Beta App Review); needs BETA_REVIEW_* in fastlane/.env; humans only
 bundle exec fastlane create_apps      # one-time: bundle IDs and ASC apps for all three targets (Apple ID login)
 scripts/setup-ci.sh --dry-run          # validate fastlane/.env and upload the three ASC secrets to GitHub
 bundle exec fastlane bump app:ios type:minor
