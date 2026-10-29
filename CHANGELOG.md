@@ -24,6 +24,7 @@ Tooling and refactors that users can't see don't go here.
 - One sabotage card per booth, with its own fix time ([0015](specs/features/0015-sabotage-rework.md)).
 - Booth stamping as a grid of large family cards ([0016](specs/features/0016-oc-station-rework.md)).
 - Report a body: stand near a fallen family and tap Report to call a discussion ([0019](specs/features/0019-report-body.md)).
+- Live Activity on the Lock Screen and Dynamic Island: game phase, meeting timers, sabotage countdown, killed or voted out, and the winner ([0023](specs/features/0023-live-status.md)).
 - Kill, sabotage and voting App Intents (vote for a family, vote skip, skip discussion), usable from Siri and Shortcuts, including on Apple Watch, and they work when the app is in the background ([0018](specs/apps/ios/features/0018-watch-intents.md)).
 
 #### Fixed
