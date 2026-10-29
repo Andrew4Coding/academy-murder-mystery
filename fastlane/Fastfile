@@ -68,8 +68,17 @@ def provisioning_args
   ].join(" ")
 end
 
+def with_build_number(xcconfig, build_number)
+  original = File.read(xcconfig)
+  File.write(xcconfig, original.sub(/CURRENT_PROJECT_VERSION = \d+/, "CURRENT_PROJECT_VERSION = #{build_number}"))
+  yield
+ensure
+  File.write(xcconfig, original) if original
+end
+
 def build_signed(platform, target, key, **extra)
   build_number = next_build_number(key, target, platform == :mac ? "osx" : "ios")
+  # gym also hands xcargs to `xcodebuild -exportArchive`, which rejects build settings, so the number goes through the xcconfig.
   args = {
     project: PROJECT,
     scheme: target[:scheme],
@@ -78,12 +87,13 @@ def build_signed(platform, target, key, **extra)
     export_method: "app-store",
     export_options: { signingStyle: "automatic", teamID: TEAM_ID },
     skip_profile_detection: true,
-    xcargs: "#{provisioning_args} CURRENT_PROJECT_VERSION=#{build_number}",
-    export_xcargs: provisioning_args,
+    xcargs: provisioning_args,
     output_directory: File.join(ROOT, "build", target[:scheme]),
     clean: true
   }.merge(extra)
-  platform == :mac ? build_mac_app(**args) : build_app(**args)
+  with_build_number(target[:xcconfig], build_number) do
+    platform == :mac ? build_mac_app(**args) : build_app(**args)
+  end
 end
 
 def bump_marketing_version(xcconfig, type)
