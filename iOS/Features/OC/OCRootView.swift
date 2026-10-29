@@ -12,7 +12,13 @@ struct OCRootView: View {
             case let .sabotage(kind):
                 SabotageStationView(kind: kind, oc: view.oc, client: client)
             case .townHall:
-                TownHallObserverView(oc: view.oc, client: client)
+                ContentUnavailableView {
+                    Label("Station removed", systemImage: "xmark.circle")
+                } description: {
+                    Text("The Town Hall observer no longer exists. Sign out and pick a booth.")
+                } actions: {
+                    OCSignOutButton(client: client)
+                }
             }
         }
     }

@@ -30,9 +30,6 @@ struct OCSignInView: View {
                                 Text(kind.title).tag(OCStation.sabotage(kind))
                             }
                         }
-                        Section("Town Hall") {
-                            Text("Town Hall observer").tag(OCStation.townHall)
-                        }
                     }
                     .pickerStyle(.navigationLink)
                 }
