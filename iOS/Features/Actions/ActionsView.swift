@@ -8,15 +8,21 @@ struct ActionsView: View {
 
     @State private var target: FamilySummary?
     @State private var killCount = 0
+    @State private var reportCount = 0
     @State private var displayed: [FamilySummary] = []
 
     var body: some View {
         NavigationStack {
             List {
-                if game.life == .alive {
+                if game.role == .werewolf, game.life == .alive {
                     killSection
                 }
-                SabotageSection(game: game, client: client)
+                if game.life == .alive {
+                    reportSection
+                }
+                if game.role == .werewolf {
+                    SabotageSection(game: game, client: client)
+                }
                 if let error = client.lastError {
                     Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red) }
                 }
@@ -43,6 +49,7 @@ struct ActionsView: View {
                 Text("The whole family is out of the game.")
             }
             .sensoryFeedback(.impact, trigger: killCount)
+            .sensoryFeedback(.warning, trigger: reportCount)
             .onAppear { displayed = game.nearby }
             .onChange(of: game.nearby) { _, nearby in
                 if !nearby.isEmpty {
@@ -56,6 +63,33 @@ struct ActionsView: View {
                     displayed = []
                 }
             }
+        }
+    }
+
+    private var reportSection: some View {
+        Section {
+            if !proximity.bluetoothState.isUsable {
+                BluetoothOffRow()
+            } else if game.nearbyBodies.isEmpty {
+                Label("No body nearby", systemImage: "figure.fall")
+                    .foregroundStyle(.secondary)
+            }
+            ForEach(game.nearbyBodies) { body in
+                HStack {
+                    Text("\(body.name)'s body")
+                    Spacer()
+                    Button("Report", role: .destructive) {
+                        client.send(.reportBody(body.id))
+                        reportCount += 1
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(game.phase != .running)
+                }
+            }
+        } header: {
+            Text("Report a body")
+        } footer: {
+            Text("Walk up to a fallen family and keep this app open. Reporting calls everyone to the Town Hall.")
         }
     }
 
