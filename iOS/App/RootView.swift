@@ -18,11 +18,27 @@ struct RootView: View {
                 case .oc:
                     OCRootView(view: view, client: client)
                 }
+            } else if client.isResuming {
+                ReconnectingView(client: client)
             } else {
                 JoinView(client: client)
             }
         }
         .task { client.start() }
+    }
+}
+
+private struct ReconnectingView: View {
+    let client: GameClient
+
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+            Text("Reconnecting to the game…")
+                .foregroundStyle(.secondary)
+            Button("Start Over", role: .destructive) { client.signOut() }
+                .buttonStyle(.bordered)
+        }
     }
 }
 

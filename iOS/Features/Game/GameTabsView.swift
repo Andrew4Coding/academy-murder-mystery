@@ -42,6 +42,7 @@ struct GameTabsView: View {
         .animation(.default, value: game.sabotage)
         .sensoryFeedback(.warning, trigger: game.phase.isMeeting)
         .sensoryFeedback(.error, trigger: game.sabotage?.startedAt)
+        .task(id: game.deadline) { await syncAfterDeadline() }
         .task(id: ProximityPlan(game: game, isActive: scenePhase == .active)) { configureProximity() }
         .onDisappear { proximity.stop() }
     }
@@ -59,6 +60,16 @@ struct GameTabsView: View {
         }
     }
 
+    private func syncAfterDeadline() async {
+        guard let deadline = game.deadline else { return }
+        while !Task.isCancelled {
+            let wait = deadline.timeIntervalSince(client.serverNow) + 1
+            try? await Task.sleep(for: .seconds(max(wait, 2)))
+            guard !Task.isCancelled else { return }
+            client.send(.sync)
+        }
+    }
+
     private func configureProximity() {
         let plan = ProximityPlan(game: game, isActive: scenePhase == .active)
         guard plan.advertise else {
@@ -68,6 +79,16 @@ struct GameTabsView: View {
         proximity.configure(token: plan.token, advertise: true, scan: plan.scan) { [client] sightings in
             client.send(.sightings(sightings))
         }
+    }
+}
+
+private extension GameView {
+    var deadline: Date? {
+        let phaseEnd: Date? = switch phase {
+        case let .discussion(until), let .voting(until, _): until
+        case .running, .ended: nil
+        }
+        return [phaseEnd, sabotage?.endsAt].compactMap(\.self).min()
     }
 }
 

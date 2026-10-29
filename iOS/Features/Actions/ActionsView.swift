@@ -8,6 +8,7 @@ struct ActionsView: View {
 
     @State private var target: FamilySummary?
     @State private var killCount = 0
+    @State private var displayed: [FamilySummary] = []
 
     var body: some View {
         NavigationStack {
@@ -34,6 +35,7 @@ struct ActionsView: View {
                 if let target {
                     Button("Eliminate \(target.name)", role: .destructive) {
                         client.send(.kill(victim: target.id))
+                        displayed.removeAll { $0.id == target.id }
                         killCount += 1
                     }
                 }
@@ -41,6 +43,19 @@ struct ActionsView: View {
                 Text("The whole family is out of the game.")
             }
             .sensoryFeedback(.impact, trigger: killCount)
+            .onAppear { displayed = game.nearby }
+            .onChange(of: game.nearby) { _, nearby in
+                if !nearby.isEmpty {
+                    displayed = nearby
+                }
+            }
+            .task(id: game.nearby.isEmpty) {
+                guard game.nearby.isEmpty else { return }
+                try? await Task.sleep(for: .seconds(3))
+                if !Task.isCancelled {
+                    displayed = []
+                }
+            }
         }
     }
 
@@ -48,11 +63,11 @@ struct ActionsView: View {
         Section {
             if !proximity.bluetoothState.isUsable {
                 BluetoothOffRow()
-            } else if game.nearby.isEmpty {
+            } else if displayed.isEmpty {
                 Label("No one nearby", systemImage: "dot.radiowaves.left.and.right")
                     .foregroundStyle(.secondary)
             }
-            ForEach(game.nearby) { family in
+            ForEach(displayed) { family in
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     let ready = isReady(at: client.serverClock.now(local: context.date))
                     HStack {

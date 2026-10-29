@@ -4,6 +4,8 @@ struct FamilyLobbyView: View {
     let lobby: LobbyView
     let client: GameClient
 
+    @State private var confirmingLeave = false
+
     var body: some View {
         NavigationStack {
             List {
@@ -49,6 +51,16 @@ struct FamilyLobbyView: View {
             }
             .navigationTitle("Get Ready")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Leave", role: .destructive) { confirmingLeave = true }
+                }
+            }
+            .confirmationDialog("Leave this family?", isPresented: $confirmingLeave, titleVisibility: .visible) {
+                Button("Leave Family", role: .destructive) { client.leave() }
+            } message: {
+                Text("You can join again with a family code.")
+            }
         }
     }
 }
