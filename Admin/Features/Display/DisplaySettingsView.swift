@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DisplaySettingsView: View {
     @Environment(\.openWindow) private var openWindow
+    @AppStorage("displayAlarmMuted") private var alarmMuted = false
 
     var body: some View {
         Form {
@@ -12,6 +13,12 @@ struct DisplaySettingsView: View {
                 .keyboardShortcut("p", modifiers: [.command, .shift])
             } footer: {
                 Text("The Public Display shows timers, vote results and reveals for the lab screens. It never shows roles, tasks or votes.")
+            }
+
+            Section {
+                Toggle("Mute sabotage alarm", isOn: $alarmMuted)
+            } footer: {
+                Text("The Public Display plays a looping alarm on this Mac while a sabotage is running.")
             }
 
             Section("Sending it to the lab screens") {

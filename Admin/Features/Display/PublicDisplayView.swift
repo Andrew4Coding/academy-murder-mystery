@@ -1,3 +1,4 @@
+import AppKit
 import Charts
 import SwiftUI
 
@@ -206,6 +207,9 @@ private struct AlarmBanner: View {
     let now: Date
     let animate: Bool
 
+    @AppStorage("displayAlarmMuted") private var muted = false
+    @State private var sound = AlarmSound()
+
     var body: some View {
         HStack(spacing: 24) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -215,9 +219,30 @@ private struct AlarmBanner: View {
             Text(Duration.seconds(max(0, alarm.endsAt.timeIntervalSince(now))), format: .time(pattern: .minuteSecond))
                 .monospacedDigit()
         }
+        .onAppear { sound.play(muted: muted) }
+        .onDisappear { sound.stop() }
+        .onChange(of: muted) { _, now in now ? sound.stop() : sound.play(muted: false) }
         .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .bold))
         .padding(24)
         .background(.red, in: .rect(cornerRadius: 24))
         .accessibilityElement(children: .combine)
+    }
+}
+
+@MainActor
+private final class AlarmSound {
+    private let sound = NSSound(named: "Sosumi")
+
+    init() {
+        sound?.loops = true
+    }
+
+    func play(muted: Bool) {
+        guard !muted else { return }
+        sound?.play()
+    }
+
+    func stop() {
+        sound?.stop()
     }
 }

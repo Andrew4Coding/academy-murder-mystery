@@ -13,6 +13,8 @@ struct SetupView: View {
     @State private var killCooldown = GameSettings.standard.killCooldown
     @State private var sabotageCooldown = GameSettings.standard.sabotageCooldown
     @State private var sabotageDuration = GameSettings.standard.sabotageDuration
+    @State private var oxygenCooldown = GameSettings.standard.sabotageCooldown
+    @State private var oxygenDuration = GameSettings.standard.sabotageDuration
     @State private var gameMinutes = Int(GameSettings.standard.gameDuration / 60)
     @State private var renaming: FamilyInfo?
     @State private var renameText = ""
@@ -44,6 +46,18 @@ struct SetupView: View {
                 }
                 Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
                 Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
+            }
+            .disabled(!isLobby)
+
+            Section {
+                Stepper("Reactor fix time: \(Self.clock(sabotageDuration))", value: $sabotageDuration, in: 15 ... 600, step: 15)
+                Stepper("Reactor cooldown: \(Self.clock(sabotageCooldown))", value: $sabotageCooldown, in: 0 ... 600, step: 15)
+                Stepper("Oxygen fix time: \(Self.clock(oxygenDuration))", value: $oxygenDuration, in: 15 ... 600, step: 15)
+                Stepper("Oxygen cooldown: \(Self.clock(oxygenCooldown))", value: $oxygenCooldown, in: 0 ... 600, step: 15)
+            } header: {
+                Text("Sabotage")
+            } footer: {
+                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
             }
             .disabled(!isLobby)
 
@@ -118,6 +132,8 @@ struct SetupView: View {
         .onChange(of: votingMinutes) { _, _ in apply() }
         .onChange(of: killCooldown) { _, _ in apply() }
         .onChange(of: sabotageCooldown) { _, _ in apply() }
+        .onChange(of: oxygenCooldown) { _, _ in apply() }
+        .onChange(of: oxygenDuration) { _, _ in apply() }
         .onChange(of: sabotageDuration) { _, _ in apply() }
         .onChange(of: gameMinutes) { _, _ in apply() }
         .onChange(of: rssiThreshold) { _, _ in applyProximity() }
@@ -163,6 +179,10 @@ struct SetupView: View {
         }
     }
 
+    private static func clock(_ seconds: TimeInterval) -> String {
+        Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))
+    }
+
     private func startGame() throws {
         if testing {
             try host.startTestGame(roles: testRoles)
@@ -185,8 +205,6 @@ struct SetupView: View {
                 }
             }
             Stepper("Kill cooldown: \(Int(killCooldown)) s", value: $killCooldown, in: 0 ... 300, step: 5)
-            Stepper("Sabotage cooldown: \(Int(sabotageCooldown)) s", value: $sabotageCooldown, in: 0 ... 300, step: 5)
-            Stepper("Sabotage countdown: \(Int(sabotageDuration)) s", value: $sabotageDuration, in: 10 ... 300, step: 5)
             Stepper("Game length: \(gameMinutes) min", value: $gameMinutes, in: 1 ... 60)
         } header: {
             Text("Testing")
@@ -214,6 +232,8 @@ struct SetupView: View {
         killCooldown = state.settings.killCooldown
         sabotageCooldown = state.settings.sabotageCooldown
         sabotageDuration = state.settings.sabotageDuration
+        oxygenCooldown = state.settings.sabotageCooldown(for: .oxygen)
+        oxygenDuration = state.settings.sabotageDuration(for: .oxygen)
         gameMinutes = max(1, Int(state.settings.gameDuration / 60))
         if state.families.isEmpty {
             apply()
@@ -234,10 +254,12 @@ struct SetupView: View {
         var settings = host.state.settings
         settings.discussionDuration = TimeInterval(discussionMinutes * 60)
         settings.votingDuration = TimeInterval(votingMinutes * 60)
+        settings.sabotageCooldown = sabotageCooldown
+        settings.sabotageDuration = sabotageDuration
+        settings.oxygenCooldown = oxygenCooldown
+        settings.oxygenDuration = oxygenDuration
         if testing {
             settings.killCooldown = killCooldown
-            settings.sabotageCooldown = sabotageCooldown
-            settings.sabotageDuration = sabotageDuration
             settings.gameDuration = TimeInterval(gameMinutes * 60)
         }
         do {

@@ -109,6 +109,7 @@ extension GameHost {
             killReadyAt: engineFamily.role == .werewolf && engineFamily.isAlive ? engineFamily.killReadyAt : nil,
             sabotage: sabotageView(engine),
             sabotageReadyAt: engineFamily.role == .werewolf ? engine.state.sabotageReadyAt : nil,
+            sabotageTimings: SabotageKind.allCases.map { SabotageTiming(kind: $0, duration: engine.state.settings.sabotageDuration(for: $0)) },
             skipVotes: engine.state.skipVotes.count,
             mySkipVote: engine.state.skipVotes.contains(info.id),
             skipRequested: engine.state.skipRequested
