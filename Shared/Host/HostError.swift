@@ -59,6 +59,7 @@ extension RuleError {
         case .notVillager: "That family can't be targeted."
         case .wrongPhase: "That isn't allowed right now."
         case .skipNotRequested: "Most families haven't voted to skip yet."
+        case .timerFinished: "That timer already finished."
         case .cooldownActive: "Still on cooldown."
         case .sabotageAlreadyActive: "A sabotage is already running."
         case .noActiveSabotage: "There's no sabotage to resolve."

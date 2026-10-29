@@ -55,7 +55,7 @@ Accessibility notes: notice is text plus haptic, never colour alone; respects Re
 
 ## Open questions
 
-- **Dead players and tasks (pending, not decided)**: dead players keep doing tasks, so an Impostor cannot tell the dead from the living. Options: the app says "already dead" when an Impostor tries to kill a dead player; keep the ambiguity on purpose; or a physical marker. Decide before implementing AC1's follow-ups.
+- **Dead players and tasks**: decided in [0024](0024-dead-families-keep-tasks.md): dead families keep doing tasks, and the ambiguity for werewolves stays on purpose.
 
 ## Implementation notes
 

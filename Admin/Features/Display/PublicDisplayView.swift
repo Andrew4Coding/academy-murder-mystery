@@ -63,10 +63,14 @@ struct PublicDisplayView: View {
         case let .result(result):
             ResultBlock(result: result)
         case let .ended(outcome):
-            Headline(
-                outcome.winner == .villagers ? "Villagers win!" : "Werewolves win!",
-                detail: outcome.reason.explanation
-            )
+            if display.reveal.isEmpty {
+                Headline(
+                    outcome.winner == .villagers ? "Villagers win!" : "Werewolves win!",
+                    detail: outcome.reason.explanation
+                )
+            } else {
+                RevealBlock(outcome: outcome, families: display.reveal)
+            }
         }
     }
 }
@@ -113,6 +117,74 @@ private struct JoinBlock: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+private struct RevealBlock: View {
+    let outcome: Outcome
+    let families: [RevealedFamily]
+
+    var body: some View {
+        VStack(spacing: 32) {
+            VStack(spacing: 8) {
+                Text("Werewolves win!")
+                    .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold, design: .rounded))
+                Text(outcome.reason.explanation)
+                    .font(.system(size: PublicDisplayLayout.detailFontSize))
+                    .foregroundStyle(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+            }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: 20)], spacing: 20) {
+                ForEach(families) { family in
+                    card(family)
+                }
+            }
+        }
+        .padding(.horizontal, 48)
+    }
+
+    private func card(_ family: RevealedFamily) -> some View {
+        HStack(spacing: 16) {
+            face(family)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(family.name)
+                    .font(.system(size: PublicDisplayLayout.detailFontSize * 0.8, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                if let player = family.player {
+                    Text(player)
+                        .font(.system(size: PublicDisplayLayout.detailFontSize * 0.55))
+                        .foregroundStyle(.white.opacity(0.7))
+                        .lineLimit(1)
+                }
+                if family.isWerewolf {
+                    Label("Werewolf", systemImage: Role.werewolf.symbol)
+                        .font(.system(size: PublicDisplayLayout.detailFontSize * 0.55, weight: .semibold))
+                        .foregroundStyle(.red)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+        .background(family.isWerewolf ? Color.red.opacity(0.25) : Color.white.opacity(0.08), in: .rect(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(family.isWerewolf ? Color.red : .clear, lineWidth: 4))
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private func face(_ family: RevealedFamily) -> some View {
+        if let data = family.selfie, let image = NSImage(data: data) {
+            Image(nsImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 110, height: 110)
+                .clipShape(.circle)
+        } else {
+            Text(String(family.player?.first ?? family.name.first ?? "?").uppercased())
+                .font(.system(size: 52, weight: .bold, design: .rounded))
+                .frame(width: 110, height: 110)
+                .background(.white.opacity(0.15), in: .circle)
+        }
     }
 }
 

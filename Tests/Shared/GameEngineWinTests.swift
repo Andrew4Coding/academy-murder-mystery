@@ -30,6 +30,31 @@ struct GameEngineWinTests {
         #expect(last.outcome?.reason == .allTasksDone)
     }
 
+    @Test func deadFamiliesCanStampAndTheLastStampWinsTheGame() throws {
+        var fixture = try Fixture()
+        let (dead, expelled) = (fixture.villagers[0], fixture.villagers[1])
+        try fixture.apply(.kill(killer: fixture.werewolves[0], victim: dead), at: 100)
+        try fixture.apply(.override(.forceKill(expelled)), at: 110)
+        var last: [GameEvent] = []
+        for id in fixture.villagers {
+            for booth in fixture.family(id).tasks.sorted(by: { $0.rawValue < $1.rawValue }) {
+                last = try fixture.apply(.recordStamp(family: id, booth: booth), at: 120)
+            }
+        }
+        #expect(fixture.family(dead).life == .killed)
+        #expect(last.outcome == Outcome(winner: .villagers, reason: .allTasksDone))
+    }
+
+    @Test func deadFamiliesStayDeadWhenTheyStamp() throws {
+        var fixture = try Fixture()
+        let dead = fixture.villagers[0]
+        try fixture.apply(.kill(killer: fixture.werewolves[0], victim: dead), at: 100)
+        let booth = try #require(fixture.family(dead).tasks.first)
+        try fixture.apply(.recordStamp(family: dead, booth: booth), at: 110)
+        #expect(fixture.family(dead).life == .killed)
+        #expect(fixture.family(dead).stamps == [booth])
+    }
+
     @Test func werewolfStampsNeverCountTowardTheWin() throws {
         var fixture = try Fixture()
         let wolf = fixture.werewolves[0]

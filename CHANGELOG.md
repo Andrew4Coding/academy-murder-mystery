@@ -22,6 +22,7 @@ Tooling and refactors that users can't see don't go here.
 - Full-screen notices when your family is killed and when the game ends with the winner ([0013](specs/features/0013-kill-notice-and-game-end.md)).
 - Selfie and head name on meeting cards, a vote to skip discussion, and a bar chart of vote results ([0014](specs/features/0014-meeting-upgrade.md)).
 - One sabotage card per booth, with its own fix time ([0015](specs/features/0015-sabotage-rework.md)).
+- Killed and voted-out families keep stamping their tasks, so the villagers can still win by tasks ([0024](specs/features/0024-dead-families-keep-tasks.md)).
 - Booth stamping as a grid of large family cards ([0016](specs/features/0016-oc-station-rework.md)).
 - Report a body: stand near a fallen family and tap Report to call a discussion ([0019](specs/features/0019-report-body.md)).
 - Kill, sabotage and voting App Intents (vote for a family, vote skip, skip discussion), usable from Siri and Shortcuts, including on Apple Watch, and they work when the app is in the background ([0018](specs/apps/ios/features/0018-watch-intents.md)).
@@ -48,6 +49,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Add or remove time on the meeting timer, game clock and sabotage countdown, with presets and a custom entry ([0025](specs/features/0025-editable-timers.md)).
 - Delete a family from the dashboard's families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
 - iPad dashboard: connect to the Mac host with the OC PIN, see game status and families, start a discussion, add time, approve a skip and resolve a sabotage ([0017](specs/apps/admin/features/0017-ipad-admin.md)).
 
@@ -60,6 +62,8 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Add or remove time on the meeting timer, game clock and sabotage countdown from the Game toolbar ([0025](specs/features/0025-editable-timers.md)).
+- Public Display shows every family with its selfie and marks the werewolves when they win ([0026](specs/features/0026-werewolf-win-reveal.md)).
 - Delete a family from the Setup families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
 - Hosts the game on the local network and lists connected devices, with a connectivity check ([0003](specs/features/0003-lan-host-transport.md)).
 - Setup screen: families, join codes and QR, timings, OC PIN, Start Game and New Game ([0004](specs/features/0004-lobby-and-roles.md)).

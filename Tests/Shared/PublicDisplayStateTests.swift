@@ -107,6 +107,25 @@ struct PublicDisplayStateTests {
         #expect(harness.host.publicDisplayState().screen == .ended(Outcome(winner: .werewolves, reason: .ocEnded)))
     }
 
+    @Test func werewolfWinRevealsEveryFamilyWithFacesAndMarksTheWolves() async throws {
+        let (harness, _) = try await startedGame()
+        let wolfID = wolf(harness)
+        let player = try #require(harness.host.state.player(of: wolfID))
+        harness.host.selfies[player.id] = Data([1, 2, 3])
+        try harness.host.applyAsOC(.override(.endGame(.werewolves)))
+        let reveal = harness.host.publicDisplayState().reveal
+        #expect(reveal.count == 5)
+        #expect(reveal.filter(\.isWerewolf).map(\.id) == [wolfID])
+        #expect(reveal.first { $0.id == wolfID }?.selfie == Data([1, 2, 3]))
+    }
+
+    @Test func noRolesOrFacesLeakBeforeTheEndOrWhenVillagersWin() async throws {
+        let (harness, _) = try await startedGame()
+        #expect(harness.host.publicDisplayState().reveal.isEmpty)
+        try harness.host.applyAsOC(.override(.endGame(.villagers)))
+        #expect(harness.host.publicDisplayState().reveal.isEmpty)
+    }
+
     @Test func timersAreLargeEnoughForALabTv() {
         #expect(PublicDisplayLayout.timerFontSize >= 120)
     }

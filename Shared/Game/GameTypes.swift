@@ -99,7 +99,7 @@ struct Family: Codable, Equatable, Sendable, Identifiable {
 struct ActiveSabotage: Codable, Equatable, Sendable {
     let kind: SabotageKind
     let startedAt: Date
-    let endsAt: Date
+    var endsAt: Date
     let triggeredBy: FamilyID
 }
 

@@ -64,12 +64,18 @@ struct DashboardView: View {
         Section("Controls") {
             Button("Start Discussion", systemImage: "bell.fill") { client.send(.admin(.startMeeting)) }
                 .disabled(admin.isLobby || admin.phase != .running)
-            Menu("Add Time", systemImage: "clock.badge.plus") {
-                ForEach([1, 2, 5], id: \.self) { minutes in
-                    Button("+\(minutes) min") { client.send(.admin(.extendMeeting(seconds: TimeInterval(minutes * 60)))) }
-                }
+            TimerAdjustMenu(title: "Meeting Timer", systemImage: "clock.badge.plus") {
+                client.send(.admin(.adjustTimer(.meeting, seconds: $0)))
             }
             .disabled(!isMeeting)
+            TimerAdjustMenu(title: "Game Clock", systemImage: "hourglass") {
+                client.send(.admin(.adjustTimer(.finalVote, seconds: $0)))
+            }
+            .disabled(admin.isLobby || isEnded)
+            TimerAdjustMenu(title: "Sabotage Timer", systemImage: "exclamationmark.triangle") {
+                client.send(.admin(.adjustTimer(.sabotage, seconds: $0)))
+            }
+            .disabled(admin.sabotage == nil)
             Button("Approve Skip", systemImage: "forward.end.fill") { client.send(.admin(.approveSkipDiscussion)) }
                 .disabled(!(isDiscussion && admin.skipRequested))
             Button("Resolve Sabotage", systemImage: "checkmark.shield") { client.send(.admin(.resolveSabotage)) }
@@ -81,6 +87,14 @@ struct DashboardView: View {
 
     private var isMeeting: Bool {
         admin.phase.isMeeting
+    }
+
+    private var isEnded: Bool {
+        if case .ended = admin.phase {
+            true
+        } else {
+            false
+        }
     }
 
     private var isDiscussion: Bool {

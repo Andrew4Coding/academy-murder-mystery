@@ -173,6 +173,7 @@ private extension GameEngine {
         case let .castVote(by, choice): try castVote(by: by, choice: choice, at: now)
         case let .proxyVote(family, choice): try proxyVote(for: family, choice: choice, at: now)
         case let .extendMeeting(seconds): try extendMeeting(by: seconds)
+        case let .adjustTimer(target, seconds): try adjustTimer(target, by: seconds, at: now)
         case let .voteSkipDiscussion(by): try voteSkipDiscussion(by: by)
         case .approveSkipDiscussion: try approveSkipDiscussion(at: now)
         case let .override(override): try applyOverride(override, at: now)
@@ -216,7 +217,6 @@ private extension GameEngine {
 
     mutating func recordStamp(family id: FamilyID, booth: Booth, at now: Date) throws -> [GameEvent] {
         let family = try state.family(id)
-        guard family.isAlive else { throw RuleError.familyNotAlive(id) }
         guard !family.stamps.contains(booth) else { throw RuleError.alreadyStamped }
         state.families[id]?.stamps.insert(booth)
         return [GameEvent(at: now, kind: .stampRecorded(id, booth))] + evaluateWin(at: now)
@@ -261,6 +261,32 @@ private extension GameEngine {
             throw RuleError.wrongPhase
         }
         return []
+    }
+
+    mutating func adjustTimer(_ target: TimerTarget, by seconds: TimeInterval, at now: Date) throws -> [GameEvent] {
+        let floor = now.addingTimeInterval(1)
+        func moved(_ end: Date) -> Date {
+            max(end.addingTimeInterval(seconds), floor)
+        }
+        switch target {
+        case .meeting:
+            switch state.phase {
+            case let .discussion(until):
+                state.phase = .discussion(until: moved(until))
+            case let .voting(until, isFinal):
+                state.phase = .voting(until: moved(until), isFinal: isFinal)
+            case .running, .ended:
+                throw RuleError.wrongPhase
+            }
+        case .finalVote:
+            guard !state.finalVoteStarted else { throw RuleError.timerFinished }
+            state.finalVoteOverride = moved(state.finalVoteAt)
+        case .sabotage:
+            guard var sabotage = state.sabotage else { throw RuleError.noActiveSabotage }
+            sabotage.endsAt = moved(sabotage.endsAt)
+            state.sabotage = sabotage
+        }
+        return [GameEvent(at: now, kind: .ocOverride(.timerAdjusted(target, seconds: seconds)))]
     }
 
     mutating func voteSkipDiscussion(by id: FamilyID) throws -> [GameEvent] {
@@ -322,7 +348,7 @@ private extension GameEngine {
             events += evaluateWin(at: now)
         case let .endGame(side):
             events += end(side, .ocEnded, at: now)
-        case .proxyVote:
+        case .proxyVote, .timerAdjusted:
             throw RuleError.wrongPhase
         }
         return events

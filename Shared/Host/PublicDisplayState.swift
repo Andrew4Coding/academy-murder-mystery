@@ -24,6 +24,15 @@ struct PublicDisplayState: Codable, Equatable, Sendable {
     var announcedDeaths: [String]
     var joinCode: String?
     var lobbyFamilies: [LobbyFamily] = []
+    var reveal: [RevealedFamily] = []
+}
+
+struct RevealedFamily: Codable, Equatable, Sendable, Identifiable {
+    let id: FamilyID
+    let name: String
+    let player: String?
+    let selfie: Data?
+    let isWerewolf: Bool
 }
 
 struct LobbyFamily: Codable, Equatable, Sendable, Identifiable {
@@ -61,8 +70,22 @@ extension GameHost {
             screen: screen,
             familiesRemaining: game.aliveFamilies().count,
             alarm: alarm,
-            announcedDeaths: names
+            announcedDeaths: names,
+            reveal: game.outcome?.winner == .werewolves ? endReveal(game) : []
         )
+    }
+
+    func endReveal(_ game: GameState) -> [RevealedFamily] {
+        game.families.values.sorted { $0.id < $1.id }.map { family in
+            let player = state.player(of: family.id)
+            return RevealedFamily(
+                id: family.id,
+                name: state.families[family.id]?.name ?? "Unknown",
+                player: player?.name,
+                selfie: player.flatMap { selfies[$0.id] },
+                isWerewolf: family.role == .werewolf
+            )
+        }
     }
 
     func lobbyFamilies() -> [LobbyFamily] {
