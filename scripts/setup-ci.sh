@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
-# One-shot TestFlight CI setup: validates fastlane/.env, optionally creates the apps and signing
-# assets, and uploads the secrets the Beta workflow needs to GitHub.
+# One-shot TestFlight CI setup: validates fastlane/.env, optionally creates the apps in
+# App Store Connect, and uploads the secrets the Beta workflow needs to GitHub.
+# Signing is Xcode automatic signing driven by the ASC API key, so there are no certificates to manage.
 #
 #   scripts/setup-ci.sh --dry-run        show what would happen, change nothing
 #   scripts/setup-ci.sh                  upload secrets
 #   scripts/setup-ci.sh --create-apps    also register bundle IDs and ASC apps (Apple ID login, 2FA)
-#   scripts/setup-ci.sh --signing        also create certs and profiles in the match repo
 #   scripts/setup-ci.sh --trigger        also dispatch the Beta workflow afterwards
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-DRY_RUN=0 CREATE_APPS=0 SIGNING=0 TRIGGER=0
+DRY_RUN=0 CREATE_APPS=0 TRIGGER=0
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
     --create-apps) CREATE_APPS=1 ;;
-    --signing) SIGNING=1 ;;
     --trigger) TRIGGER=1 ;;
     -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
@@ -25,7 +24,6 @@ done
 
 ENV_FILE=fastlane/.env
 WORKFLOW=.github/workflows/beta.yml
-LANES=("ios signing" "mac signing" "ios adminpad_signing")
 
 fail() { echo "error: $*" >&2; exit 1; }
 step() { printf '\n==> %s\n' "$*"; }
@@ -43,7 +41,7 @@ set -a
 . "./$ENV_FILE"
 set +a
 
-for var in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_CONTENT MATCH_PASSWORD MATCH_GIT_URL; do
+for var in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_CONTENT; do
   [ -n "${!var:-}" ] || fail "$var is missing in $ENV_FILE"
 done
 echo "ASC key id: $ASC_KEY_ID"
@@ -54,28 +52,6 @@ case "$ASC_KEY_CONTENT" in
   *) echo "ASC_KEY_CONTENT: base64" ;;
 esac
 
-CI_MATCH_URL=$MATCH_GIT_URL
-CI_MATCH_AUTH=${MATCH_GIT_BASIC_AUTHORIZATION:-}
-if [ -z "$CI_MATCH_AUTH" ]; then
-  case "$MATCH_GIT_URL" in
-    git@github.com:*)
-      CI_MATCH_URL="https://github.com/${MATCH_GIT_URL#git@github.com:}"
-      echo "MATCH_GIT_URL is SSH; CI needs https + a token, so the secret becomes: $CI_MATCH_URL" ;;
-  esac
-  case "$CI_MATCH_URL" in
-    https://*)
-      echo "MATCH_GIT_BASIC_AUTHORIZATION is not set. CI needs a GitHub PAT with read access to the certificates repo."
-      if [ "$DRY_RUN" = 0 ]; then
-        read -r -p "GitHub username for the PAT (blank to skip): " pat_user
-        if [ -n "$pat_user" ]; then
-          read -r -s -p "PAT: " pat_token; echo
-          CI_MATCH_AUTH=$(printf '%s:%s' "$pat_user" "$pat_token" | base64 | tr -d '\n')
-        fi
-      fi ;;
-  esac
-fi
-[ -n "$CI_MATCH_AUTH" ] || echo "warning: no MATCH_GIT_BASIC_AUTHORIZATION; CI cannot clone a private certificates repo without it"
-
 if [ "$CREATE_APPS" = 1 ]; then
   step "Creating apps in App Store Connect"
   [ -n "${FASTLANE_APPLE_ID:-}" ] || fail "set FASTLANE_APPLE_ID in $ENV_FILE (and FASTLANE_ITC_TEAM_ID if you have several teams)"
@@ -83,27 +59,15 @@ if [ "$CREATE_APPS" = 1 ]; then
   else bundle exec fastlane create_apps; fi
 fi
 
-if [ "$SIGNING" = 1 ]; then
-  for lane in "${LANES[@]}"; do
-    step "Signing assets: fastlane $lane"
-    if [ "$DRY_RUN" = 1 ]; then echo "would run: bundle exec fastlane $lane"
-    else bundle exec fastlane $lane; fi
-  done
-fi
-
 step "GitHub secrets on $REPO"
 set_secret() {
   local name=$1 value=$2
-  [ -n "$value" ] || return 0
   if [ "$DRY_RUN" = 1 ]; then echo "would set $name"
   else printf '%s' "$value" | gh secret set "$name" --repo "$REPO" --body - >/dev/null && echo "set $name"; fi
 }
 set_secret ASC_KEY_ID "$ASC_KEY_ID"
 set_secret ASC_ISSUER_ID "$ASC_ISSUER_ID"
 set_secret ASC_KEY_CONTENT "$ASC_KEY_CONTENT"
-set_secret MATCH_PASSWORD "$MATCH_PASSWORD"
-set_secret MATCH_GIT_URL "$CI_MATCH_URL"
-set_secret MATCH_GIT_BASIC_AUTHORIZATION "$CI_MATCH_AUTH"
 
 if [ "$TRIGGER" = 1 ]; then
   step "Dispatching Beta"
@@ -115,6 +79,6 @@ step "Done"
 cat <<MSG
 Still manual, once:
   - the Beta workflow file must be on the default branch before workflow_dispatch works
-  - first build of each app needs its ASC app record (--create-apps) and a match profile (--signing)
+  - each app needs its ASC record first (--create-apps, or create it in App Store Connect)
   - then push or merge to staging; CI builds iOS, Mac Admin and iPad Admin in parallel
 MSG
