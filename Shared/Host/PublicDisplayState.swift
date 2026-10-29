@@ -23,6 +23,13 @@ struct PublicDisplayState: Codable, Equatable, Sendable {
     var alarm: Alarm?
     var announcedDeaths: [String]
     var joinCode: String?
+    var lobbyFamilies: [LobbyFamily] = []
+}
+
+struct LobbyFamily: Codable, Equatable, Sendable, Identifiable {
+    let id: FamilyID
+    let name: String
+    let members: [String]
 }
 
 extension GameHost {
@@ -31,7 +38,7 @@ extension GameHost {
             return PublicDisplayState(screen: .hostOffline, familiesRemaining: nil, alarm: nil, announcedDeaths: [])
         }
         guard let engine = state.engine else {
-            return PublicDisplayState(screen: .waiting, familiesRemaining: nil, alarm: nil, announcedDeaths: [], joinCode: state.gameCode)
+            return PublicDisplayState(screen: .waiting, familiesRemaining: nil, alarm: nil, announcedDeaths: [], joinCode: state.gameCode, lobbyFamilies: lobbyFamilies())
         }
         let game = engine.state
         let names = game.announcedDeaths.compactMap { state.families[$0]?.name }
@@ -56,6 +63,12 @@ extension GameHost {
             alarm: alarm,
             announcedDeaths: names
         )
+    }
+
+    func lobbyFamilies() -> [LobbyFamily] {
+        state.families.values.sorted { $0.id < $1.id }.map { family in
+            LobbyFamily(id: family.id, name: family.name, members: state.members(of: family.id).map(\.name))
+        }
     }
 
     func publicResult(_ result: VoteResult) -> VoteResultView {
