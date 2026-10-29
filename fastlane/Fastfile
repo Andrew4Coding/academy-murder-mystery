@@ -140,22 +140,24 @@ end
 desc "Register the bundle IDs and create the apps in App Store Connect (needs an Apple ID login, not the API key)"
 lane :create_apps do |options|
   [
-    [:ios, ENV.fetch("ASC_NAME_IOS", "Moonfall Werewolf Night"), "ios"],
+    [:ios, ENV.fetch("ASC_NAME_IOS", "Moonfall: Werewolf Night"), "ios"],
     [:admin, ENV.fetch("ASC_NAME_ADMIN", "Moonfall Admin"), "osx"],
     [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Moonfall OC"), "ios"]
   ].each do |key, name, platform|
     target = app(key)
     UI.user_error!("App name '#{name}' is #{name.length} characters; App Store Connect allows 30") if name.length > 30
-    produce(
+    common = {
       username: ENV["FASTLANE_APPLE_ID"],
       app_identifier: target[:bundle_id],
-      app_name: name,
       language: options[:language] || "en-US",
       sku: "moonfall-#{key}",
       platform: platform,
       team_id: ENV["FASTLANE_TEAM_ID"] || TEAM_ID,
       itc_team_id: ENV["FASTLANE_ITC_TEAM_ID"]
-    )
+    }
+    # The developer portal rejects punctuation in App ID names, App Store Connect does not.
+    produce(**common, app_name: name.gsub(/[^0-9A-Za-z ]/, ""), skip_itc: true)
+    produce(**common, app_name: name, skip_devcenter: true)
   end
 end
 
