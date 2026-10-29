@@ -1,7 +1,7 @@
 ---
 id: 0024
 title: Dead families keep doing tasks
-status: in-progress
+status: implemented
 owner: AND
 app: all
 created: 2026-10-29
@@ -22,12 +22,12 @@ Villagers also win when every villager family finishes its tasks. A killed or ex
 
 ## Acceptance criteria
 
-- [ ] **AC1 Stamp when dead**: Given a killed or expelled family, when a booth OC stamps it, then the stamp is recorded and its progress updates (today the engine throws `familyNotAlive`).
-- [ ] **AC2 Task win**: Given every villager family (alive or not) has all stamps, when the last stamp is recorded, then the villagers win with `allTasksDone`.
-- [ ] **AC3 No vote**: Given a dead family, when it votes, proxy-votes or votes to skip discussion, then it is rejected, and it is not counted in `votersTotal` or in the all-voted check.
-- [ ] **AC4 Still dead**: Given a dead family, when it stamps, then it stays dead and cannot kill, sabotage or report a body.
-- [ ] **AC5 Phone UI**: Given a dead player, then the Role tab still shows the task list with progress and says "You are out, keep finishing your tasks"; the vote controls are read-only.
-- [ ] **AC6 OC UI**: Given a booth OC screen and the Mac Admin, then dead families are shown as dead but stay tappable for stamping.
+- [x] **AC1 Stamp when dead**: Given a killed or expelled family, when a booth OC stamps it, then the stamp is recorded and its progress updates (today the engine throws `familyNotAlive`).
+- [x] **AC2 Task win**: Given every villager family (alive or not) has all stamps, when the last stamp is recorded, then the villagers win with `allTasksDone`.
+- [x] **AC3 No vote**: Given a dead family, when it votes, proxy-votes or votes to skip discussion, then it is rejected, and it is not counted in `votersTotal` or in the all-voted check.
+- [x] **AC4 Still dead**: Given a dead family, when it stamps, then it stays dead and cannot kill, sabotage or report a body.
+- [x] **AC5 Phone UI**: Given a dead player, then the Role tab still shows the task list with progress and says "You are out, keep finishing your tasks"; the vote controls are read-only.
+- [x] **AC6 OC UI**: Given a booth OC screen and the Mac Admin, then dead families are shown as dead but stay tappable for stamping.
 
 ## UX
 
@@ -61,4 +61,6 @@ None. `GameEngine.recordStamp` drops its alive check.
 
 ## Implementation notes
 
-Filled during and after build.
+- Engine: `recordStamp` no longer requires an alive family; `castVote`, proxy votes and skip votes still do. `evaluateWin` already counted every villager family.
+- iOS: `RoleView` dead copy, `BoothStampView` cards stay tappable for dead families. The Mac Admin stamping already had no life check.
+- Tests: `GameEngineWinTests` (`deadFamiliesCanStampAndTheLastStampWinsTheGame`, `deadFamiliesStayDeadWhenTheyStamp`); votes from dead families are covered by `GameEngineVotingTests`.
