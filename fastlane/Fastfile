@@ -75,7 +75,7 @@ def build_signed(platform, target, key, **extra)
     scheme: target[:scheme],
     configuration: "Release",
     destination: platform == :mac ? "generic/platform=macOS" : "generic/platform=iOS",
-    export_method: "app-store-connect",
+    export_method: "app-store",
     export_options: { signingStyle: "automatic", teamID: TEAM_ID },
     skip_profile_detection: true,
     xcargs: "#{provisioning_args} CURRENT_PROJECT_VERSION=#{build_number}",
