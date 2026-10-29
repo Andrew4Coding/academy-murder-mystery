@@ -14,7 +14,9 @@ struct SetupView: View {
     @State private var sabotageCooldown = GameSettings.standard.sabotageCooldown
     @State private var sabotageDuration = GameSettings.standard.sabotageDuration
     @State private var gameMinutes = Int(GameSettings.standard.gameDuration / 60)
-    @State private var qrFamily: FamilyInfo?
+    @State private var renaming: FamilyInfo?
+    @State private var renameText = ""
+    @State private var capacity = 6
     @State private var errorMessage: String?
     @State private var confirmingNewGame = false
 
@@ -34,9 +36,11 @@ struct SetupView: View {
         let issues = host.state.setupIssues(testing: testing)
         Form {
             Section("Game") {
-                Stepper("Families: \(familyCount)", value: $familyCount, in: (testing ? 1 : 3) ... 40)
-                if !testing {
-                    Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... max(1, (familyCount - 1) / 2))
+                if testing {
+                    Stepper("Families: \(familyCount)", value: $familyCount, in: 1 ... 40)
+                } else {
+                    Stepper("Players per family: \(capacity)", value: $capacity, in: 1 ... 12)
+                    Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... 10)
                 }
                 Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
                 Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
@@ -66,6 +70,23 @@ struct SetupView: View {
                 Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
             }
 
+            if !testing, let code = host.state.gameCode {
+                Section {
+                    HStack(spacing: 24) {
+                        QRCodeView(text: code).frame(width: 160, height: 160)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(code).font(.title.monospaced()).textSelection(.enabled)
+                            Text("\(host.state.players.count) players joined")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("Join code")
+                } footer: {
+                    Text("The same QR is on the Public Display. Players fill Family 1 first, then Family 2, and so on.")
+                }
+            }
+
             Section("OC PIN") {
                 LabeledContent("PIN for booth organisers") {
                     Text(host.state.ocPin)
@@ -75,7 +96,7 @@ struct SetupView: View {
             }
 
             Section("Families") {
-                FamiliesTable(host: host, onShowQR: { qrFamily = $0 })
+                FamiliesTable(host: host, onRename: { renameText = $0.name; renaming = $0 })
                     .frame(minHeight: 220)
             }
 
@@ -91,6 +112,7 @@ struct SetupView: View {
         .navigationTitle("Setup")
         .onAppear(perform: loadDraft)
         .onChange(of: familyCount) { _, _ in apply() }
+        .onChange(of: capacity) { _, new in applyCapacity(new) }
         .onChange(of: werewolfCount) { _, _ in apply() }
         .onChange(of: discussionMinutes) { _, _ in apply() }
         .onChange(of: votingMinutes) { _, _ in apply() }
@@ -115,13 +137,17 @@ struct SetupView: View {
                 .help(issues.first ?? "Assign roles and start the game")
             }
         }
-        .popover(item: $qrFamily) { family in
-            VStack(spacing: 12) {
-                Text(family.name).font(.headline)
-                QRCodeView(text: family.joinCode).frame(width: 260, height: 260)
-                Text(family.joinCode).font(.title2.monospaced()).textSelection(.enabled)
+        .alert("Rename family", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+            TextField("Name", text: $renameText)
+            Button("Cancel", role: .cancel) { renaming = nil }
+            Button("Rename") {
+                if let family = renaming {
+                    do { try host.renameFamily(family.id, to: renameText) } catch let error as HostError {
+                        errorMessage = error.message
+                    } catch { errorMessage = "\(error)" }
+                }
+                renaming = nil
             }
-            .padding()
         }
         .alert("Can't change setup", isPresented: .constant(errorMessage != nil)) {
             Button("OK") { errorMessage = nil; loadDraft() }
@@ -179,6 +205,7 @@ struct SetupView: View {
         if !state.families.isEmpty {
             familyCount = state.families.count
         }
+        capacity = state.maxFamilySize
         werewolfCount = max(1, state.werewolfCount)
         discussionMinutes = max(1, Int(state.settings.discussionDuration / 60))
         votingMinutes = max(1, Int(state.settings.votingDuration / 60))
@@ -191,6 +218,11 @@ struct SetupView: View {
         if state.families.isEmpty {
             apply()
         }
+    }
+
+    private func applyCapacity(_ value: Int) {
+        guard isLobby, value != host.state.maxFamilySize else { return }
+        try? host.setFamilyCapacity(value)
     }
 
     private func applyProximity() {
@@ -209,11 +241,15 @@ struct SetupView: View {
             settings.gameDuration = TimeInterval(gameMinutes * 60)
         }
         do {
-            try host.configure(
-                familyCount: familyCount,
-                werewolfCount: min(werewolfCount, max(1, (familyCount - 1) / 2)),
-                settings: settings
-            )
+            if testing {
+                try host.configure(
+                    familyCount: familyCount,
+                    werewolfCount: min(werewolfCount, max(1, (familyCount - 1) / 2)),
+                    settings: settings
+                )
+            } else {
+                try host.updateSettings(werewolfCount: werewolfCount, settings: settings)
+            }
         } catch let error as HostError {
             errorMessage = error.message
         } catch {
@@ -224,24 +260,21 @@ struct SetupView: View {
 
 private struct FamiliesTable: View {
     let host: GameHost
-    let onShowQR: (FamilyInfo) -> Void
+    let onRename: (FamilyInfo) -> Void
 
     var body: some View {
         Table(families) {
             TableColumn("Family", value: \.name)
-            TableColumn("Join code") { (family: FamilyInfo) in
-                Text(family.joinCode).font(.body.monospaced()).textSelection(.enabled)
-            }
             TableColumn("Members") { (family: FamilyInfo) in
                 Text("\(host.state.members(of: family.id).count) of \(host.state.maxFamilySize)")
             }
             TableColumn("Head of family") { (family: FamilyInfo) in
                 HeadCell(name: headName(of: family))
             }
-            TableColumn("QR") { (family: FamilyInfo) in
-                Button("Show QR", systemImage: "qrcode") { onShowQR(family) }
+            TableColumn("Rename") { (family: FamilyInfo) in
+                Button("Rename", systemImage: "pencil") { onRename(family) }
                     .labelStyle(.iconOnly)
-                    .help("Show a QR code for \(family.name)")
+                    .help("Rename \(family.name)")
             }
         }
     }

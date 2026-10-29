@@ -54,7 +54,6 @@ struct HostHarness {
             client.join(code: family.joinCode, name: "Head \(family.id.rawValue)")
             let signedIn = await eventually { client.isSignedIn }
             precondition(signedIn, "client failed to join")
-            client.send(.claimHead)
             let isHead = await eventually { client.view?.lobby?.isHead == true }
             precondition(isHead, "client failed to become head")
             heads[family.id] = client

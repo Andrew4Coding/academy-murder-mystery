@@ -51,10 +51,17 @@ final class GameHost {
         if let stored = try repository.latest() {
             gameID = stored.id
             state = stored.state
+            if state.gameCode == nil {
+                state.gameCode = Self.makeJoinCode(excluding: [])
+            }
             recentEvents = try Array(repository.events(for: stored.id).suffix(200))
         } else {
             gameID = UUID()
-            state = initialState ?? HostState(ocPin: Self.makePIN())
+            var initial = initialState ?? HostState(ocPin: Self.makePIN())
+            if initial.gameCode == nil {
+                initial.gameCode = Self.makeJoinCode(excluding: [])
+            }
+            state = initial
             try repository.save(StoredGame(id: gameID, state: state, updatedAt: clock.now))
         }
     }
@@ -105,10 +112,8 @@ final class GameHost {
                 if sessions[id]?.probe?.nonce == nonce {
                     sessions[id]?.lastReplyAt = clock.now
                 }
-            case .claimHead:
-                try claimHead(identity: signedIn(id))
-            case let .handOverHead(target):
-                try handOverHead(identity: signedIn(id), to: target)
+            case let .renameFamily(name):
+                try renameFamily(identity: signedIn(id), to: name)
             case let .vote(choice):
                 try vote(identity: signedIn(id), choice: choice)
             case let .sightings(list):
@@ -251,16 +256,24 @@ final class GameHost {
         switch hello.credential {
         case let .familyCode(code):
             let normalized = code.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-            guard let family = state.families.values.first(where: { $0.joinCode == normalized }) else {
-                throw HostError.invalidCredential
-            }
+            let legacyFamily = state.families.values.first(where: { $0.joinCode == normalized })
+            guard normalized == state.gameCode || legacyFamily != nil else { throw HostError.invalidCredential }
             guard state.isLobby else { throw HostError.gameAlreadyStarted }
             guard let name = hello.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty else {
                 throw HostError.nameRequired
             }
-            guard state.members(of: family.id).count < state.maxFamilySize else { throw HostError.familyFull }
-            let player = Player(id: UUID(), name: name, family: family.id, bleToken: Self.makeToken())
+            let family: FamilyID
+            if let legacyFamily {
+                guard state.members(of: legacyFamily.id).count < state.maxFamilySize else { throw HostError.familyFull }
+                family = legacyFamily.id
+            } else {
+                family = try assignFamily()
+            }
+            let player = Player(id: UUID(), name: name, family: family, bleToken: Self.makeToken())
             state.players[player.id] = player
+            if state.families[family]?.head == nil {
+                state.families[family]?.head = player.id
+            }
             return .player(player.id)
         case let .ocPin(pin):
             guard pin == state.ocPin, let station = hello.station else { throw HostError.invalidCredential }

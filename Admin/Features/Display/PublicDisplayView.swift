@@ -48,7 +48,7 @@ struct PublicDisplayView: View {
         case .hostOffline:
             Headline("Host offline", detail: "The game host isn't running.")
         case .waiting:
-            Headline("Murder Mystery", detail: "Waiting for the game to start")
+            JoinBlock(code: display.joinCode, joined: controller.host.state.players.count)
         case let .playing(gameEndsAt):
             TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: now)
         case let .discussion(until):
@@ -66,6 +66,31 @@ struct PublicDisplayView: View {
                 detail: outcome.reason.explanation
             )
         }
+    }
+}
+
+private struct JoinBlock: View {
+    let code: String?
+    let joined: Int
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("Scan to join")
+                .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .semibold))
+            if let code {
+                QRCodeView(text: code)
+                    .frame(width: 420, height: 420)
+                    .padding(16)
+                    .background(.white)
+                Text(code)
+                    .font(.system(size: PublicDisplayLayout.detailFontSize, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+            Text("\(joined) players joined")
+                .font(.system(size: PublicDisplayLayout.detailFontSize))
+                .foregroundStyle(.white.opacity(0.7))
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

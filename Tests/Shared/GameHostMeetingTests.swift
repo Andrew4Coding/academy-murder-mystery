@@ -89,7 +89,6 @@ struct GameHostMeetingTests {
                 let client = harness.makeClient()
                 client.join(code: family.joinCode, name: "H\(family.id.rawValue)")
                 _ = await eventually { client.isSignedIn }
-                client.send(.claimHead)
                 _ = await eventually { client.view?.lobby?.isHead == true }
                 heads[family.id] = client
             }
@@ -127,17 +126,6 @@ struct GameHostMeetingTests {
         #expect(result.rows.first { !$0.isSkip }?.count == 4)
         #expect(result.rows.first { $0.isSkip }?.count == 1)
         #expect(heads[wolf]?.view?.game?.life == .expelled)
-    }
-
-    @Test func headChangesAreRejectedDuringDiscussionAndVoting() async throws {
-        let (harness, heads) = try await startedGame()
-        try harness.host.applyAsOC(.startMeeting)
-        heads[1]?.send(.claimHead)
-        #expect(await eventually { heads[1]!.lastError == HostError.headLocked.message })
-        harness.clock.advance(by: 121)
-        harness.host.tick()
-        heads[1]?.send(.claimHead)
-        #expect(await eventually { heads[1]!.lastError == HostError.headLocked.message })
     }
 
     @Test func theFinalVoteAlertsEveryDeviceAtTheGameLimit() async throws {

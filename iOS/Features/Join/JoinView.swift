@@ -24,7 +24,7 @@ struct JoinView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Family code", text: $code)
+                    TextField("Game code", text: $code)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
@@ -36,7 +36,7 @@ struct JoinView: View {
                 } header: {
                     Text("Your family")
                 } footer: {
-                    Text("Ask your family's organiser for the code or QR on their screen.")
+                    Text("Scan the QR on the big screen. You are placed in a family automatically.")
                 }
 
                 Section("You") {
@@ -48,7 +48,7 @@ struct JoinView: View {
                 }
 
                 Section {
-                    Button("Join Family", action: join)
+                    Button("Join Game", action: join)
                         .frame(maxWidth: .infinity)
                         .disabled(!canJoin)
                 } footer: {

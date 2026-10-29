@@ -30,6 +30,7 @@ extension HostState {
 }
 
 extension GameHost {
+    static let maxFamilies = 40
     static let joinCodeAlphabet = Array("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
 
     func configure(familyCount: Int, werewolfCount: Int, settings: GameSettings) throws {
@@ -57,6 +58,19 @@ extension GameHost {
             state.werewolfCount = werewolfCount
             state.settings = settings
         }
+    }
+
+    func updateSettings(werewolfCount: Int, settings: GameSettings) throws {
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        replaceState { state in
+            state.werewolfCount = werewolfCount
+            state.settings = settings
+        }
+    }
+
+    func setFamilyCapacity(_ capacity: Int) throws {
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        replaceState { $0.maxFamilySize = max(1, capacity) }
     }
 
     func startGame() throws {
@@ -110,6 +124,7 @@ extension GameHost {
 
     func newGame() throws {
         var fresh = HostState(ocPin: Self.makePIN())
+        fresh.gameCode = Self.makeJoinCode(excluding: [])
         fresh.settings = state.settings
         fresh.werewolfCount = state.werewolfCount
         fresh.maxFamilySize = state.maxFamilySize
@@ -122,7 +137,7 @@ extension GameHost {
             sessions[id]?.identity = nil
             send(.reset, to: id)
         }
-        if count > 0 {
+        if count > 0, testingToolsEnabled {
             try configure(familyCount: count, werewolfCount: fresh.werewolfCount, settings: fresh.settings)
         } else {
             commit()
@@ -149,19 +164,30 @@ extension GameHost {
         }
     }
 
-    func claimHead(identity: Identity) throws {
-        guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
-        try ensureHeadChangeAllowed()
-        state.families[player.family]?.head = playerID
-        commit()
+    func assignFamily() throws -> FamilyID {
+        let open = state.families.keys.sorted().first { state.members(of: $0).count < state.maxFamilySize }
+        if let open {
+            return open
+        }
+        guard state.families.count < Self.maxFamilies else { throw HostError.familyFull }
+        let number = (state.families.keys.map(\.rawValue).max() ?? 0) + 1
+        let used = Set(state.families.values.map(\.joinCode))
+        let id = FamilyID(number)
+        state.families[id] = FamilyInfo(id: id, name: "Family \(number)", joinCode: Self.makeJoinCode(excluding: used))
+        return id
     }
 
-    func handOverHead(identity: Identity, to target: PlayerID) throws {
+    func renameFamily(identity: Identity, to name: String) throws {
         guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
         guard state.families[player.family]?.head == playerID else { throw HostError.notHead }
-        guard state.players[target]?.family == player.family else { throw HostError.notInFamily }
-        try ensureHeadChangeAllowed()
-        state.families[player.family]?.head = target
+        try renameFamily(player.family, to: name)
+    }
+
+    func renameFamily(_ family: FamilyID, to name: String) throws {
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard (1 ... 24).contains(trimmed.count), state.families[family] != nil else { throw HostError.invalidName }
+        state.families[family]?.name = trimmed
         commit()
     }
 
@@ -176,13 +202,6 @@ extension GameHost {
         let events = try engine.apply(command, at: clock.now)
         state.engine = engine
         commit(events: events)
-    }
-
-    private func ensureHeadChangeAllowed() throws {
-        switch state.engine?.state.phase {
-        case .discussion, .voting: throw HostError.headLocked
-        default: break
-        }
     }
 
     static func makeJoinCode(excluding used: Set<String>) -> String {

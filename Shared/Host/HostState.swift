@@ -4,6 +4,7 @@ struct HostState: Codable, Equatable, Sendable {
     var settings = GameSettings.standard
     var werewolfCount = 1
     var maxFamilySize = 6
+    var gameCode: String?
     var families: [FamilyID: FamilyInfo] = [:]
     var players: [PlayerID: Player] = [:]
     var ocDevices: [UUID: OCDevice] = [:]

@@ -20,7 +20,6 @@ struct GameHostSabotageTests {
             let client = harness.makeClient()
             client.join(code: family.joinCode, name: "H\(family.id.rawValue)")
             _ = await eventually { client.isSignedIn }
-            client.send(.claimHead)
             _ = await eventually { client.view?.lobby?.isHead == true }
             heads[family.id] = client
         }

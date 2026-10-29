@@ -15,7 +15,7 @@ extension GameHost {
             } else {
                 view.lobby = LobbyView(
                     familyName: family.name,
-                    joinCode: family.joinCode,
+                    joinCode: state.gameCode ?? family.joinCode,
                     members: memberViews(of: family),
                     isHead: family.head == id,
                     hasHead: family.head != nil
