@@ -1,7 +1,7 @@
 ---
 id: 0026
 title: Werewolf win reveal on the Public Display
-status: approved
+status: in-progress
 owner: AND
 app: admin
 created: 2026-10-29
