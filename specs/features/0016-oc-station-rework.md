@@ -1,7 +1,7 @@
 ---
 id: 0016
 title: OC station rework
-status: draft
+status: approved
 owner: AND
 app: ios
 created: 2026-10-29

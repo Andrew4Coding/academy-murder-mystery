@@ -1,7 +1,7 @@
 ---
 id: 0014
 title: Meeting upgrade
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-29

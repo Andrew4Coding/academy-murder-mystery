@@ -1,7 +1,7 @@
 ---
 id: 0011
 title: Lifecycle bugfixes
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-29

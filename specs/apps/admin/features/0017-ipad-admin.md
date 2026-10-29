@@ -1,7 +1,7 @@
 ---
 id: 0017
 title: iPad admin dashboard
-status: draft
+status: approved
 owner: AND
 app: admin
 created: 2026-10-29

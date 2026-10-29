@@ -1,7 +1,7 @@
 ---
 id: 0012
 title: Join and families
-status: draft
+status: approved
 owner: AND
 app: all
 created: 2026-10-29

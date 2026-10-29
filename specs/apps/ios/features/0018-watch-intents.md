@@ -1,7 +1,7 @@
 ---
 id: 0018
 title: Apple Watch intents
-status: draft
+status: approved
 owner: AND
 app: ios
 created: 2026-10-29
