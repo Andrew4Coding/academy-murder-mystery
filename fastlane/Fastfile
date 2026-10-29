@@ -140,9 +140,9 @@ end
 desc "Register the bundle IDs and create the apps in App Store Connect (needs an Apple ID login, not the API key)"
 lane :create_apps do |options|
   [
-    [:ios, ENV.fetch("ASC_NAME_IOS", "Murder Mystery: Werewolf Night"), "ios"],
-    [:admin, ENV.fetch("ASC_NAME_ADMIN", "Murder Mystery Admin: Werewolf Night"), "osx"],
-    [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Murder Mystery Admin iPad: Werewolf Night"), "ios"]
+    [:ios, ENV.fetch("ASC_NAME_IOS", "Murder Mystery Werewolf Night"), "ios"],
+    [:admin, ENV.fetch("ASC_NAME_ADMIN", "Murder Mystery Admin Werewolf Night"), "osx"],
+    [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Murder Mystery Admin iPad Werewolf Night"), "ios"]
   ].each do |key, name, platform|
     target = app(key)
     produce(
