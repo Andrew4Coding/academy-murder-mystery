@@ -26,6 +26,8 @@ A werewolf can trigger Kill and Sabotage from an Apple Watch through App Intents
 - [ ] **AC3 Feedback**: Given a result, then the Watch shows success or the host's error.
 - [x] **AC4 Roles**: Villagers and OC devices expose no intents and the Watch never receives a role.
 - [x] **AC5 Authority**: No rule runs on the Watch or the phone; both only send `GameCommand`s.
+- [x] **AC6 Voting without a screen**: Given a meeting, when a player runs "Vote" (choosing a family), "Vote Skip" or "Skip Discussion", then the vote is sent as from the app and the reply is neutral.
+- [x] **AC7 Cold start**: Given the app is not in the foreground, when an intent runs, then it connects to the host and waits up to 5 s for a confirmed identity before replying "Not available right now."
 
 ## UX
 
@@ -60,3 +62,4 @@ None.
 ## Implementation notes
 
 - Deviation: no watchOS target. App Intents live in the iPhone app (`iOS/Intents/GameIntents.swift`: kill the single nearby family, start Reactor or Oxygen) and are offered to Siri, Shortcuts and Apple Watch through the paired phone. AC1 to AC3 still need a check on a real Watch. Non-werewolves get the same "not available" reply, so no role leaks.
+- Added after the first pass: `GameClientRegistry.shared` is the one `GameClient` for the app and the intents, so intents launched in the background can connect (`connectedClient()` waits up to 5 s); `GameClient.start()` is now idempotent. New intents `VoteForFamilyIntent` (with `FamilyEntity` options from the alive families), `VoteSkipIntent` and `SkipDiscussionIntent`. Still unchecked on a real Watch (AC1 to AC3).
