@@ -133,6 +133,7 @@ extension GameHost {
         let count = state.families.count
         gameID = UUID()
         state = fresh
+        selfies = [:]
         for id in sessions.keys {
             sessions[id]?.identity = nil
             send(.reset, to: id)
@@ -189,6 +190,33 @@ extension GameHost {
         guard (1 ... 24).contains(trimmed.count), state.families[family] != nil else { throw HostError.invalidName }
         state.families[family]?.name = trimmed
         commit()
+    }
+
+    static let maxSelfieBytes = 150_000
+
+    func storeSelfie(_ data: Data, identity: Identity) throws {
+        guard case let .player(playerID) = identity, state.players[playerID] != nil else { throw HostError.notAPlayer }
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        guard data.count <= Self.maxSelfieBytes else { throw HostError.photoTooLarge }
+        selfies[playerID] = data
+        let update = ServerMessage.selfies(selfieList)
+        for (clientID, session) in sessions where session.identity != nil {
+            send(update, to: clientID)
+        }
+    }
+
+    func voteSkipDiscussion(identity: Identity) throws {
+        guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
+        guard state.families[player.family]?.head == playerID else { throw HostError.notHead }
+        try applyAsOC(.voteSkipDiscussion(by: player.family))
+    }
+
+    func extendMeeting(seconds: TimeInterval) throws {
+        try applyAsOC(.extendMeeting(seconds: seconds))
+    }
+
+    func approveSkipDiscussion() throws {
+        try applyAsOC(.approveSkipDiscussion)
     }
 
     func vote(identity: Identity, choice: VoteChoice) throws {

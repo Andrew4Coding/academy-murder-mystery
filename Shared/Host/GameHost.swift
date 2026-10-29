@@ -36,6 +36,7 @@ final class GameHost {
     private(set) var recentEvents: [GameEvent] = []
     private(set) var revision = 0
 
+    @ObservationIgnored var selfies: [PlayerID: Data] = [:]
     @ObservationIgnored var testingToolsEnabled = TestingTools.isEnabled
     @ObservationIgnored var sightings: [FamilyID: [FamilyID: SightingRecord]] = [:]
     @ObservationIgnored var stampTimes: [StampKey: Date] = [:]
@@ -114,6 +115,10 @@ final class GameHost {
                 }
             case let .renameFamily(name):
                 try renameFamily(identity: signedIn(id), to: name)
+            case .voteSkipDiscussion:
+                try voteSkipDiscussion(identity: signedIn(id))
+            case let .selfie(data):
+                try storeSelfie(data, identity: signedIn(id))
             case let .vote(choice):
                 try vote(identity: signedIn(id), choice: choice)
             case let .sightings(list):
@@ -192,6 +197,10 @@ final class GameHost {
         return (players + ocs).sorted { ($0.detail, $0.label) < ($1.detail, $1.label) }
     }
 
+    var selfieList: [Selfie] {
+        selfies.map { Selfie(player: $0.key, jpeg: $0.value) }
+    }
+
     func replaceState(_ change: (inout HostState) -> Void) {
         change(&state)
         commit()
@@ -249,6 +258,7 @@ final class GameHost {
         case let .oc(ocID): ocID
         }
         send(.welcome(Welcome(resumeID: resumeID, serverTime: now)), to: id)
+        send(.selfies(selfieList), to: id)
         commit()
     }
 

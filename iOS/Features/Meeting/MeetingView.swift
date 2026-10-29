@@ -1,3 +1,4 @@
+import Charts
 import SwiftUI
 
 struct MeetingView: View {
@@ -57,7 +58,29 @@ struct MeetingView: View {
             } footer: {
                 Text("Voting opens automatically when the time is up.")
             }
+            skipSection
+            Section("Families at the table") {
+                ForEach(game.families.filter { $0.life == .alive }) { family in
+                    FamilyRow(family: family, client: client)
+                }
+            }
             DeathsSection(families: game.announcedDeaths)
+        }
+    }
+
+    @ViewBuilder
+    private var skipSection: some View {
+        if game.isHead, game.life == .alive {
+            Section {
+                Button(
+                    game.mySkipVote ? "Withdraw skip vote" : "Vote to skip discussion",
+                    systemImage: "forward.end"
+                ) { client.send(.voteSkipDiscussion) }
+                Text("\(game.skipVotes) of \(game.votersTotal) families want to skip.")
+                    .foregroundStyle(.secondary)
+            } footer: {
+                Text("If most families agree, the organiser can approve and voting opens right away.")
+            }
         }
     }
 
@@ -88,7 +111,7 @@ struct MeetingView: View {
             } else if game.isHead {
                 Section("Vote for a family") {
                     ForEach(game.families.filter { $0.life == .alive }) { family in
-                        ballot(title: family.name, choice: .family(family.id))
+                        ballot(title: family.name, choice: .family(family.id), family: family)
                     }
                     ballot(title: "Skip", choice: .skip)
                 }
@@ -105,12 +128,22 @@ struct MeetingView: View {
         .sensoryFeedback(.selection, trigger: game.myVote)
     }
 
-    private func ballot(title: String, choice: VoteChoice) -> some View {
+    private func ballot(title: String, choice: VoteChoice, family: FamilySummary? = nil) -> some View {
         Button {
             client.send(.vote(choice))
         } label: {
             HStack {
-                Text(title)
+                if let family {
+                    AvatarView(name: family.headName ?? family.name, jpeg: family.headID.flatMap { client.selfies[$0] })
+                    VStack(alignment: .leading) {
+                        Text(title)
+                        if let head = family.headName {
+                            Text("Head: \(head)").font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                } else {
+                    Text(title)
+                }
                 Spacer()
                 if game.myVote == choice {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(.tint)
@@ -164,9 +197,44 @@ private struct ResultSection: View {
                 Label("\(family.name) was a \(family.role.title.lowercased()) family", systemImage: family.role.symbol)
                     .foregroundStyle(family.role.tint)
             }
-            ForEach(result.rows) { row in
-                LabeledContent(row.name, value: "\(row.count)")
+            if !result.rows.isEmpty {
+                VoteChart(rows: result.rows)
+                    .frame(height: CGFloat(max(result.rows.count, 2)) * 44)
             }
         }
+    }
+}
+
+struct VoteChart: View {
+    let rows: [ResultRow]
+
+    var body: some View {
+        Chart(rows) { row in
+            BarMark(x: .value("Votes", row.count), y: .value("Candidate", row.name))
+                .foregroundStyle(row.isSkip ? Color.gray : Color.accentColor)
+                .annotation(position: .trailing) { Text("\(row.count)").font(.caption.monospacedDigit()) }
+        }
+        .chartXAxis(.hidden)
+        .accessibilityElement()
+        .accessibilityLabel("Vote results")
+        .accessibilityValue(rows.map { "\($0.name): \($0.count)" }.joined(separator: ", "))
+    }
+}
+
+private struct FamilyRow: View {
+    let family: FamilySummary
+    let client: GameClient
+
+    var body: some View {
+        HStack {
+            AvatarView(name: family.headName ?? family.name, jpeg: family.headID.flatMap { client.selfies[$0] })
+            VStack(alignment: .leading) {
+                Text(family.name)
+                if let head = family.headName {
+                    Text("Head: \(head)").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 }

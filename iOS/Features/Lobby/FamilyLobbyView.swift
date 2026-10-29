@@ -6,6 +6,7 @@ struct FamilyLobbyView: View {
 
     @State private var confirmingLeave = false
     @State private var isRenaming = false
+    @State private var isTakingSelfie = false
     @State private var renameText = ""
 
     var body: some View {
@@ -14,6 +15,7 @@ struct FamilyLobbyView: View {
                 Section {
                     ForEach(lobby.members) { member in
                         HStack {
+                            AvatarView(name: member.name, jpeg: client.selfies[member.id])
                             Text(member.name)
                             Spacer()
                             if member.isHead {
@@ -32,6 +34,9 @@ struct FamilyLobbyView: View {
                 }
 
                 Section {
+                    if SelfieCamera.isAvailable {
+                        Button("Take Selfie", systemImage: "camera") { isTakingSelfie = true }
+                    }
                     if lobby.isHead {
                         Button("Rename Family", systemImage: "pencil") {
                             renameText = lobby.familyName
@@ -51,6 +56,9 @@ struct FamilyLobbyView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Leave", role: .destructive) { confirmingLeave = true }
                 }
+            }
+            .fullScreenCover(isPresented: $isTakingSelfie) {
+                SelfieCamera { client.send(.selfie($0)) }.ignoresSafeArea()
             }
             .alert("Rename family", isPresented: $isRenaming) {
                 TextField("Name", text: $renameText)

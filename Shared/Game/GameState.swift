@@ -15,6 +15,7 @@ struct GameState: Codable, Equatable, Sendable {
     var sabotage: ActiveSabotage?
     var sabotageReadyAt: Date
     var votes: [FamilyID: VoteChoice] = [:]
+    var skipVotes: Set<FamilyID> = []
     var announcedDeaths: [FamilyID] = []
     var lastResult: VoteResult?
     var deadSinceLastMeeting: [FamilyID] = []
@@ -37,6 +38,10 @@ struct GameState: Codable, Equatable, Sendable {
         } else {
             nil
         }
+    }
+
+    var skipRequested: Bool {
+        skipVotes.count * 2 > aliveFamilies().count
     }
 
     func family(_ id: FamilyID) throws -> Family {

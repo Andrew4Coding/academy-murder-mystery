@@ -32,6 +32,7 @@ final class GameClient {
     private(set) var isSignedIn = false
     private(set) var isResuming = false
     private(set) var serverClock = ServerClock()
+    private(set) var selfies: [PlayerID: Data] = [:]
 
     @ObservationIgnored private let transport: any ClientTransport
     @ObservationIgnored private let store: any IdentityStore
@@ -89,6 +90,7 @@ final class GameClient {
         isResuming = false
         pendingHello = nil
         lastError = nil
+        selfies = [:]
     }
 
     private func signIn(_ hello: Hello) {
@@ -144,6 +146,8 @@ final class GameClient {
             transport.send(.probeReply(nonce))
         case .reset:
             signOut()
+        case let .selfies(list):
+            selfies = Dictionary(list.map { ($0.player, $0.jpeg) }, uniquingKeysWith: { _, last in last })
         }
     }
 }
