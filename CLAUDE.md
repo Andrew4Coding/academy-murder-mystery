@@ -60,6 +60,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 - Tests use Swift Testing, with a mock repository or an in-memory container. `Tests/Shared/` compiles into every test bundle.
 - Game rules live only in `Shared/Game/GameEngine` (pure value type, time passed in as `at:`, randomness injected). Views, transports and BLE call it with `GameCommand`s and never re-implement a rule. Call `advance(to:)` on a timer so timeouts emit events; `apply` is atomic and leaves state untouched when it throws.
 - SwiftFormat's `noForceUnwrapInTests` is disabled in `.swiftformat` and it rewrites key-path closures inside `#expect`: prefer plain closures or regular expressions there.
+- Every alive phone scans and a killed family's phones advertise until the death is announced, so scanning never reveals a werewolf; the host decides kill range and body reports.
 - BLE only works on real devices and in the foreground; the kill range check lives on the host (`GameHost+Proximity`), the phone only reports sightings.
 - Admin sidebar rows must carry `.tag(section)`: `List(items, selection:)` only selects rows whose tag type equals the selection type, and the automatic tag is the item's `id` (a `String` here), so an untagged enum selection silently ignores clicks. Branch from `dev` loses this fix if it only lives on another branch: check it is there.
 - The Public Display reads `PublicDisplayState` only. Never pass `GameState` or `GameView` to it; roles appear there only as reveals of expelled families.
