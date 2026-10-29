@@ -98,7 +98,7 @@ extension GameHost {
 
     func startTestGame(roles: [FamilyID: Role], using generator: inout some RandomNumberGenerator) throws {
         guard testingToolsEnabled else {
-            throw HostError.setup("Testing tools are off. Run the MurderMysteryAdmin-Testing scheme.")
+            throw HostError.setup("Testing tools are off. Run the MoonfallAdmin-Testing scheme.")
         }
         guard state.isLobby else { throw HostError.gameAlreadyStarted }
         if let issue = state.setupIssues(testing: true).first {

@@ -49,7 +49,7 @@ final class NetworkClientTransport: ClientTransport {
             connect(to: .hostPort(host: NWEndpoint.Host(host), port: port))
         case .discover:
             continuation.yield(.status(.searching))
-            let browser = NWBrowser(for: .bonjour(type: NetworkHostTransport.serviceType, domain: nil), using: .murderMystery())
+            let browser = NWBrowser(for: .bonjour(type: NetworkHostTransport.serviceType, domain: nil), using: .moonfall())
             browser.browseResultsChangedHandler = { [weak self] results, _ in
                 MainActor.assumeIsolated { self?.found(results.first?.endpoint) }
             }
@@ -63,7 +63,7 @@ final class NetworkClientTransport: ClientTransport {
 
     private func connect(to endpoint: NWEndpoint) {
         continuation.yield(.status(.connecting))
-        let connection = NWConnection(to: endpoint, using: .murderMystery())
+        let connection = NWConnection(to: endpoint, using: .moonfall())
         self.connection = connection
         connection.stateUpdateHandler = { [weak self] state in
             MainActor.assumeIsolated { self?.stateChanged(state, of: connection) }

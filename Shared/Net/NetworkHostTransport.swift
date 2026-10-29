@@ -3,7 +3,7 @@ import Network
 
 @MainActor
 final class NetworkHostTransport: HostTransport {
-    static let serviceType = "_murdermystery._tcp"
+    static let serviceType = "_moonfall._tcp"
 
     let events: AsyncStream<HostTransportEvent>
     private let continuation: AsyncStream<HostTransportEvent>.Continuation
@@ -18,7 +18,7 @@ final class NetworkHostTransport: HostTransport {
     }
 
     func start() async throws {
-        let listener = try NWListener(using: .murderMystery())
+        let listener = try NWListener(using: .moonfall())
         if advertise {
             listener.service = NWListener.Service(type: Self.serviceType)
         }
