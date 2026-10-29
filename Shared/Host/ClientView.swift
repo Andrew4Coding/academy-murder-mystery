@@ -90,6 +90,15 @@ struct OCView: Codable, Equatable, Sendable {
     let families: [OCFamilyRow]
 }
 
+struct SabotageTiming: Codable, Equatable, Sendable, Identifiable {
+    let kind: SabotageKind
+    let duration: TimeInterval
+
+    var id: SabotageKind {
+        kind
+    }
+}
+
 struct GameView: Codable, Equatable, Sendable {
     let role: Role
     let family: FamilyID
@@ -112,6 +121,7 @@ struct GameView: Codable, Equatable, Sendable {
     let killReadyAt: Date?
     let sabotage: SabotageView?
     let sabotageReadyAt: Date?
+    var sabotageTimings: [SabotageTiming] = []
     var skipVotes = 0
     var mySkipVote = false
     var skipRequested = false

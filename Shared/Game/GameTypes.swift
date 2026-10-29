@@ -64,8 +64,19 @@ struct GameSettings: Codable, Equatable, Sendable {
     var sabotageDuration: TimeInterval = 90
     var gameDuration: TimeInterval = 45 * 60
     var tasksPerFamily: Int = 5
+    // Reactor keeps the original fields so stored games still decode; Oxygen overrides them when set.
+    var oxygenDuration: TimeInterval?
+    var oxygenCooldown: TimeInterval?
 
     static let standard = GameSettings()
+
+    func sabotageDuration(for kind: SabotageKind) -> TimeInterval {
+        kind == .oxygen ? oxygenDuration ?? sabotageDuration : sabotageDuration
+    }
+
+    func sabotageCooldown(for kind: SabotageKind) -> TimeInterval {
+        kind == .oxygen ? oxygenCooldown ?? sabotageCooldown : sabotageCooldown
+    }
 }
 
 struct Family: Codable, Equatable, Sendable, Identifiable {
