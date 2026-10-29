@@ -1,0 +1,3 @@
+Moonfall is played in person at an event. No account or sign-in is needed.
+
+A Mac runs "Moonfall Admin", which hosts the game on the local Wi-Fi network. Phones running Moonfall find the host over the local network (the app asks for Local Network access) and join with a join code shown in Moonfall Admin. Bluetooth and the camera are used only for kill range and for scanning a family's QR code.
