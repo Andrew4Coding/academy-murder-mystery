@@ -12,6 +12,7 @@ extension GameHost {
         switch command {
         case .startMeeting: try applyAsOC(.startMeeting)
         case let .extendMeeting(seconds): try extendMeeting(seconds: seconds)
+        case let .adjustTimer(target, seconds): try applyAsOC(.adjustTimer(target, seconds: seconds))
         case .approveSkipDiscussion: try approveSkipDiscussion()
         case .resolveSabotage: try applyAsOC(.resolveSabotage)
         case let .removeFamily(family): try removeFamily(family)

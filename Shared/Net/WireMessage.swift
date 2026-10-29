@@ -31,6 +31,7 @@ enum ServerMessage: Codable, Equatable, Sendable {
 enum AdminCommand: Codable, Equatable, Sendable {
     case startMeeting
     case extendMeeting(seconds: TimeInterval)
+    case adjustTimer(TimerTarget, seconds: TimeInterval)
     case approveSkipDiscussion
     case resolveSabotage
     case removeFamily(FamilyID)
