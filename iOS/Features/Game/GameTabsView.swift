@@ -12,6 +12,7 @@ struct GameTabsView: View {
 
     @State private var selection: GameTab = .family
     @State private var proximity = ProximityService()
+    @State private var notice: GameNotice?
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -40,6 +41,23 @@ struct GameTabsView: View {
             }
         }
         .animation(.default, value: game.sabotage)
+        .onChange(of: game.life) { old, new in
+            if old == .alive, new == .killed, notice == nil {
+                notice = .killed
+            }
+        }
+        .onChange(of: game.phase) { _, phase in
+            if case let .ended(outcome) = phase {
+                notice = .over(outcome)
+            }
+        }
+        .fullScreenCover(item: $notice) { notice in
+            switch notice {
+            case .killed: KilledNoticeView { self.notice = nil }
+            case let .over(outcome): GameOverView(outcome: outcome) { self.notice = nil }
+            }
+        }
+        .sensoryFeedback(.error, trigger: notice)
         .sensoryFeedback(.warning, trigger: game.phase.isMeeting)
         .sensoryFeedback(.error, trigger: game.sabotage?.startedAt)
         .task(id: game.deadline) { await syncAfterDeadline() }
