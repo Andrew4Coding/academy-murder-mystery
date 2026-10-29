@@ -16,8 +16,17 @@ Each item links to a spec once one exists. Move items between sections at every 
 
 ## Now
 
+- [0011 Lifecycle bugfixes](features/0011-lifecycle-bugfixes.md)
+- [0012 Join and families](features/0012-join-and-families.md)
 
 ## Next
+
+- [0013 Kill notice and game end](features/0013-kill-notice-and-game-end.md)
+- [0014 Meeting upgrade](features/0014-meeting-upgrade.md)
+- [0015 Sabotage rework](features/0015-sabotage-rework.md)
+- [0016 OC station rework](features/0016-oc-station-rework.md)
+- [0017 iPad admin dashboard](apps/admin/features/0017-ipad-admin.md)
+- [0018 Apple Watch intents](apps/ios/features/0018-watch-intents.md)
 
 
 ## Later
