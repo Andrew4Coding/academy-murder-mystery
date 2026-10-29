@@ -6,4 +6,3 @@ struct MurderMysteryAdminSmokeTests {
         #expect(Bundle.main.bundleIdentifier == "com.andrew4coding.MurderMystery.admin")
     }
 }
-
