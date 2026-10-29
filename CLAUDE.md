@@ -67,7 +67,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 - The Public Display reads `PublicDisplayState` only. Never pass `GameState` or `GameView` to it; roles appear there only as reveals of expelled families.
 - Simulations use their own `GameHost` and in-memory repository and mark `state.simulated`; never point bots at the real host. They are deterministic per seed: draw all randomness from `Simulation`'s `SeededGenerator`.
 - OC devices never receive roles: `OCView` rows carry stamp progress only. Keep it that way when adding OC features.
-- Players join with one game code (`HostState.gameCode`) and `GameHost.assignFamily` fills families; the first joiner is head. Selfies live only in `GameHost.selfies` (memory) and are cleared on `newGame`.
+- Players join with one game code (`HostState.gameCode`) and `GameHost.assignFamily` gives every joiner their own family (one person per family, ADR 0007). Selfies live only in `GameHost.selfies` (memory) and are cleared on `newGame`.
 - `GameClient.send` is a no-op until the host confirms the identity; sending earlier produced a stray "Join a family or enter the OC PIN first" error after reconnects.
 - The iPad admin is an OC device with `OCStation.admin` (signs in with the OC PIN): it gets `ClientView.admin` and may send `ClientMessage.admin`, checked in `GameHost.adminCommand`. It never receives roles.
 - Never encode ballots: `GameState.votes` is excluded from `Codable` on purpose (anonymous votes). Shared display strings for roles, life states and outcomes live in `Shared/Game/GameLabels.swift`; do not redefine them per target.
