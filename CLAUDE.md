@@ -39,6 +39,9 @@ bundle exec fastlane mac test          # MurderMysteryAdmin on macOS
 # Rehearsal: run the MurderMysteryAdmin-Testing scheme in Xcode (Debug, launches with -TestingTools)
 bundle exec fastlane mac beta          # TestFlight; humans only (needs fastlane/.env)
 bundle exec fastlane lint              # swiftlint --strict + swiftformat --lint
+bundle exec fastlane ios adminpad_beta # TestFlight for MurderMysteryAdminiPad; humans only
+bundle exec fastlane create_apps      # one-time: bundle IDs and ASC apps for all three targets (Apple ID login)
+scripts/setup-ci.sh --dry-run          # validate fastlane/.env and upload the Beta workflow secrets to GitHub
 bundle exec fastlane bump app:ios type:minor
 scripts/commit-code.sh                 # your committer code
 scripts/check-branch-name.sh           # validate the current branch name
@@ -111,7 +114,7 @@ CHANGELOG.md                 one file, with a subsection per target
 
 ## Releases
 
-Targets are versioned independently: `bump app:<slug>` edits that target's xcconfig. TestFlight betas are cut from `staging`. Tag releases on `main` as `<slug>/vX.Y.Z`.
+Targets are versioned independently: `bump app:<slug>` edits that target's xcconfig. TestFlight betas are cut from `staging`: a push there runs `.github/workflows/beta.yml`, which builds all three targets in parallel (`scripts/setup-ci.sh` uploads its secrets). Tag releases on `main` as `<slug>/vX.Y.Z`.
 
 ## Gotchas
 
