@@ -13,7 +13,7 @@ Platform rules live in `apps/<slug>/constraints.md`. Items marked **TODO** still
 - Swift 6 with strict concurrency set to `complete`. SwiftUI only: no UIKit or AppKit views without an ADR.
 - Persistence: SwiftData, with a versioned schema from V1. Never mutate a shipped schema.
 - Architecture: MVVM + repository protocols, with the composition root in `AppEnvironment` (see `CLAUDE.md`).
-- One XcodeGen project (`project.yml`) with one target per platform. Releases go through Fastlane + match (`fastlane/Fastfile`).
+- One XcodeGen project (`project.yml`) with one target per platform. Releases go through Fastlane with Xcode automatic signing driven by the App Store Connect API key (`fastlane/Fastfile`).
 - Code every target needs lives in `Shared/` and never branches with `#if os()`. Target differences are injected from the target folders. Never copy code between targets.
 - No third-party dependencies without an ADR covering license, privacy manifest and maintenance.
 - Networking: no cloud backend. The Mac Admin app is the authoritative game host on the local network and every iOS device is a client ([ADR 0002](decisions/0002-mac-hosted-lan-authority.md)).

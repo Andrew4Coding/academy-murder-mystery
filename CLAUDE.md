@@ -41,7 +41,7 @@ bundle exec fastlane mac beta          # TestFlight; humans only (needs fastlane
 bundle exec fastlane lint              # swiftlint --strict + swiftformat --lint
 bundle exec fastlane ios adminpad_beta # TestFlight for MurderMysteryAdminiPad; humans only
 bundle exec fastlane create_apps      # one-time: bundle IDs and ASC apps for all three targets (Apple ID login)
-scripts/setup-ci.sh --dry-run          # validate fastlane/.env and upload the Beta workflow secrets to GitHub
+scripts/setup-ci.sh --dry-run          # validate fastlane/.env and upload the three ASC secrets to GitHub
 bundle exec fastlane bump app:ios type:minor
 scripts/commit-code.sh                 # your committer code
 scripts/check-branch-name.sh           # validate the current branch name
