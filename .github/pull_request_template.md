@@ -7,8 +7,8 @@
 ## Apps affected
 
 - [ ] `Shared/` (every target)
-- [ ] `iOS/`: MurderMysteryiOS (iOS)
-- [ ] `Admin/`: MurderMysteryAdmin (macOS)
+- [ ] `iOS/`: MoonfalliOS (iOS)
+- [ ] `Admin/`: MoonfallAdmin (macOS)
 - [ ] repo-wide (specs, tooling, `.claude/`, CI)
 
 ## Spec

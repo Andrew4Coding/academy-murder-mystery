@@ -31,11 +31,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: MurderMysteryiOS
+          - name: MoonfalliOS
             lane: ios beta
-          - name: MurderMysteryAdmin
+          - name: MoonfallAdmin
             lane: mac beta
-          - name: MurderMysteryAdminiPad
+          - name: MoonfallAdminiPad
             lane: ios adminpad_beta
     steps:
       - uses: actions/checkout@v4
