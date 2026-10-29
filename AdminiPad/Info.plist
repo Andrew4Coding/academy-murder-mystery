@@ -20,7 +20,7 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_murdermystery._tcp</string>
+		<string>_moonfall._tcp</string>
 	</array>
 </dict>
 </plist>

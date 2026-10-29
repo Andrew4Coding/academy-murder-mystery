@@ -1,5 +1,5 @@
 import Testing
-@testable import MurderMystery
+@testable import Moonfall
 
 struct ModelContainerTests {
     @Test @MainActor func inMemoryContainerBuildsWithCurrentSchema() throws {

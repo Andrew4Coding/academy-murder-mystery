@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MurderMysteryiOSApp: App {
+struct MoonfalliOSApp: App {
     private let client = GameClientRegistry.shared
 
     var body: some Scene {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MurderMysteryAdminiPadApp: App {
+struct MoonfallAdminiPadApp: App {
     @State private var client = GameClient(transport: NetworkClientTransport(), store: UserDefaultsIdentityStore())
 
     var body: some Scene {

@@ -1,4 +1,4 @@
-name: MurderMystery
+name: Moonfall
 options:
   bundleIdPrefix: com.andrew4coding
   createIntermediateGroups: true
@@ -16,34 +16,34 @@ settings:
     INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
     INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
 targets:
-  MurderMysteryiOS:
+  MoonfalliOS:
     type: application
     supportedDestinations: [iOS]
     configFiles:
-      Debug: iOS/MurderMysteryiOS.xcconfig
-      Release: iOS/MurderMysteryiOS.xcconfig
+      Debug: iOS/MoonfalliOS.xcconfig
+      Release: iOS/MoonfalliOS.xcconfig
     info:
       path: iOS/Info.plist
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSBonjourServices:
-          - _murdermystery._tcp
+          - _moonfall._tcp
     sources:
       - Shared
       - path: iOS
         excludes: ["*.xcconfig"]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery
-        PRODUCT_NAME: MurderMysteryiOS
-        # Both app targets share one module name so Tests/Shared can `@testable import MurderMystery`.
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall
+        PRODUCT_NAME: MoonfalliOS
+        # Both app targets share one module name so Tests/Shared can `@testable import Moonfall`.
         # Keep it on app targets only: on test bundles it collides with the app module.
-        PRODUCT_MODULE_NAME: MurderMystery
-        INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery
-        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: Murder Mystery uses Bluetooth to tell which families are close to each other during the game.
-        INFOPLIST_KEY_NSCameraUsageDescription: Murder Mystery uses the camera only to scan your family's QR code.
-        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Murder Mystery connects to the game host on the event Wi-Fi so your family can play.
+        PRODUCT_MODULE_NAME: Moonfall
+        INFOPLIST_KEY_CFBundleDisplayName: Moonfall
+        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: Moonfall uses Bluetooth to tell which families are close to each other during the game.
+        INFOPLIST_KEY_NSCameraUsageDescription: Moonfall uses the camera only to scan your family's QR code.
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Moonfall connects to the game host on the event Wi-Fi so your family can play.
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
@@ -52,120 +52,120 @@ targets:
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-  MurderMysteryiOSTests:
+  MoonfalliOSTests:
     type: bundle.unit-test
     supportedDestinations: [iOS]
     sources:
       - Tests/Shared
       - Tests/iOS
     dependencies:
-      - target: MurderMysteryiOS
+      - target: MoonfalliOS
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.Tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall.Tests
         TARGETED_DEVICE_FAMILY: "1,2"
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MurderMysteryiOS.app/MurderMysteryiOS
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MoonfalliOS.app/MoonfalliOS
         BUNDLE_LOADER: $(TEST_HOST)
-  MurderMysteryAdminiPad:
+  MoonfallAdminiPad:
     type: application
     supportedDestinations: [iOS]
     configFiles:
-      Debug: AdminiPad/MurderMysteryAdminiPad.xcconfig
-      Release: AdminiPad/MurderMysteryAdminiPad.xcconfig
+      Debug: AdminiPad/MoonfallAdminiPad.xcconfig
+      Release: AdminiPad/MoonfallAdminiPad.xcconfig
     info:
       path: AdminiPad/Info.plist
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSBonjourServices:
-          - _murdermystery._tcp
+          - _moonfall._tcp
     sources:
       - Shared
       - path: AdminiPad
         excludes: ["*.xcconfig"]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.adminpad
-        PRODUCT_NAME: MurderMysteryAdminiPad
-        PRODUCT_MODULE_NAME: MurderMystery
-        INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery Admin
-        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Murder Mystery Admin connects to the Mac host on the event Wi-Fi to control the game.
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall.adminpad
+        PRODUCT_NAME: MoonfallAdminiPad
+        PRODUCT_MODULE_NAME: Moonfall
+        INFOPLIST_KEY_CFBundleDisplayName: Moonfall OC
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Moonfall OC connects to the Mac host on the event Wi-Fi to control the game.
         TARGETED_DEVICE_FAMILY: "2"
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
         SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait"
-  MurderMysteryAdmin:
+  MoonfallAdmin:
     type: application
     supportedDestinations: [macOS]
     configFiles:
-      Debug: Admin/MurderMysteryAdmin.xcconfig
-      Release: Admin/MurderMysteryAdmin.xcconfig
+      Debug: Admin/MoonfallAdmin.xcconfig
+      Release: Admin/MoonfallAdmin.xcconfig
     sources:
       - Shared
       - path: Admin
         excludes: ["*.xcconfig"]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.admin
-        PRODUCT_NAME: MurderMysteryAdmin
-        PRODUCT_MODULE_NAME: MurderMystery
-        INFOPLIST_KEY_CFBundleDisplayName: Murder Mystery Admin
-        CODE_SIGN_ENTITLEMENTS: Admin/Resources/MurderMysteryAdmin.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall.admin
+        PRODUCT_NAME: MoonfallAdmin
+        PRODUCT_MODULE_NAME: Moonfall
+        INFOPLIST_KEY_CFBundleDisplayName: Moonfall Admin
+        CODE_SIGN_ENTITLEMENTS: Admin/Resources/MoonfallAdmin.entitlements
         ENABLE_HARDENED_RUNTIME: YES
-  MurderMysteryAdminTests:
+  MoonfallAdminTests:
     type: bundle.unit-test
     supportedDestinations: [macOS]
     sources:
       - Tests/Shared
       - Tests/Admin
     dependencies:
-      - target: MurderMysteryAdmin
+      - target: MoonfallAdmin
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.MurderMystery.admin.Tests
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MurderMysteryAdmin.app/Contents/MacOS/MurderMysteryAdmin
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall.admin.Tests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MoonfallAdmin.app/Contents/MacOS/MoonfallAdmin
         BUNDLE_LOADER: $(TEST_HOST)
 schemes:
-  MurderMysteryiOS:
+  MoonfalliOS:
     build:
       targets:
-        MurderMysteryiOS: all
+        MoonfalliOS: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - MurderMysteryiOSTests
+        - MoonfalliOSTests
     archive:
       config: Release
-  MurderMysteryAdminiPad:
+  MoonfallAdminiPad:
     build:
       targets:
-        MurderMysteryAdminiPad: all
+        MoonfallAdminiPad: all
     run:
       config: Debug
     archive:
       config: Release
-  MurderMysteryAdmin-Testing:
+  MoonfallAdmin-Testing:
     # Rehearsal scheme: same app, but launched with -TestingTools (see Shared/Host/TestingTools.swift).
     build:
       targets:
-        MurderMysteryAdmin: all
+        MoonfallAdmin: all
     run:
       config: Debug
       commandLineArguments:
         "-TestingTools": true
-  MurderMysteryAdmin:
+  MoonfallAdmin:
     build:
       targets:
-        MurderMysteryAdmin: all
+        MoonfallAdmin: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - MurderMysteryAdminTests
+        - MoonfallAdminTests
     archive:
       config: Release

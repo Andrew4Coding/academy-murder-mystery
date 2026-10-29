@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import MurderMystery
+@testable import Moonfall
 
 @MainActor
 struct GameHostMeetingTests {
