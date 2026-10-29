@@ -18,6 +18,12 @@ APPS = {
     xcconfig: File.join(ROOT, "Admin/MurderMysteryAdmin.xcconfig"),
     metadata: File.join(ROOT, "fastlane/metadata/admin")
   },
+  adminpad: {
+    scheme: "MurderMysteryAdminiPad",
+    bundle_id: "com.andrew4coding.MurderMystery.adminpad",
+    xcconfig: File.join(ROOT, "AdminiPad/MurderMysteryAdminiPad.xcconfig"),
+    metadata: File.join(ROOT, "fastlane/metadata/adminpad")
+  }
 }.freeze
 
 def app(name)
@@ -25,11 +31,12 @@ def app(name)
 end
 
 def api_key
+  content = ENV.fetch("ASC_KEY_CONTENT")
   app_store_connect_api_key(
     key_id: ENV.fetch("ASC_KEY_ID"),
     issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-    key_content: ENV.fetch("ASC_KEY_CONTENT"),
-    is_key_content_base64: true,
+    key_content: content,
+    is_key_content_base64: !content.include?("BEGIN"),
     in_house: false
   )
 end
@@ -105,13 +112,35 @@ lane :generate do
   generate_project
 end
 
-desc "Bump one app's MARKETING_VERSION (app:ios|admin type:patch|minor|major)"
+desc "Register the bundle IDs and create the apps in App Store Connect (needs an Apple ID login, not the API key)"
+lane :create_apps do |options|
+  [
+    [:ios, "Murder Mystery", "ios"],
+    [:admin, "Murder Mystery Admin", "osx"],
+    [:adminpad, "Murder Mystery Admin iPad", "ios"]
+  ].each do |key, name, platform|
+    target = app(key)
+    produce(
+      username: ENV["FASTLANE_APPLE_ID"],
+      app_identifier: target[:bundle_id],
+      app_name: name,
+      language: options[:language] || "en-US",
+      sku: "murdermystery-#{key}",
+      platform: platform,
+      team_id: ENV["FASTLANE_TEAM_ID"] || TEAM_ID,
+      itc_team_id: ENV["FASTLANE_ITC_TEAM_ID"]
+    )
+  end
+end
+
+desc "Bump one app's MARKETING_VERSION (app:ios|admin|adminpad type:patch|minor|major)"
 lane :bump do |options|
   bump_marketing_version(app(options[:app] || APPS.keys.first)[:xcconfig], options[:type] || "patch")
 end
 
 platform :ios do
   ios_app = APPS[:ios]
+  adminpad_app = APPS[:adminpad]
 
   desc "Run MurderMysteryiOS tests on iPhone 17 Pro"
   lane :test do
@@ -136,6 +165,17 @@ platform :ios do
     upload_metadata(ios_app, key, options[:submit_for_review], app_identifier: ios_app[:bundle_id])
   end
 
+  desc "Create MurderMysteryAdminiPad signing assets (run once, interactive)"
+  lane :adminpad_signing do
+    match(type: "appstore", platform: "ios", app_identifier: adminpad_app[:bundle_id], api_key: api_key, readonly: false)
+  end
+
+  desc "Build MurderMysteryAdminiPad and upload it to TestFlight"
+  lane :adminpad_beta do
+    key = prepare_ios(adminpad_app)
+    upload_to_testflight(api_key: key, app_identifier: adminpad_app[:bundle_id], skip_waiting_for_build_processing: true)
+  end
+
   private_lane :prepare_ios do |target|
     generate_project
     key = api_key
@@ -148,7 +188,7 @@ platform :ios do
       destination: "generic/platform=iOS",
       export_method: "app-store",
       xcargs: "CURRENT_PROJECT_VERSION=#{next_build_number(key, target, 'ios')}",
-      output_directory: File.join(ROOT, "build/ios"),
+      output_directory: File.join(ROOT, "build", target[:scheme]),
       clean: true
     )
     key

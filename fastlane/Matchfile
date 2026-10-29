@@ -1,4 +1,8 @@
 git_url(ENV.fetch("MATCH_GIT_URL", "git@github.com:YOUR_ORG/certificates.git"))
 storage_mode("git")
 type("appstore")
-app_identifier(["com.andrew4coding.MurderMystery", "com.andrew4coding.MurderMystery.admin"])
+app_identifier([
+  "com.andrew4coding.MurderMystery",
+  "com.andrew4coding.MurderMystery.admin",
+  "com.andrew4coding.MurderMystery.adminpad"
+])
