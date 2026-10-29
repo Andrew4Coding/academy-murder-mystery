@@ -13,20 +13,11 @@ struct FamilyLobbyView: View {
         NavigationStack {
             List {
                 Section {
-                    ForEach(lobby.members) { member in
-                        HStack {
-                            AvatarView(name: member.name, jpeg: client.selfies[member.id])
-                            Text(member.name)
-                            Spacer()
-                            if member.isHead {
-                                Label("Head of family", systemImage: "star.fill")
-                                    .labelStyle(.titleAndIcon)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.orange)
-                            }
-                        }
-                        .accessibilityElement(children: .combine)
+                    HStack {
+                        AvatarView(name: lobby.playerName, jpeg: client.selfies[lobby.playerID])
+                        Text(lobby.playerName)
                     }
+                    .accessibilityElement(children: .combine)
                 } header: {
                     Text(lobby.familyName)
                 } footer: {
@@ -37,14 +28,11 @@ struct FamilyLobbyView: View {
                     if SelfieCamera.isAvailable {
                         Button("Take Selfie", systemImage: "camera") { isTakingSelfie = true }
                     }
-                    if lobby.isHead {
-                        Button("Rename Family", systemImage: "pencil") {
-                            renameText = lobby.familyName
-                            isRenaming = true
-                        }
+                    Button("Rename Family", systemImage: "pencil") {
+                        renameText = lobby.familyName
+                        isRenaming = true
                     }
                 } footer: {
-                    Text("The head of family goes to the Town Hall and votes for the whole family.")
                     if let error = client.lastError {
                         Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
                     }
@@ -68,7 +56,7 @@ struct FamilyLobbyView: View {
             .confirmationDialog("Leave this family?", isPresented: $confirmingLeave, titleVisibility: .visible) {
                 Button("Leave Family", role: .destructive) { client.leave() }
             } message: {
-                Text("You can join again with a family code.")
+                Text("You can join again by scanning the QR.")
             }
         }
     }
