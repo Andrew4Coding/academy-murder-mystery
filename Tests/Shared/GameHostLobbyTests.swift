@@ -39,26 +39,33 @@ struct GameHostLobbyTests {
         #expect(harness.host.state.families.count == 8)
     }
 
-    @Test func membersAppearInTheLobbyAndHeadsCanBeClaimedAndHandedOver() async throws {
+    @Test func theFirstJoinerIsHeadAndRenamingIsLimitedToTheHeadInTheLobby() async throws {
         let (harness, heads) = try await HostHarness.seated(families: 3)
         let familyOne = try #require(harness.host.state.families[1])
         let second = harness.makeClient()
         second.join(code: familyOne.joinCode, name: "Ayu")
         #expect(await eventually { second.view?.lobby?.members.count == 2 })
         #expect(second.view?.lobby?.isHead == false)
-        #expect(second.view?.lobby?.hasHead == true)
+        #expect(heads[1]?.view?.lobby?.isHead == true)
 
-        let secondID = try #require(harness.host.state.players.values.first { $0.name == "Ayu" }?.id)
-        heads[1]?.send(.handOverHead(to: secondID))
-        #expect(await eventually { second.view?.lobby?.isHead == true })
-        #expect(heads[1]?.view?.lobby?.isHead == false)
+        second.send(.renameFamily("Ayu's"))
+        #expect(await eventually { second.lastError == HostError.notHead.message })
+        heads[1]?.send(.renameFamily("Rockets"))
+        #expect(await eventually { second.view?.lobby?.familyName == "Rockets" })
+    }
 
-        heads[1]?.send(.handOverHead(to: secondID))
-        #expect(await eventually { heads[1]!.lastError == HostError.notHead.message })
-
-        let stranger = try #require(harness.host.state.players.values.first { $0.family == 2 }?.id)
-        second.send(.handOverHead(to: stranger))
-        #expect(await eventually { second.lastError == HostError.notInFamily.message })
+    @Test func theGameCodeFillsFamiliesInOrderUpToTheCapacity() async throws {
+        let harness = try HostHarness(families: [])
+        try harness.host.setFamilyCapacity(2)
+        let code = try #require(harness.host.state.gameCode)
+        for index in 1 ... 5 {
+            let client = harness.makeClient()
+            client.join(code: code, name: "P\(index)")
+            #expect(await eventually { client.isSignedIn })
+        }
+        let sizes = harness.host.state.families.keys.sorted().map { harness.host.state.members(of: $0).count }
+        #expect(sizes == [2, 2, 1])
+        #expect(harness.host.state.families.values.allSatisfy { $0.head != nil })
     }
 
     @Test func startIsBlockedUntilEveryFamilyHasAHead() throws {
@@ -119,15 +126,11 @@ struct GameHostLobbyTests {
         #expect(await eventually { heads.values.allSatisfy { $0.view?.game?.families.contains { $0.revealedRole == .werewolf } == true } })
     }
 
-    @Test func killedFamiliesSeeTheirStatusAndHeadChangesAreLockedInMeetings() async throws {
+    @Test func killedFamiliesSeeTheirStatus() async throws {
         let (harness, heads) = try await HostHarness.seated()
         try harness.host.startGame()
         let victim = try #require(harness.host.state.engine?.state.families.values.first { $0.role == .villager }?.id)
         try harness.host.applyAsOC(.override(.forceKill(victim)))
         #expect(await eventually { heads[victim]?.view?.game?.life == .killed })
-
-        try harness.host.applyAsOC(.startMeeting)
-        heads[1]?.send(.claimHead)
-        #expect(await eventually { heads[1]!.lastError == HostError.headLocked.message })
     }
 }
