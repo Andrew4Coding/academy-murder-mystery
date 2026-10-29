@@ -15,14 +15,17 @@ struct GameEngineActionTests {
     @Test func killRespectsCooldown() throws {
         var fixture = try Fixture()
         let (wolf, victims) = (fixture.werewolves[0], fixture.villagers)
+        try fixture.apply(.kill(killer: wolf, victim: victims[0]), at: 0)
         #expect(throws: RuleError.cooldownActive(readyAt: at(60))) {
-            try fixture.apply(.kill(killer: wolf, victim: victims[0]), at: 59)
+            try fixture.apply(.kill(killer: wolf, victim: victims[1]), at: 59)
         }
-        try fixture.apply(.kill(killer: wolf, victim: victims[0]), at: 60)
-        #expect(throws: RuleError.cooldownActive(readyAt: at(120))) {
-            try fixture.apply(.kill(killer: wolf, victim: victims[1]), at: 119)
-        }
-        try fixture.apply(.kill(killer: wolf, victim: victims[1]), at: 120)
+        try fixture.apply(.kill(killer: wolf, victim: victims[1]), at: 60)
+    }
+
+    @Test func killAndSabotageAreReadyAtStart() throws {
+        let fixture = try Fixture()
+        #expect(fixture.family(fixture.werewolves[0]).killReadyAt == at(0))
+        #expect(fixture.engine.state.sabotageReadyAt == at(0))
     }
 
     @Test func killIsRejectedForInvalidActorsAndTargets() throws {
@@ -58,17 +61,14 @@ struct GameEngineActionTests {
     @Test func sabotageStartsCountdownAndSharedCooldown() throws {
         var fixture = try Fixture(families: 6, werewolves: 2)
         let (first, second) = (fixture.werewolves[0], fixture.werewolves[1])
+        let events = try fixture.apply(.requestSabotage(by: first, kind: .reactor), at: 0)
+        #expect(events.kinds == [.sabotageStarted(kind: .reactor, by: first, endsAt: at(90))])
+        #expect(fixture.engine.state.sabotageReadyAt == at(120))
+        try fixture.apply(.resolveSabotage, at: 10)
         #expect(throws: RuleError.cooldownActive(readyAt: at(120))) {
-            try fixture.apply(.requestSabotage(by: first, kind: .reactor), at: 119)
+            try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 119)
         }
-        let events = try fixture.apply(.requestSabotage(by: first, kind: .reactor), at: 120)
-        #expect(events.kinds == [.sabotageStarted(kind: .reactor, by: first, endsAt: at(210))])
-        #expect(fixture.engine.state.sabotageReadyAt == at(240))
-        try fixture.apply(.resolveSabotage, at: 130)
-        #expect(throws: RuleError.cooldownActive(readyAt: at(240))) {
-            try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 200)
-        }
-        try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 240)
+        try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 120)
     }
 
     @Test func onlyOneSabotageAtATimeAndNotDuringMeetings() throws {

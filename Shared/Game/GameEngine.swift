@@ -55,7 +55,7 @@ struct GameEngine: Codable, Equatable, Sendable {
                 life: .alive,
                 tasks: tasks,
                 stamps: [],
-                killReadyAt: now.addingTimeInterval(settings.killCooldown)
+                killReadyAt: now
             )
         }
 
@@ -63,7 +63,7 @@ struct GameEngine: Codable, Equatable, Sendable {
             settings: settings,
             startedAt: now,
             families: families,
-            sabotageReadyAt: now.addingTimeInterval(settings.sabotageCooldown)
+            sabotageReadyAt: now
         )
         let werewolves = families.values.filter { $0.role == .werewolf }.map(\.id).sorted()
         return (

@@ -120,11 +120,32 @@ extension GameHost {
         state = fresh
         for id in sessions.keys {
             sessions[id]?.identity = nil
+            send(.reset, to: id)
         }
         if count > 0 {
             try configure(familyCount: count, werewolfCount: fresh.werewolfCount, settings: fresh.settings)
         } else {
             commit()
+        }
+    }
+
+    func leave(identity: Identity, clientID: ClientID) throws {
+        guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
+        guard state.isLobby else { throw HostError.gameAlreadyStarted }
+        state.players[playerID] = nil
+        if state.families[player.family]?.head == playerID {
+            state.families[player.family]?.head = state.members(of: player.family).first?.id
+        }
+        sessions[clientID]?.identity = nil
+        send(.reset, to: clientID)
+        commit()
+    }
+
+    func sync(clientID: ClientID) throws {
+        tick()
+        let identity = try signedIn(clientID)
+        if let view = view(for: identity) {
+            send(.state(view), to: clientID)
         }
     }
 
