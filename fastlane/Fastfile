@@ -141,10 +141,11 @@ desc "Register the bundle IDs and create the apps in App Store Connect (needs an
 lane :create_apps do |options|
   [
     [:ios, ENV.fetch("ASC_NAME_IOS", "Murder Mystery Werewolf Night"), "ios"],
-    [:admin, ENV.fetch("ASC_NAME_ADMIN", "Murder Mystery Admin Werewolf Night"), "osx"],
-    [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Murder Mystery Admin iPad Werewolf Night"), "ios"]
+    [:admin, ENV.fetch("ASC_NAME_ADMIN", "Werewolf Night Admin"), "osx"],
+    [:adminpad, ENV.fetch("ASC_NAME_ADMINPAD", "Werewolf Night Admin iPad"), "ios"]
   ].each do |key, name, platform|
     target = app(key)
+    UI.user_error!("App name '#{name}' is #{name.length} characters; App Store Connect allows 30") if name.length > 30
     produce(
       username: ENV["FASTLANE_APPLE_ID"],
       app_identifier: target[:bundle_id],
