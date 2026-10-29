@@ -13,7 +13,7 @@ struct DashboardView: View {
                 }
                 controlsSection
                 if let error = client.lastError {
-                    Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red) }
+                    Section { StatusLabel.error(error) }
                 }
             }
             .navigationTitle("Dashboard")
@@ -45,8 +45,11 @@ struct DashboardView: View {
                 Text(outcome.reason.explanation)
             }
             if let sabotage = admin.sabotage {
-                LabeledContent("Sabotage: \(sabotage.kind.title)") { CountdownView(until: sabotage.endsAt, now: serverNow) }
-                    .foregroundStyle(.red)
+                LabeledContent {
+                    CountdownView(until: sabotage.endsAt, now: serverNow)
+                } label: {
+                    StatusLabel("Sabotage: \(sabotage.kind.title)", systemImage: "exclamationmark.triangle.fill", tint: .red)
+                }
             }
         }
     }
@@ -64,18 +67,13 @@ struct DashboardView: View {
         Section("Controls") {
             Button("Start Discussion", systemImage: "bell.fill") { client.send(.admin(.startMeeting)) }
                 .disabled(admin.isLobby || admin.phase != .running)
-            TimerAdjustMenu(title: "Meeting Timer", systemImage: "clock.badge.plus") {
-                client.send(.admin(.adjustTimer(.meeting, seconds: $0)))
+            TimerAdjustMenu(
+                meeting: isMeeting,
+                gameClock: !admin.isLobby && !isEnded,
+                sabotage: admin.sabotage != nil
+            ) { target, seconds in
+                client.send(.admin(.adjustTimer(target, seconds: seconds)))
             }
-            .disabled(!isMeeting)
-            TimerAdjustMenu(title: "Game Clock", systemImage: "hourglass") {
-                client.send(.admin(.adjustTimer(.finalVote, seconds: $0)))
-            }
-            .disabled(admin.isLobby || isEnded)
-            TimerAdjustMenu(title: "Sabotage Timer", systemImage: "exclamationmark.triangle") {
-                client.send(.admin(.adjustTimer(.sabotage, seconds: $0)))
-            }
-            .disabled(admin.sabotage == nil)
             Button("Approve Skip", systemImage: "forward.end.fill") { client.send(.admin(.approveSkipDiscussion)) }
                 .disabled(!(isDiscussion && admin.skipRequested))
             Button("Resolve Sabotage", systemImage: "checkmark.shield") { client.send(.admin(.resolveSabotage)) }

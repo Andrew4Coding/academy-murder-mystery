@@ -19,11 +19,11 @@ struct RoleView: View {
 
                 if game.life != .alive {
                     Section {
-                        Label(
+                        StatusLabel(
                             game.life == .killed ? "Your family was eliminated" : "Your family was voted out",
-                            systemImage: "xmark.circle.fill"
+                            systemImage: "xmark.circle.fill",
+                            tint: .red
                         )
-                        .foregroundStyle(.red)
                         Text(game.role == .werewolf
                             ? "You can't vote anymore. Your werewolf family can still use sabotage."
                             : "You can't vote anymore, but keep finishing your tasks: "
@@ -86,13 +86,15 @@ private struct RoleCard: View {
     let role: Role
     @Binding var isRevealed: Bool
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         Button {
-            withAnimation { isRevealed.toggle() }
+            withAnimation(reduceMotion ? nil : .default) { isRevealed.toggle() }
         } label: {
             VStack(spacing: 12) {
                 Image(systemName: isRevealed ? role.symbol : "eye.slash.fill")
-                    .font(.system(size: 56))
+                    .scaledSystemFont(size: 56)
                     .symbolRenderingMode(.hierarchical)
                 Text(isRevealed ? role.title : "Tap to show your role")
                     .font(.title.bold())

@@ -34,7 +34,7 @@ struct FamilyLobbyView: View {
                     }
                 } footer: {
                     if let error = client.lastError {
-                        Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                        StatusLabel.error(error)
                     }
                 }
             }

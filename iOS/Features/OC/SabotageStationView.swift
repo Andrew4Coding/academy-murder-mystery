@@ -35,7 +35,7 @@ struct SabotageStationView: View {
                     Text(sabotage.kind == kind ? "Sabotage at your booth" : "Sabotage at \(sabotage.kind.title)")
                         .font(.headline)
                     CountdownView(until: sabotage.endsAt, now: serverNow)
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
+                        .countdownDisplay()
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -48,7 +48,7 @@ struct SabotageStationView: View {
                 } footer: {
                     Text("Tap once the villagers have finished the task at your booth.")
                     if let error = client.lastError {
-                        Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                        StatusLabel.error(error)
                     }
                 }
             }

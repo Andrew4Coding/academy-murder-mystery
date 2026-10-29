@@ -14,6 +14,7 @@ struct GameTabsView: View {
     @State private var proximity = ProximityService()
     @State private var notice: GameNotice?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         TabView(selection: $selection) {
@@ -37,10 +38,10 @@ struct GameTabsView: View {
         .safeAreaInset(edge: .top) {
             if let sabotage = game.sabotage {
                 SabotageBanner(sabotage: sabotage, client: client)
-                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
             }
         }
-        .animation(.default, value: game.sabotage)
+        .animation(reduceMotion ? nil : .default, value: game.sabotage)
         .onChange(of: game.life) { old, new in
             if old == .alive, new == .killed, notice == nil {
                 notice = .killed

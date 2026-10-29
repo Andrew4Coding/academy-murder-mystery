@@ -116,78 +116,65 @@ struct GameControlView: View {
                     .help("Anyone who can see this screen will see every family's role")
             }
             ToolbarItem {
-                Menu("Vote for a Family", systemImage: "hand.raised") {
-                    ForEach(game.aliveFamilies().filter { game.votes[$0.id] == nil }, id: \.id) { voter in
-                        Menu(name(voter.id)) {
-                            ForEach(game.aliveFamilies(), id: \.id) { target in
-                                Button(name(target.id)) { proxyVote(voter.id, .family(target.id)) }
+                Menu("Meeting", systemImage: "person.3") {
+                    Button("Approve Skip", systemImage: "forward.end.fill") {
+                        attempt { try host.approveSkipDiscussion() }
+                    }
+                    .keyboardShortcut("k", modifiers: [.command, .shift])
+                    .disabled(!(game.phase.isDiscussionPhase && game.skipRequested))
+                    Menu("Vote for a Family", systemImage: "hand.raised") {
+                        ForEach(game.aliveFamilies().filter { game.votes[$0.id] == nil }, id: \.id) { voter in
+                            Menu(name(voter.id)) {
+                                ForEach(game.aliveFamilies(), id: \.id) { target in
+                                    Button(name(target.id)) { proxyVote(voter.id, .family(target.id)) }
+                                }
+                                Button("Skip") { proxyVote(voter.id, .skip) }
                             }
-                            Button("Skip") { proxyVote(voter.id, .skip) }
                         }
                     }
+                    .disabled(!isVoting(game))
                 }
-                .disabled(!isVoting(game))
-                .help("Cast a vote for a family whose head can't, for example because their phone is offline")
+                .help("Skip the discussion, or cast a vote for a family whose head can't")
             }
             ToolbarItem {
-                if host.testingToolsEnabled {
-                    Menu("Trigger Sabotage", systemImage: "exclamationmark.triangle") {
-                        ForEach(game.families.values.filter { $0.role == .werewolf }.sorted { $0.id < $1.id }, id: \.id) { family in
-                            Menu(name(family.id)) {
-                                ForEach(SabotageKind.allCases, id: \.self) { kind in
-                                    Button(kind.title) {
-                                        attempt { try host.applyAsOC(.requestSabotage(by: family.id, kind: kind)) }
+                TimerAdjustMenu(
+                    meeting: game.phase.isMeetingPhase,
+                    gameClock: game.outcome == nil && !game.finalVoteStarted,
+                    sabotage: game.sabotage != nil
+                ) { target, seconds in
+                    attempt { try host.applyAsOC(.adjustTimer(target, seconds: seconds)) }
+                }
+                .help("Add or remove time on the meeting, the game clock or a sabotage")
+            }
+            ToolbarItem {
+                Menu("Game", systemImage: "flag.checkered") {
+                    Button("Resolve Sabotage", systemImage: "checkmark.shield") {
+                        attempt { try host.applyAsOC(.resolveSabotage) }
+                    }
+                    .keyboardShortcut("r", modifiers: [.command, .shift])
+                    .disabled(game.sabotage == nil)
+                    if host.testingToolsEnabled {
+                        Menu("Trigger Sabotage", systemImage: "exclamationmark.triangle") {
+                            ForEach(game.families.values.filter { $0.role == .werewolf }.sorted { $0.id < $1.id }, id: \.id) { family in
+                                Menu(name(family.id)) {
+                                    ForEach(SabotageKind.allCases, id: \.self) { kind in
+                                        Button(kind.title) {
+                                            attempt { try host.applyAsOC(.requestSabotage(by: family.id, kind: kind)) }
+                                        }
                                     }
                                 }
                             }
                         }
+                        .disabled(game.sabotage != nil || game.phase != .running)
                     }
-                    .disabled(game.sabotage != nil || game.phase != .running)
-                    .help("Testing: start a sabotage as a werewolf family, to see what villager phones show")
+                    Divider()
+                    Menu("End Game", systemImage: "flag.checkered") {
+                        Button("Villagers Win") { confirmingEnd = .villagers }
+                        Button("Werewolves Win") { confirmingEnd = .werewolves }
+                    }
+                    .disabled(game.outcome != nil)
                 }
-            }
-            ToolbarItem {
-                Button("Resolve Sabotage", systemImage: "checkmark.shield") {
-                    attempt { try host.applyAsOC(.resolveSabotage) }
-                }
-                .disabled(game.sabotage == nil)
-                .help("The villagers fixed the sabotage")
-            }
-            ToolbarItem {
-                Menu("End Game", systemImage: "flag.checkered") {
-                    Button("Villagers Win") { confirmingEnd = .villagers }
-                    Button("Werewolves Win") { confirmingEnd = .werewolves }
-                }
-                .disabled(game.outcome != nil)
-                .help("End the game now and declare a winner")
-            }
-            ToolbarItem {
-                TimerAdjustMenu(title: "Meeting Timer", systemImage: "clock.badge.plus") { seconds in
-                    attempt { try host.applyAsOC(.adjustTimer(.meeting, seconds: seconds)) }
-                }
-                .disabled(!game.phase.isMeetingPhase)
-                .help("Add or remove time on the current discussion or vote")
-            }
-            ToolbarItem {
-                TimerAdjustMenu(title: "Game Clock", systemImage: "hourglass") { seconds in
-                    attempt { try host.applyAsOC(.adjustTimer(.finalVote, seconds: seconds)) }
-                }
-                .disabled(game.outcome != nil || game.finalVoteStarted)
-                .help("Add or remove time before the final vote")
-            }
-            ToolbarItem {
-                TimerAdjustMenu(title: "Sabotage Timer", systemImage: "exclamationmark.triangle") { seconds in
-                    attempt { try host.applyAsOC(.adjustTimer(.sabotage, seconds: seconds)) }
-                }
-                .disabled(game.sabotage == nil)
-                .help("Add or remove time on the active sabotage countdown")
-            }
-            ToolbarItem {
-                Button("Approve Skip", systemImage: "forward.end.fill") {
-                    attempt { try host.approveSkipDiscussion() }
-                }
-                .disabled(!(game.phase.isDiscussionPhase && game.skipRequested))
-                .help("Most families voted to skip the discussion: open voting now")
+                .help("Resolve a sabotage or end the game")
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Start Discussion", systemImage: "bell.fill") {

@@ -53,8 +53,7 @@ struct JoinView: View {
                         .disabled(!canJoin)
                 } footer: {
                     if let error = client.lastError {
-                        Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                        StatusLabel.error(error)
                     } else if client.status != .connected {
                         Text(statusText)
                     }
@@ -97,6 +96,8 @@ struct JoinView: View {
 struct ConnectionBadge: View {
     let status: ConnectionStatus
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         switch status {
         case .connected:
@@ -105,7 +106,7 @@ struct ConnectionBadge: View {
             Label("Offline", systemImage: "wifi.exclamationmark")
         default:
             Label("Searching", systemImage: "wifi")
-                .symbolEffect(.variableColor.iterative, isActive: true)
+                .symbolEffect(.variableColor.iterative, isActive: !reduceMotion)
         }
     }
 }

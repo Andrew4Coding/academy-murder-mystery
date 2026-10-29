@@ -52,7 +52,7 @@ private struct NoticeScaffold: View {
         VStack(spacing: 24) {
             Spacer()
             Image(systemName: symbol)
-                .font(.system(size: 96))
+                .scaledSystemFont(size: 96)
                 .foregroundStyle(tint)
                 .accessibilityHidden(true)
             Text(title)
@@ -64,7 +64,7 @@ private struct NoticeScaffold: View {
                 .multilineTextAlignment(.center)
             Spacer()
             Button("OK", action: onDismiss)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.glassProminent)
                 .controlSize(.large)
         }
         .padding(32)

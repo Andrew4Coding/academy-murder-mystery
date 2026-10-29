@@ -43,8 +43,7 @@ struct SimulationView: View {
 
             if let message = controller.errorMessage {
                 Section {
-                    Label("Simulation can't start with these settings: \(message)", systemImage: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.red)
+                    StatusLabel.error("Simulation can't start with these settings: \(message)")
                 }
             }
 

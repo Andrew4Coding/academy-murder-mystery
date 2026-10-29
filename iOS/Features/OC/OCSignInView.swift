@@ -40,7 +40,7 @@ struct OCSignInView: View {
                         .disabled(pin.isEmpty || client.status != .connected)
                 } footer: {
                     if let error = client.lastError {
-                        Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                        StatusLabel.error(error)
                     }
                 }
             }
