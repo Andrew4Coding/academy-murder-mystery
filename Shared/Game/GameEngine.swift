@@ -21,12 +21,37 @@ struct GameEngine: Codable, Equatable, Sendable {
         }
 
         let werewolves = Set(ids.shuffled(using: &generator).prefix(werewolfCount))
+        let roles = Dictionary(uniqueKeysWithValues: ids.map { ($0, werewolves.contains($0) ? Role.werewolf : .villager) })
+        return begin(roles: roles, settings: settings, at: now, using: &generator)
+    }
+
+    /// Rehearsal start: the caller picks every family's role and the usual setup rules (family count, werewolf share) are skipped.
+    /// Only `GameHost.startTestGame` calls this, and only when testing tools are on.
+    static func startForTesting(
+        roles: [FamilyID: Role],
+        settings: GameSettings = .standard,
+        at now: Date,
+        using generator: inout some RandomNumberGenerator
+    ) throws -> (engine: GameEngine, events: [GameEvent]) {
+        guard !roles.isEmpty else { throw RuleError.invalidSetup("At least one family is required") }
+        guard (1 ... Booth.allCases.count).contains(settings.tasksPerFamily) else {
+            throw RuleError.invalidSetup("Tasks per family must be between 1 and \(Booth.allCases.count)")
+        }
+        return begin(roles: roles, settings: settings, at: now, using: &generator)
+    }
+
+    private static func begin(
+        roles: [FamilyID: Role],
+        settings: GameSettings,
+        at now: Date,
+        using generator: inout some RandomNumberGenerator
+    ) -> (engine: GameEngine, events: [GameEvent]) {
         var families: [FamilyID: Family] = [:]
-        for id in ids {
+        for id in roles.keys.sorted() {
             let tasks = Set(Booth.allCases.shuffled(using: &generator).prefix(settings.tasksPerFamily))
             families[id] = Family(
                 id: id,
-                role: werewolves.contains(id) ? .werewolf : .villager,
+                role: roles[id] ?? .villager,
                 life: .alive,
                 tasks: tasks,
                 stamps: [],
@@ -40,9 +65,10 @@ struct GameEngine: Codable, Equatable, Sendable {
             families: families,
             sabotageReadyAt: now.addingTimeInterval(settings.sabotageCooldown)
         )
+        let werewolves = families.values.filter { $0.role == .werewolf }.map(\.id).sorted()
         return (
             GameEngine(state: state),
-            [GameEvent(at: now, kind: .gameStarted(werewolves: werewolves.sorted()))]
+            [GameEvent(at: now, kind: .gameStarted(werewolves: werewolves))]
         )
     }
 

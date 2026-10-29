@@ -110,6 +110,15 @@ schemes:
         - MurderMysteryiOSTests
     archive:
       config: Release
+  MurderMysteryAdmin-Testing:
+    # Rehearsal scheme: same app, but launched with -TestingTools (see Shared/Host/TestingTools.swift).
+    build:
+      targets:
+        MurderMysteryAdmin: all
+    run:
+      config: Debug
+      commandLineArguments:
+        "-TestingTools": true
   MurderMysteryAdmin:
     build:
       targets:
