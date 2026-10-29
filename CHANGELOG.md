@@ -36,6 +36,12 @@ Tooling and refactors that users can't see don't go here.
 - Town Hall observer station ([0016](specs/features/0016-oc-station-rework.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 
+### MurderMysteryAdminiPad
+
+#### Added
+
+- iPad dashboard: connect to the Mac host with the OC PIN, see game status and families, start a discussion, add time, approve a skip and resolve a sabotage ([0017](specs/apps/admin/features/0017-ipad-admin.md)).
+
 ### MurderMysteryAdmin
 
 #### Fixed
