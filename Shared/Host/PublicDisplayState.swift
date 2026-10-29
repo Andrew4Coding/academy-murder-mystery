@@ -29,7 +29,7 @@ struct PublicDisplayState: Codable, Equatable, Sendable {
 struct LobbyFamily: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let name: String
-    let members: [String]
+    let player: String?
 }
 
 extension GameHost {
@@ -67,7 +67,7 @@ extension GameHost {
 
     func lobbyFamilies() -> [LobbyFamily] {
         state.families.values.sorted { $0.id < $1.id }.map { family in
-            LobbyFamily(id: family.id, name: family.name, members: state.members(of: family.id).map(\.name))
+            LobbyFamily(id: family.id, name: family.name, player: state.player(of: family.id)?.name)
         }
     }
 

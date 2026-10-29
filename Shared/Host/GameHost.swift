@@ -279,16 +279,13 @@ final class GameHost {
             }
             let family: FamilyID
             if let legacyFamily {
-                guard state.members(of: legacyFamily.id).count < state.maxFamilySize else { throw HostError.familyFull }
+                guard state.player(of: legacyFamily.id) == nil else { throw HostError.familyFull }
                 family = legacyFamily.id
             } else {
                 family = try assignFamily()
             }
             let player = Player(id: UUID(), name: name, family: family, bleToken: Self.makeToken())
             state.players[player.id] = player
-            if state.families[family]?.head == nil {
-                state.families[family]?.head = player.id
-            }
             return .player(player.id)
         case let .ocPin(pin):
             guard pin == state.ocPin, let station = hello.station else { throw HostError.invalidCredential }

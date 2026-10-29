@@ -5,7 +5,6 @@ final class Simulation {
     struct Config: Equatable, Sendable {
         var familyCount = 12
         var werewolfCount = 2
-        var membersPerFamily = 3
         var seed: UInt64 = 1
         var resolveChance = 0.85
     }
@@ -76,7 +75,7 @@ private extension Simulation {
     func seatBots() throws {
         for family in host.state.families.values.sorted(by: { $0.id < $1.id }) {
             var members: [Bot] = []
-            for index in 1 ... config.membersPerFamily {
+            for index in 1 ... 1 {
                 let clientID = ClientID()
                 host.handle(.connected(clientID))
                 host.receive(

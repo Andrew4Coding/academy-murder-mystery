@@ -1,7 +1,7 @@
 import Foundation
 
 extension HostState {
-    /// `testing` relaxes the rules for rehearsals: one family is enough, and families may be empty or have no head.
+    /// `testing` relaxes the rules for rehearsals: one family is enough, and families may have no player.
     func setupIssues(testing: Bool = false) -> [String] {
         var issues: [String] = []
         if testing {
@@ -22,8 +22,8 @@ extension HostState {
         if !(1 ... Booth.allCases.count).contains(settings.tasksPerFamily) {
             issues.append("Tasks per family must be between 1 and \(Booth.allCases.count).")
         }
-        for family in families.values.sorted(by: { $0.id < $1.id }) where family.head == nil {
-            issues.append(members(of: family.id).isEmpty ? "\(family.name) has no members." : "\(family.name) has no head of family.")
+        for family in families.values.sorted(by: { $0.id < $1.id }) where player(of: family.id) == nil {
+            issues.append("\(family.name) has no player.")
         }
         return issues
     }
@@ -38,7 +38,7 @@ extension GameHost {
         let current = state.families.keys.sorted()
         if familyCount < current.count {
             for id in current.suffix(current.count - familyCount) {
-                guard state.members(of: id).isEmpty else { throw HostError.familyHasMembers }
+                guard state.player(of: id) == nil else { throw HostError.familyHasMembers }
             }
         }
         replaceState { state in
@@ -66,11 +66,6 @@ extension GameHost {
             state.werewolfCount = werewolfCount
             state.settings = settings
         }
-    }
-
-    func setFamilyCapacity(_ capacity: Int) throws {
-        guard state.isLobby else { throw HostError.gameAlreadyStarted }
-        replaceState { $0.maxFamilySize = max(1, capacity) }
     }
 
     func startGame() throws {
@@ -112,9 +107,6 @@ extension GameHost {
         var chosen: [FamilyID: Role] = [:]
         for id in state.families.keys {
             chosen[id] = roles[id] ?? .villager
-            if state.families[id]?.head == nil, let first = state.members(of: id).first {
-                state.families[id]?.head = first.id
-            }
         }
         let (engine, events) = try GameEngine.startForTesting(roles: chosen, settings: state.settings, at: clock.now, using: &generator)
         state.engine = engine
@@ -127,7 +119,6 @@ extension GameHost {
         fresh.gameCode = Self.makeJoinCode(excluding: [])
         fresh.settings = state.settings
         fresh.werewolfCount = state.werewolfCount
-        fresh.maxFamilySize = state.maxFamilySize
         fresh.rssiThreshold = state.rssiThreshold
         fresh.sightingFreshness = state.sightingFreshness
         let count = state.families.count
@@ -149,8 +140,9 @@ extension GameHost {
         guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
         guard state.isLobby else { throw HostError.gameAlreadyStarted }
         state.players[playerID] = nil
-        if state.families[player.family]?.head == playerID {
-            state.families[player.family]?.head = state.members(of: player.family).first?.id
+        selfies[playerID] = nil
+        if !testingToolsEnabled {
+            state.families[player.family] = nil
         }
         sessions[clientID]?.identity = nil
         send(.reset, to: clientID)
@@ -166,7 +158,7 @@ extension GameHost {
     }
 
     func assignFamily() throws -> FamilyID {
-        let open = state.families.keys.sorted().first { state.members(of: $0).count < state.maxFamilySize }
+        let open = state.families.keys.sorted().first { state.player(of: $0) == nil }
         if let open {
             return open
         }
@@ -180,7 +172,6 @@ extension GameHost {
 
     func renameFamily(identity: Identity, to name: String) throws {
         guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
-        guard state.families[player.family]?.head == playerID else { throw HostError.notHead }
         try renameFamily(player.family, to: name)
     }
 
@@ -207,7 +198,6 @@ extension GameHost {
 
     func voteSkipDiscussion(identity: Identity) throws {
         guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
-        guard state.families[player.family]?.head == playerID else { throw HostError.notHead }
         try applyAsOC(.voteSkipDiscussion(by: player.family))
     }
 
@@ -221,7 +211,6 @@ extension GameHost {
 
     func vote(identity: Identity, choice: VoteChoice) throws {
         guard case let .player(playerID) = identity, let player = state.players[playerID] else { throw HostError.notAPlayer }
-        guard state.families[player.family]?.head == playerID else { throw HostError.notHead }
         try applyAsOC(.castVote(by: player.family, choice: choice))
     }
 

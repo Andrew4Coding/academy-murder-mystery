@@ -5,19 +5,13 @@ enum IdentityView: Codable, Equatable, Sendable {
     case oc(id: UUID, station: OCStation)
 }
 
-struct MemberView: Codable, Equatable, Sendable, Identifiable {
-    let id: PlayerID
-    let name: String
-    let isHead: Bool
-}
-
 struct FamilySummary: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let name: String
     let life: LifeState
     let revealedRole: Role?
-    var headID: PlayerID?
-    var headName: String?
+    var playerID: PlayerID?
+    var playerName: String?
 }
 
 struct TaskProgress: Codable, Equatable, Sendable, Identifiable {
@@ -39,9 +33,8 @@ enum PhaseView: Codable, Equatable, Sendable {
 struct LobbyView: Codable, Equatable, Sendable {
     let familyName: String
     let joinCode: String
-    let members: [MemberView]
-    let isHead: Bool
-    let hasHead: Bool
+    let playerID: PlayerID
+    let playerName: String
 }
 
 struct ResultRow: Codable, Equatable, Sendable, Identifiable {
@@ -88,8 +81,7 @@ struct OCFamilyRow: Codable, Equatable, Sendable, Identifiable {
 struct AdminFamilyRow: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let name: String
-    let members: Int
-    let headName: String?
+    let playerName: String?
     let life: LifeState
     let stampsDone: Int
     let stampsTotal: Int
@@ -127,8 +119,6 @@ struct GameView: Codable, Equatable, Sendable {
     let family: FamilyID
     let familyName: String
     let life: LifeState
-    let isHead: Bool
-    let members: [MemberView]
     let tasks: [TaskProgress]
     let allies: [FamilySummary]?
     let families: [FamilySummary]

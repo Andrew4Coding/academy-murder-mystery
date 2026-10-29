@@ -16,9 +16,8 @@ extension GameHost {
                 view.lobby = LobbyView(
                     familyName: family.name,
                     joinCode: state.gameCode ?? family.joinCode,
-                    members: memberViews(of: family),
-                    isHead: family.head == id,
-                    hasHead: family.head != nil
+                    playerID: id,
+                    playerName: player.name
                 )
             }
             return view
@@ -47,8 +46,7 @@ extension GameHost {
             return AdminFamilyRow(
                 id: info.id,
                 name: info.name,
-                members: state.members(of: info.id).count,
-                headName: info.head.flatMap { state.players[$0]?.name },
+                playerName: state.player(of: info.id)?.name,
                 life: game?.life ?? .alive,
                 stampsDone: game?.stamps.intersection(game?.tasks ?? []).count ?? 0,
                 stampsTotal: game?.tasks.count ?? 0
@@ -91,10 +89,6 @@ extension GameHost {
         engine.state.sabotage.map { SabotageView(kind: $0.kind, startedAt: $0.startedAt, endsAt: $0.endsAt) }
     }
 
-    func memberViews(of family: FamilyInfo) -> [MemberView] {
-        state.members(of: family.id).map { MemberView(id: $0.id, name: $0.name, isHead: family.head == $0.id) }
-    }
-
     func summary(of id: FamilyID, in engine: GameEngine) -> FamilySummary? {
         guard let info = state.families[id], let family = engine.state.families[id] else { return nil }
         return FamilySummary(
@@ -102,8 +96,8 @@ extension GameHost {
             name: info.name,
             life: family.life,
             revealedRole: family.life == .expelled ? family.role : nil,
-            headID: info.head,
-            headName: info.head.flatMap { state.players[$0]?.name }
+            playerID: state.player(of: id)?.id,
+            playerName: state.player(of: id)?.name
         )
     }
 
@@ -125,15 +119,13 @@ extension GameHost {
             family: info.id,
             familyName: info.name,
             life: engineFamily.life,
-            isHead: info.head == viewer,
-            members: memberViews(of: info),
             tasks: engineFamily.tasks.sorted { $0.rawValue < $1.rawValue }
                 .map { TaskProgress(booth: $0, done: engineFamily.stamps.contains($0)) },
             allies: allies,
             families: state.families.keys.sorted().compactMap { summary(of: $0, in: engine) },
             phase: phase,
             announcedDeaths: engine.state.announcedDeaths.compactMap { summary(of: $0, in: engine) },
-            myVote: info.head == viewer ? engine.state.votes[info.id] : nil,
+            myVote: engine.state.votes[info.id],
             votesCast: engine.state.votes.count,
             votersTotal: engine.state.aliveFamilies().count,
             lastResult: engine.state.lastResult.map(publicResult),
