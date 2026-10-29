@@ -10,6 +10,7 @@ struct SetupView: View {
     @State private var rssiThreshold = -65.0
     @State private var sightingFreshness = 5
     @State private var testRoles: [FamilyID: Role] = [:]
+    @State private var debugMode = false
     @State private var killCooldown = GameSettings.standard.killCooldown
     @State private var sabotageCooldown = GameSettings.standard.sabotageCooldown
     @State private var sabotageDuration = GameSettings.standard.sabotageDuration
@@ -43,6 +44,7 @@ struct SetupView: View {
                 } else {
                     Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... 10)
                 }
+                Toggle("Debug Mode", isOn: $debugMode)
                 Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
                 Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
             }
@@ -128,6 +130,7 @@ struct SetupView: View {
         .onChange(of: werewolfCount) { _, _ in apply() }
         .onChange(of: discussionMinutes) { _, _ in apply() }
         .onChange(of: votingMinutes) { _, _ in apply() }
+        .onChange(of: debugMode) { _, _ in apply() }
         .onChange(of: killCooldown) { _, _ in apply() }
         .onChange(of: sabotageCooldown) { _, _ in apply() }
         .onChange(of: oxygenCooldown) { _, _ in apply() }
@@ -242,6 +245,7 @@ struct SetupView: View {
         votingMinutes = max(1, Int(state.settings.votingDuration / 60))
         rssiThreshold = Double(state.rssiThreshold)
         sightingFreshness = Int(state.sightingFreshness)
+        debugMode = state.settings.isDebug
         killCooldown = state.settings.killCooldown
         sabotageCooldown = state.settings.sabotageCooldown
         sabotageDuration = state.settings.sabotageDuration
@@ -262,6 +266,7 @@ struct SetupView: View {
         var settings = host.state.settings
         settings.discussionDuration = TimeInterval(discussionMinutes * 60)
         settings.votingDuration = TimeInterval(votingMinutes * 60)
+        settings.debugMode = debugMode
         settings.sabotageCooldown = sabotageCooldown
         settings.sabotageDuration = sabotageDuration
         settings.oxygenCooldown = oxygenCooldown
