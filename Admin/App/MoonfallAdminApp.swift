@@ -30,6 +30,8 @@ struct MoonfallAdminApp: App {
         #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-DisplayGallery") {
                 PublicDisplayGalleryLaunch()
+            } else if ProcessInfo.processInfo.arguments.contains("-AdminGallery") {
+                AdminGalleryLaunch()
             } else {
                 RootView(controller: controller, simulation: simulation)
             }

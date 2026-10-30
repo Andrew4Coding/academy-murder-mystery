@@ -1,6 +1,23 @@
 #if DEBUG
     import SwiftUI
 
+    struct AdminGalleryLaunch: View {
+        var body: some View {
+            let entries = AdminScreens.all
+            let index = UserDefaults.standard.string(forKey: "AdminGallery").flatMap(Int.init) ?? -1
+            Group {
+                if entries.indices.contains(index) {
+                    entries[index].screen
+                        .frame(width: 1100, height: 760)
+                        .background(Theme.background)
+                } else {
+                    AdminGalleryView()
+                }
+            }
+            .task { await PublicDisplayWindowCapture.captureIfRequested() }
+        }
+    }
+
     struct AdminGalleryView: View {
         private let entries = AdminScreens.all
 
