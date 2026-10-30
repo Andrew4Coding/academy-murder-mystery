@@ -50,6 +50,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- Red and black look across every screen, with larger touch targets, clearer join steps and VoiceOver labels ([0031](specs/features/0031-red-black-theme-and-accessibility.md), [0033](specs/features/0033-screen-restyle-and-ui-flow.md)).
 - Joining asks only for a family name, which is also shown as your name.
 - New app icon: a wolf face cut out of a blood-red moon.
 - Kill and sabotage are ready at the start of the game, with no opening cooldown ([0011](specs/features/0011-lifecycle-bugfixes.md)).
@@ -66,6 +67,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- Red and black look, setup grouped by task and a clearer game screen with a highlighted next step ([0031](specs/features/0031-red-black-theme-and-accessibility.md), [0033](specs/features/0033-screen-restyle-and-ui-flow.md)).
 - Stamp menus and task progress removed from the Game tab, since stamping now happens outside the app.
 - New app icon: the wolf moon with a teal check banner.
 - Game tab actions (bell, discussion, votes, timers, sabotage, end game) are large labelled bento tiles instead of toolbar buttons.
@@ -118,6 +120,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- Red and black look, setup grouped by task, a clearer game control screen, and a redesigned Public Display with a moon and wolf stage, timer ring and tidier rosters ([0031](specs/features/0031-red-black-theme-and-accessibility.md), [0033](specs/features/0033-screen-restyle-and-ui-flow.md), [0034](specs/features/0034-public-display-redesign.md)).
 - New app icon: the wolf moon with a gold star banner.
 - Game screen actions (bell, discussion, votes, timers, sabotage, end game) are large labelled bento tiles instead of toolbar buttons.
 - Families have their own sidebar item, with Show Roles, eliminate and revive.
