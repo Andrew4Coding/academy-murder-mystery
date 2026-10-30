@@ -63,12 +63,13 @@ struct GameEngineActionTests {
         let (first, second) = (fixture.werewolves[0], fixture.werewolves[1])
         let events = try fixture.apply(.requestSabotage(by: first, kind: .reactor), at: 0)
         #expect(events.kinds == [.sabotageStarted(kind: .reactor, by: first, endsAt: at(90))])
-        #expect(fixture.engine.state.sabotageReadyAt == at(120))
+        #expect(fixture.engine.state.sabotageReadyAt == at(210))
         try fixture.apply(.resolveSabotage, at: 10)
-        #expect(throws: RuleError.cooldownActive(readyAt: at(120))) {
-            try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 119)
+        #expect(fixture.engine.state.sabotageReadyAt == at(130))
+        #expect(throws: RuleError.cooldownActive(readyAt: at(130))) {
+            try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 129)
         }
-        try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 120)
+        try fixture.apply(.requestSabotage(by: second, kind: .oxygen), at: 130)
     }
 
     @Test func onlyOneSabotageAtATimeAndNotDuringMeetings() throws {

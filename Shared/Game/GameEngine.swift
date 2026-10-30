@@ -197,13 +197,14 @@ private extension GameEngine {
 
         let endsAt = now.addingTimeInterval(state.settings.sabotageDuration(for: kind))
         state.sabotage = ActiveSabotage(kind: kind, startedAt: now, endsAt: endsAt, triggeredBy: id)
-        state.sabotageReadyAt = now.addingTimeInterval(state.settings.sabotageCooldown(for: kind))
+        state.sabotageReadyAt = endsAt.addingTimeInterval(state.settings.sabotageCooldown(for: kind))
         return [GameEvent(at: now, kind: .sabotageStarted(kind: kind, by: id, endsAt: endsAt))]
     }
 
     mutating func resolveSabotage(at now: Date) throws -> [GameEvent] {
-        guard state.sabotage != nil else { throw RuleError.noActiveSabotage }
+        guard let sabotage = state.sabotage else { throw RuleError.noActiveSabotage }
         state.sabotage = nil
+        state.sabotageReadyAt = now.addingTimeInterval(state.settings.sabotageCooldown(for: sabotage.kind))
         return [GameEvent(at: now, kind: .sabotageResolved)]
     }
 
