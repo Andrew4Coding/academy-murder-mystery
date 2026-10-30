@@ -62,6 +62,7 @@ Tooling and refactors that users can't see don't go here.
 
 - Stamp menus and task progress removed from the Game tab, since stamping now happens outside the app.
 - New app icon: the wolf moon with a teal check banner.
+- Game tab actions (bell, discussion, votes, timers, sabotage, eliminate, revive, end game) are large labelled bento tiles instead of toolbar buttons.
 
 #### Fixed
 
@@ -110,6 +111,7 @@ Tooling and refactors that users can't see don't go here.
 #### Changed
 
 - New app icon: the wolf moon with a gold star banner.
+- Game screen actions (bell, discussion, votes, timers, sabotage, eliminate, revive, end game) are large labelled bento tiles instead of toolbar buttons.
 - The OC PIN is hidden by default in Setup, with buttons to show it and to generate a new random one.
 - The Public Display lobby list shows each family's selfie.
 - Families are no longer set by a stepper: they fill from the game code ([0012](specs/features/0012-join-and-families.md)).
