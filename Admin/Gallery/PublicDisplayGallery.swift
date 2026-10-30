@@ -14,27 +14,39 @@
             typealias Fixtures = DisplayFixtures
             let deaths = ["Moreau", "Okafor"]
             var list = [
-                PublicDisplayGalleryEntry(title: "Host offline", display: F.hostOffline),
-                PublicDisplayGalleryEntry(title: "Waiting, empty", display: F.waitingEmpty),
-                PublicDisplayGalleryEntry(title: "Waiting, many families", display: F.waitingMany),
-                PublicDisplayGalleryEntry(title: "Waiting, overflow", display: F.waitingOverflow),
-                PublicDisplayGalleryEntry(title: "Starting", display: F.starting)
+                PublicDisplayGalleryEntry(title: "Host offline", display: Fixtures.hostOffline),
+                PublicDisplayGalleryEntry(title: "Waiting, empty", display: Fixtures.waitingEmpty),
+                PublicDisplayGalleryEntry(title: "Waiting, many families", display: Fixtures.waitingMany),
+                PublicDisplayGalleryEntry(title: "Waiting, overflow", display: Fixtures.waitingOverflow),
+                PublicDisplayGalleryEntry(title: "Starting", display: Fixtures.starting)
             ]
             for alarm in [false, true] {
                 let suffix = alarm ? ", alarm" : ""
                 list += [
-                    PublicDisplayGalleryEntry(title: "Playing\(suffix)", display: F.playing(alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Playing, final seconds\(suffix)", display: F.playing(alarm: alarm, seconds: 6)),
-                    PublicDisplayGalleryEntry(title: "Discussion, no deaths\(suffix)", display: F.discussion(deaths: [], alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Discussion, deaths\(suffix)", display: F.discussion(deaths: deaths, alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Voting\(suffix)", display: F.voting(alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Result, voted out\(suffix)", display: F.resultExpelled(alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Result, nobody out\(suffix)", display: F.resultNobody(alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Villagers win\(suffix)", display: F.villagersWin(alarm: alarm)),
-                    PublicDisplayGalleryEntry(title: "Werewolves reveal\(suffix)", display: F.werewolvesReveal(alarm: alarm))
+                    PublicDisplayGalleryEntry(title: "Playing\(suffix)", display: Fixtures.playing(alarm: alarm)),
+                    PublicDisplayGalleryEntry(
+                        title: "Playing, final seconds\(suffix)",
+                        display: Fixtures.playing(alarm: alarm, seconds: 6)
+                    ),
+                    PublicDisplayGalleryEntry(
+                        title: "Discussion, no deaths\(suffix)",
+                        display: Fixtures.discussion(deaths: [], alarm: alarm)
+                    ),
+                    PublicDisplayGalleryEntry(
+                        title: "Discussion, deaths\(suffix)",
+                        display: Fixtures.discussion(deaths: deaths, alarm: alarm)
+                    ),
+                    PublicDisplayGalleryEntry(title: "Voting\(suffix)", display: Fixtures.voting(alarm: alarm)),
+                    PublicDisplayGalleryEntry(title: "Result, voted out\(suffix)", display: Fixtures.resultExpelled(alarm: alarm)),
+                    PublicDisplayGalleryEntry(title: "Result, nobody out\(suffix)", display: Fixtures.resultNobody(alarm: alarm)),
+                    PublicDisplayGalleryEntry(title: "Villagers win\(suffix)", display: Fixtures.villagersWin(alarm: alarm)),
+                    PublicDisplayGalleryEntry(title: "Werewolves reveal\(suffix)", display: Fixtures.werewolvesReveal(alarm: alarm))
                 ]
             }
-            list.append(PublicDisplayGalleryEntry(title: "Werewolves reveal, 24 families", display: F.werewolvesReveal(families: 24)))
+            list.append(PublicDisplayGalleryEntry(
+                title: "Werewolves reveal, 24 families",
+                display: Fixtures.werewolvesReveal(families: 24)
+            ))
             return list
         }()
     }
