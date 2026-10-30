@@ -4,6 +4,8 @@ struct DevicesTab: View {
     let admin: AdminView
     let client: GameClient
 
+    @State private var deleting: DeviceStatus?
+
     var body: some View {
         Group {
             if admin.devices.isEmpty {
@@ -13,18 +15,24 @@ struct DevicesTab: View {
                     description: Text("Players and OC appear here once they join the game.")
                 )
             } else {
-                Table(admin.devices) {
-                    TableColumn("Name", value: \.label)
-                    TableColumn("Family or station", value: \.detail)
-                    TableColumn("Status") { device in
+                List(admin.devices) { device in
+                    HStack(spacing: Spacing.md) {
+                        VStack(alignment: .leading) {
+                            Text(device.label).font(.headline)
+                            Text(device.detail).font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if let lastSeen = device.lastSeen {
+                            Text(lastSeen, style: .relative).foregroundStyle(.secondary)
+                        } else {
+                            Text("Not connected").foregroundStyle(.secondary)
+                        }
                         Label(device.connection.title, systemImage: device.connection.symbol)
                             .foregroundStyle(device.connection.tint)
                     }
-                    TableColumn("Last seen") { device in
-                        if let lastSeen = device.lastSeen {
-                            Text(lastSeen, style: .relative)
-                        } else {
-                            Text("Not connected").foregroundStyle(.secondary)
+                    .swipeActions(edge: .trailing) {
+                        if device.isOC || admin.isLobby {
+                            Button("Delete", systemImage: "trash", role: .destructive) { deleting = device }
                         }
                     }
                 }
@@ -37,6 +45,20 @@ struct DevicesTab: View {
                     client.send(.admin(.checkConnectivity))
                 }
             }
+        }
+        .confirmationDialog(
+            deleting.map { "Delete \($0.label), \($0.detail)?" } ?? "",
+            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            titleVisibility: .visible
+        ) {
+            if let device = deleting {
+                Button("Delete Device", role: .destructive) {
+                    client.send(.admin(.removeDevice(device.id)))
+                    deleting = nil
+                }
+            }
+        } message: {
+            Text("The device is signed out and has to join again.")
         }
     }
 }

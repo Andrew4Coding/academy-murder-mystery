@@ -4,8 +4,6 @@ struct GameTab: View {
     let admin: AdminView
     let client: GameClient
 
-    @State private var showRoles = false
-    @State private var selection: Set<FamilyID> = []
     @State private var confirmingEnd: Side?
 
     var body: some View {
@@ -33,28 +31,23 @@ struct GameTab: View {
     }
 
     private var content: some View {
-        VStack(spacing: 0) {
-            Form {
-                Section { actions }
-                statusSection
-                if let result = admin.lastResult {
-                    Section(result.isFinal ? "Final vote result" : "Last vote") {
-                        if result.expelled.isEmpty {
-                            Text("Nobody was voted out.")
-                        }
-                        ForEach(result.expelled) { Label("\($0.name) was voted out", systemImage: "person.fill.xmark") }
-                        ForEach(result.rows) { LabeledContent($0.name, value: "\($0.count)") }
+        Form {
+            Section { actions }
+            statusSection
+            if let result = admin.lastResult {
+                Section(result.isFinal ? "Final vote result" : "Last vote") {
+                    if result.expelled.isEmpty {
+                        Text("Nobody was voted out.")
                     }
-                }
-                if let error = client.lastError {
-                    Section { StatusLabel.error(error) }
+                    ForEach(result.expelled) { Label("\($0.name) was voted out", systemImage: "person.fill.xmark") }
+                    ForEach(result.rows) { LabeledContent($0.name, value: "\($0.count)") }
                 }
             }
-            .formStyle(.grouped)
-            .frame(maxHeight: 480)
-            familiesTable
+            if let error = client.lastError {
+                Section { StatusLabel.error(error) }
+            }
         }
-        .toolbar { toolbar }
+        .formStyle(.grouped)
     }
 
     private var statusSection: some View {
@@ -84,47 +77,6 @@ struct GameTab: View {
                     StatusLabel("Sabotage: \(sabotage.kind.title)", systemImage: "exclamationmark.triangle.fill", tint: .red)
                 }
             }
-        }
-    }
-
-    private var familiesTable: some View {
-        Table(admin.families, selection: $selection) {
-            TableColumn("Family", value: \.name)
-            TableColumn("Status") { (family: AdminFamilyRow) in
-                Label(family.life.title, systemImage: family.life == .alive ? "checkmark.circle" : "xmark.circle")
-            }
-            TableColumn("Role") { (family: AdminFamilyRow) in
-                if showRoles, let role = family.role {
-                    Label(role.title, systemImage: role.symbol)
-                } else {
-                    Text("Hidden").foregroundStyle(.secondary)
-                }
-            }
-            TableColumn("Tasks") { (family: AdminFamilyRow) in
-                Text(family.tasks.isEmpty ? "-" : family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
-            }
-            TableColumn("Vote") { (family: AdminFamilyRow) in
-                Text(voteStatus(family))
-            }
-        }
-        .contextMenu(forSelectionType: FamilyID.self) { ids in
-            familyActions(ids)
-        }
-    }
-
-    @ViewBuilder
-    private func familyActions(_ ids: Set<FamilyID>) -> some View {
-        Divider()
-        Button("Eliminate Family", systemImage: "xmark.circle") { client.send(.admin(.eliminate(Array(ids)))) }
-            .disabled(ids.isEmpty)
-        Button("Revive Family", systemImage: "arrow.uturn.backward.circle") { client.send(.admin(.revive(Array(ids)))) }
-            .disabled(ids.isEmpty)
-    }
-
-    @ToolbarContentBuilder
-    private var toolbar: some ToolbarContent {
-        ToolbarItem {
-            Toggle("Show Roles", systemImage: showRoles ? "eye" : "eye.slash", isOn: $showRoles)
         }
     }
 
@@ -165,14 +117,6 @@ struct GameTab: View {
                 client.send(.admin(.resolveSabotage))
             }
             .disabled(admin.sabotage == nil)
-            BentoButton(title: "Eliminate Selected", subtitle: "Remove the selected families", systemImage: "xmark.circle.fill", tint: .red) {
-                client.send(.admin(.eliminate(Array(selection))))
-            }
-            .disabled(selection.isEmpty)
-            BentoButton(title: "Revive Selected", subtitle: "Bring the selected families back", systemImage: "arrow.uturn.backward.circle.fill", tint: .mint) {
-                client.send(.admin(.revive(Array(selection))))
-            }
-            .disabled(selection.isEmpty)
             Menu {
                 Button("Villagers Win") { confirmingEnd = .villagers }
                 Button("Werewolves Win") { confirmingEnd = .werewolves }
@@ -185,11 +129,6 @@ struct GameTab: View {
         }
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets())
-    }
-
-    private func voteStatus(_ family: AdminFamilyRow) -> String {
-        guard isVoting, family.life == .alive else { return "" }
-        return family.voted ? "Voted" : "Waiting"
     }
 
     private var isVoting: Bool {

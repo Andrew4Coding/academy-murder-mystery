@@ -3,6 +3,7 @@ import SwiftUI
 enum DashboardSection: String, CaseIterable, Identifiable {
     case setup
     case game
+    case families
     case devices
 
     var id: String {
@@ -13,6 +14,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
         switch self {
         case .setup: "Setup"
         case .game: "Game"
+        case .families: "Families"
         case .devices: "Devices"
         }
     }
@@ -21,6 +23,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
         switch self {
         case .setup: "slider.horizontal.3"
         case .game: "gamecontroller"
+        case .families: "person.3"
         case .devices: "iphone.gen3.radiowaves.left.and.right"
         }
     }
@@ -50,6 +53,7 @@ struct DashboardView: View {
                 switch selection ?? .setup {
                 case .setup: SetupTab(admin: admin, client: client)
                 case .game: GameTab(admin: admin, client: client)
+                case .families: FamiliesTab(admin: admin, client: client)
                 case .devices: DevicesTab(admin: admin, client: client)
                 }
             }
