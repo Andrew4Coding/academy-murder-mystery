@@ -43,6 +43,17 @@ struct PublicDisplayView: View {
             .foregroundStyle(.white)
             .environment(\.colorScheme, .dark)
         }
+        .onChange(of: isDiscussionOpen) { _, open in
+            if open, playsSound { NSSound(named: "Hero")?.play() }
+        }
+    }
+
+    private var isDiscussionOpen: Bool {
+        if case .discussion? = controller.host.state.engine?.state.phase {
+            true
+        } else {
+            false
+        }
     }
 
     @ViewBuilder
