@@ -42,6 +42,7 @@ struct DashboardView: View {
                     .tag(section)
             }
             .navigationTitle("Moonfall OC")
+            .themedBackground()
             .navigationSplitViewColumnWidth(min: 200, ideal: 240)
             .toolbar {
                 ToolbarItem {

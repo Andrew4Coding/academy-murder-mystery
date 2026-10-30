@@ -16,66 +16,46 @@ struct SetupTab: View {
 
     var body: some View {
         Form {
-            Section("Game") {
-                Stepper("Werewolf families: \(admin.werewolfCount)", value: Binding(
-                    get: { admin.werewolfCount },
-                    set: { send(werewolfCount: $0, settings: admin.settings) }
-                ), in: 1 ... 10)
-                Toggle("Debug Mode", isOn: setting(\.isDebug) { $0.debugMode = $1 })
-                Stepper("Discussion: \(Int(admin.settings.discussionDuration / 60)) min", value: minutes(\.discussionDuration), in: 1 ... 5)
-                Stepper("Voting: \(Int(admin.settings.votingDuration / 60)) min", value: minutes(\.votingDuration), in: 1 ... 5)
-            }
-            .disabled(!admin.isLobby)
-
             Section {
-                Stepper("Reactor fix time: \(Self.clock(admin.settings.sabotageDuration))", value: seconds(.reactor, duration: true), in: 15 ... 600, step: 15)
-                Stepper("Reactor cooldown: \(Self.clock(admin.settings.sabotageCooldown))", value: seconds(.reactor, duration: false), in: 0 ... 600, step: 15)
-                Stepper("Oxygen fix time: \(Self.clock(admin.settings.sabotageDuration(for: .oxygen)))", value: seconds(.oxygen, duration: true), in: 15 ... 600, step: 15)
-                Stepper("Oxygen cooldown: \(Self.clock(admin.settings.sabotageCooldown(for: .oxygen)))", value: seconds(.oxygen, duration: false), in: 0 ... 600, step: 15)
-            } header: {
-                Text("Sabotage")
-            } footer: {
-                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
-            }
-            .disabled(!admin.isLobby)
-
-            Section {
-                LabeledContent("Kill range") {
-                    HStack {
-                        Slider(value: Binding(
-                            get: { Double(admin.rssiThreshold) },
-                            set: { client.send(.admin(.setProximity(rssiThreshold: Int($0), sightingFreshness: admin.sightingFreshness))) }
-                        ), in: -90 ... -40, step: 1) {
-                            Text("Signal threshold")
-                        }
-                        .frame(maxWidth: 260)
-                        Text("\(admin.rssiThreshold) dBm").monospacedDigit().frame(width: 80, alignment: .trailing)
+                if !admin.isLobby {
+                    StatusLabel("Game in progress", systemImage: "play.circle.fill", tint: Theme.success)
+                } else if admin.setupIssues.isEmpty {
+                    StatusLabel("Ready to start", systemImage: "checkmark.circle.fill", tint: Theme.success)
+                } else {
+                    ForEach(admin.setupIssues, id: \.self) { issue in
+                        StatusLabel(issue, systemImage: "exclamationmark.circle.fill", tint: Theme.warning)
                     }
                 }
-                Stepper("Sighting stays valid for \(Int(admin.sightingFreshness)) s", value: Binding(
-                    get: { Int(admin.sightingFreshness) },
-                    set: { client.send(.admin(.setProximity(rssiThreshold: admin.rssiThreshold, sightingFreshness: TimeInterval($0)))) }
-                ), in: 1 ... 10)
+                Button("Start Game", systemImage: "play.fill") { client.send(.admin(.startGame)) }
+                    .buttonStyle(.accentFill)
+                    .disabled(!admin.isLobby || !admin.setupIssues.isEmpty)
+                    .accessibilityHint(admin.setupIssues.first ?? "Assigns roles and starts the game")
             } header: {
-                Text("Bluetooth")
+                Text("Start the game")
             } footer: {
-                Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
+                if admin.isLobby {
+                    Text("Players join with the code below. Start when every family has a player.")
+                }
             }
+            .themedRows()
 
             if let code = admin.joinCode {
                 Section {
-                    HStack(spacing: 24) {
-                        QRCodeView(text: code).frame(width: 160, height: 160)
+                    HStack(spacing: Spacing.lg) {
+                        QRCodeView(text: code)
+                            .frame(width: 160, height: 160)
+                            .accessibilityLabel("QR code to join with code \(code)")
                         VStack(alignment: .leading, spacing: 4) {
                             Text(code).font(.title.monospaced()).textSelection(.enabled)
-                            Text("\(admin.playersJoined) players joined").foregroundStyle(.secondary)
+                            Text("\(admin.playersJoined) players joined").foregroundStyle(Theme.textSecondary)
                         }
                     }
                 } header: {
-                    Text("Join code")
+                    Text("Players join")
                 } footer: {
                     Text("Each player who scans becomes their own family.")
                 }
+                .themedRows()
             }
 
             Section("OC PIN") {
@@ -91,6 +71,56 @@ struct SetupTab: View {
                     }
                 }
             }
+            .themedRows()
+
+            Section("Game") {
+                Stepper("Werewolf families: \(admin.werewolfCount)", value: Binding(
+                    get: { admin.werewolfCount },
+                    set: { send(werewolfCount: $0, settings: admin.settings) }
+                ), in: 1 ... 10)
+                Toggle("Debug Mode", isOn: setting(\.isDebug) { $0.debugMode = $1 })
+                Stepper("Discussion: \(Int(admin.settings.discussionDuration / 60)) min", value: minutes(\.discussionDuration), in: 1 ... 5)
+                Stepper("Voting: \(Int(admin.settings.votingDuration / 60)) min", value: minutes(\.votingDuration), in: 1 ... 5)
+            }
+            .disabled(!admin.isLobby)
+            .themedRows()
+
+            Section {
+                Stepper("Reactor fix time: \(Self.clock(admin.settings.sabotageDuration))", value: seconds(.reactor, duration: true), in: 15 ... 600, step: 15)
+                Stepper("Reactor cooldown: \(Self.clock(admin.settings.sabotageCooldown))", value: seconds(.reactor, duration: false), in: 0 ... 600, step: 15)
+                Stepper("Oxygen fix time: \(Self.clock(admin.settings.sabotageDuration(for: .oxygen)))", value: seconds(.oxygen, duration: true), in: 15 ... 600, step: 15)
+                Stepper("Oxygen cooldown: \(Self.clock(admin.settings.sabotageCooldown(for: .oxygen)))", value: seconds(.oxygen, duration: false), in: 0 ... 600, step: 15)
+            } header: {
+                Text("Sabotage")
+            } footer: {
+                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
+            }
+            .disabled(!admin.isLobby)
+            .themedRows()
+
+            Section {
+                LabeledContent("Kill range") {
+                    HStack {
+                        Slider(value: Binding(
+                            get: { Double(admin.rssiThreshold) },
+                            set: { client.send(.admin(.setProximity(rssiThreshold: Int($0), sightingFreshness: admin.sightingFreshness))) }
+                        ), in: -90 ... -40, step: 1) {
+                            Text("Signal threshold")
+                        }
+                        .frame(maxWidth: 260)
+                        Text("\(admin.rssiThreshold) dBm").monospacedDigit().frame(minWidth: 80, alignment: .trailing)
+                    }
+                }
+                Stepper("Sighting stays valid for \(Int(admin.sightingFreshness)) s", value: Binding(
+                    get: { Int(admin.sightingFreshness) },
+                    set: { client.send(.admin(.setProximity(rssiThreshold: admin.rssiThreshold, sightingFreshness: TimeInterval($0)))) }
+                ), in: 1 ... 10)
+            } header: {
+                Text("Bluetooth")
+            } footer: {
+                Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
+            }
+            .themedRows()
 
             Section {
                 if let map = client.boothMap {
@@ -111,13 +141,14 @@ struct SetupTab: View {
             } footer: {
                 Text("Optional. Players and OC devices can open it. Large images are shrunk to 3000 px.")
             }
+            .themedRows()
 
             Section("Families") {
                 ForEach(admin.families) { family in
                     HStack {
                         VStack(alignment: .leading) {
                             Text(family.name)
-                            Text(family.playerName ?? "Waiting…").font(.caption).foregroundStyle(.secondary)
+                            Text(family.playerName ?? "Waiting for a player…").font(.subheadline).foregroundStyle(Theme.textSecondary)
                         }
                         Spacer()
                         Button("Rename \(family.name)", systemImage: "pencil") {
@@ -125,33 +156,27 @@ struct SetupTab: View {
                             renaming = family
                         }
                         .labelStyle(.iconOnly)
+                        .frame(minWidth: 44, minHeight: 44)
                         Button("Delete \(family.name)", systemImage: "trash", role: .destructive) { deleting = family }
                             .labelStyle(.iconOnly)
+                            .frame(minWidth: 44, minHeight: 44)
                             .disabled(!admin.isLobby)
                     }
                     .buttonStyle(.borderless)
                 }
             }
+            .themedRows()
 
-            if admin.isLobby, !admin.setupIssues.isEmpty {
-                Section("Before you can start") {
-                    ForEach(admin.setupIssues, id: \.self) { issue in
-                        Label(issue, systemImage: "exclamationmark.circle")
-                    }
-                }
-            }
             if let error = client.lastError {
                 Section { StatusLabel.error(error) }
             }
         }
+        .formStyle(.grouped)
+        .themedBackground()
         .navigationTitle("Setup")
         .toolbar {
             ToolbarItem {
                 Button("New Game", systemImage: "arrow.counterclockwise") { confirmingNewGame = true }
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button("Start Game", systemImage: "play.fill") { client.send(.admin(.startGame)) }
-                    .disabled(!admin.isLobby || !admin.setupIssues.isEmpty)
             }
         }
         .fullScreenCover(isPresented: $isShowingMap) {

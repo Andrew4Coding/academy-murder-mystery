@@ -12,24 +12,24 @@ struct DevicesTab: View {
                 ContentUnavailableView(
                     "No devices connected",
                     systemImage: "iphone.slash",
-                    description: Text("Players and OC appear here once they join the game.")
+                    description: Text("Players and OC appear here once they join the game with the code from Setup.")
                 )
             } else {
                 List(admin.devices) { device in
                     HStack(spacing: Spacing.md) {
                         VStack(alignment: .leading) {
                             Text(device.label).font(.headline)
-                            Text(device.detail).font(.caption).foregroundStyle(.secondary)
+                            Text(device.detail).font(.subheadline).foregroundStyle(Theme.textSecondary)
                         }
                         Spacer()
                         if let lastSeen = device.lastSeen {
-                            Text(lastSeen, style: .relative).foregroundStyle(.secondary)
+                            Text(lastSeen, style: .relative).foregroundStyle(Theme.textSecondary)
                         } else {
-                            Text("Not connected").foregroundStyle(.secondary)
+                            Text("Not connected").foregroundStyle(Theme.textSecondary)
                         }
-                        Label(device.connection.title, systemImage: device.connection.symbol)
-                            .foregroundStyle(device.connection.tint)
+                        StatusLabel(device.connection.title, systemImage: device.connection.symbol, tint: device.connection.tint)
                     }
+                    .listRowBackground(Theme.surface)
                     .swipeActions(edge: .trailing) {
                         if device.isOC || admin.isLobby {
                             Button("Delete", systemImage: "trash", role: .destructive) { deleting = device }
@@ -38,6 +38,7 @@ struct DevicesTab: View {
                 }
             }
         }
+        .themedBackground()
         .navigationTitle("Devices")
         .toolbar {
             ToolbarItem {
@@ -82,9 +83,9 @@ private extension DeviceStatus.Connection {
 
     var tint: Color {
         switch self {
-        case .online: .green
-        case .unreachable: .orange
-        case .offline: .secondary
+        case .online: Theme.success
+        case .unreachable: Theme.warning
+        case .offline: Theme.textSecondary
         }
     }
 }

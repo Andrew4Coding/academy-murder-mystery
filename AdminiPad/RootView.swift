@@ -8,12 +8,7 @@ struct RootView: View {
             if let admin = client.view?.admin {
                 DashboardView(admin: admin, client: client)
             } else if client.isResuming {
-                VStack(spacing: 16) {
-                    ProgressView()
-                    Text("Reconnecting to the host…").foregroundStyle(.secondary)
-                    Button("Start Over", role: .destructive) { client.signOut() }
-                        .buttonStyle(.bordered)
-                }
+                ReconnectingView(onStartOver: { client.signOut() })
             } else {
                 PinView(client: client)
             }
@@ -22,7 +17,24 @@ struct RootView: View {
     }
 }
 
-private struct PinView: View {
+struct ReconnectingView: View {
+    let onStartOver: () -> Void
+
+    var body: some View {
+        VStack(spacing: Spacing.md) {
+            ProgressView()
+            Text("Reconnecting to the host…").foregroundStyle(Theme.textSecondary)
+            Button("Start Over", role: .destructive, action: onStartOver)
+                .buttonStyle(.bordered)
+                .frame(minHeight: 44)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .themedBackground()
+        .accessibilityElement(children: .combine)
+    }
+}
+
+struct PinView: View {
     let client: GameClient
 
     @State private var pin = ""
@@ -33,23 +45,38 @@ private struct PinView: View {
                 Section {
                     SecureField("OC PIN", text: $pin)
                         .keyboardType(.numberPad)
+                        .textContentType(.oneTimeCode)
+                        .frame(minHeight: 44)
+                        .onSubmit(connect)
                 } footer: {
                     if let error = client.lastError {
                         StatusLabel.error(error)
+                    } else if case let .failed(message) = client.status {
+                        StatusLabel.error(message)
+                    } else if client.status != .connected {
+                        StatusLabel("Looking for the host on this network…", systemImage: "wifi", tint: Theme.warning)
                     } else {
                         Text("The PIN is shown in Setup on the Mac host.")
                     }
                 }
+                .listRowBackground(Theme.surface)
                 Section {
-                    Button("Connect") { client.signInAsOC(pin: pin, station: .admin) }
-                        .frame(maxWidth: .infinity)
+                    Button("Connect", action: connect)
+                        .buttonStyle(.accentFill)
                         .disabled(pin.isEmpty || client.status != .connected)
                 }
+                .listRowBackground(Color.clear)
             }
+            .formStyle(.grouped)
             .frame(maxWidth: 520)
             .frame(maxWidth: .infinity)
-            .background(Color(.systemGroupedBackground))
+            .themedBackground()
             .navigationTitle("Moonfall OC")
         }
+    }
+
+    private func connect() {
+        guard !pin.isEmpty, client.status == .connected else { return }
+        client.signInAsOC(pin: pin, station: .admin)
     }
 }

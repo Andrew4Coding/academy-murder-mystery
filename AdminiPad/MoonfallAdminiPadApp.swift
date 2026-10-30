@@ -7,6 +7,7 @@ struct MoonfallAdminiPadApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(client: client)
+                .tint(Theme.accent)
         }
     }
 }

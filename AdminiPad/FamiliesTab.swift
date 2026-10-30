@@ -14,13 +14,14 @@ struct FamiliesTab: View {
                 ContentUnavailableView(
                     "No families yet",
                     systemImage: "person.3.slash",
-                    description: Text("Families appear here once players join with the game code.")
+                    description: Text("Families appear here once players join with the game code from Setup.")
                 )
             } else {
                 List(selection: $selection) {
                     ForEach(admin.families) { family in
                         FamilyRow(family: family, showRoles: showRoles, isVoting: isVoting)
                             .tag(family.id)
+                            .listRowBackground(Theme.surface)
                             .swipeActions(edge: .trailing) {
                                 if admin.isLobby {
                                     Button("Delete", systemImage: "trash", role: .destructive) { deleting = family }
@@ -30,21 +31,24 @@ struct FamiliesTab: View {
                                 if !admin.isLobby {
                                     if family.life == .alive {
                                         Button("Eliminate", systemImage: "xmark.circle") { client.send(.admin(.eliminate([family.id]))) }
-                                            .tint(.red)
+                                            .tint(Theme.accent)
                                     } else {
                                         Button("Revive", systemImage: "arrow.uturn.backward.circle") { client.send(.admin(.revive([family.id]))) }
-                                            .tint(.green)
+                                            .tint(Theme.success)
                                     }
                                 }
                             }
                     }
                 }
+                .themedBackground()
             }
         }
+        .themedBackground()
         .navigationTitle("Families")
         .toolbar {
             ToolbarItem {
                 Toggle("Show Roles", systemImage: showRoles ? "eye" : "eye.slash", isOn: $showRoles)
+                    .accessibilityHint("Shows every family's role on this screen")
             }
             ToolbarItem {
                 Button("Eliminate", systemImage: "xmark.circle") { client.send(.admin(.eliminate(Array(selection)))) }
@@ -92,19 +96,23 @@ private struct FamilyRow: View {
         HStack(spacing: Spacing.md) {
             VStack(alignment: .leading) {
                 Text(family.name).font(.headline)
-                Text(family.playerName ?? "Waiting\u{2026}").font(.caption).foregroundStyle(.secondary)
+                Text(family.playerName ?? "Waiting\u{2026}").font(.subheadline).foregroundStyle(Theme.textSecondary)
             }
             Spacer()
-            Label(family.life.title, systemImage: family.life == .alive ? "checkmark.circle" : "xmark.circle")
+            StatusLabel(
+                family.life.title,
+                systemImage: family.life == .alive ? "checkmark.circle.fill" : "xmark.circle.fill",
+                tint: family.life == .alive ? Theme.success : Theme.accent
+            )
             if showRoles, let role = family.role {
                 Label(role.title, systemImage: role.symbol)
             }
             if !family.tasks.isEmpty {
                 Text(family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.textSecondary)
             }
             if isVoting, family.life == .alive {
-                Text(family.voted ? "Voted" : "Waiting").foregroundStyle(.secondary)
+                Text(family.voted ? "Voted" : "Waiting").foregroundStyle(Theme.textSecondary)
             }
         }
     }
