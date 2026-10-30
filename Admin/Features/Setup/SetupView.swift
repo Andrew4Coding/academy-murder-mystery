@@ -123,7 +123,9 @@ struct SetupView: View {
             } header: {
                 Text("Sabotage")
             } footer: {
-                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
+                Text(
+                    "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family."
+                )
             }
             .disabled(!isLobby)
             .themedRows()
@@ -193,15 +195,19 @@ struct SetupView: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Start Game", systemImage: "play.fill", action: startFromForm)
-                .keyboardShortcut(.return, modifiers: .command)
-                .disabled(!isLobby || !issues.isEmpty)
-                .help(issues.first ?? "Assign roles and start the game")
+                    .keyboardShortcut(.return, modifiers: .command)
+                    .disabled(!isLobby || !issues.isEmpty)
+                    .help(issues.first ?? "Assign roles and start the game")
             }
         }
         .fileImporter(isPresented: $isChoosingMap, allowedContentTypes: [.image]) { result in
             importMap(result)
         }
-        .alert("Rename family", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+        .alert("Rename family", isPresented: Binding(get: { renaming != nil }, set: {
+            if !$0 {
+                renaming = nil
+            }
+        })) {
             TextField("Name", text: $renameText)
             Button("Cancel", role: .cancel) { renaming = nil }
             Button("Rename") {
@@ -215,7 +221,11 @@ struct SetupView: View {
         }
         .confirmationDialog(
             deleting.map { "Delete \($0.name)?" } ?? "",
-            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            isPresented: Binding(get: { deleting != nil }, set: {
+                if !$0 {
+                    deleting = nil
+                }
+            }),
             titleVisibility: .visible
         ) {
             if let family = deleting {
@@ -251,7 +261,11 @@ struct SetupView: View {
         do {
             let url = try result.get()
             let isScoped = url.startAccessingSecurityScopedResource()
-            defer { if isScoped { url.stopAccessingSecurityScopedResource() } }
+            defer {
+                if isScoped {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
             try host.setBoothMap(imageData: Data(contentsOf: url))
         } catch let error as HostError {
             errorMessage = error.message
@@ -292,7 +306,9 @@ struct SetupView: View {
         } header: {
             Text("Testing")
         } footer: {
-            Text("Rehearsal only. Pick each family's role, then start with as few as one family and one phone. Families without a phone stand in for others: use the Game screen to eliminate, vote and trigger sabotage for them. The game can end early, because the usual win rules still apply.")
+            Text(
+                "Rehearsal only. Pick each family's role, then start with as few as one family and one phone. Families without a phone stand in for others: use the Game screen to eliminate, vote and trigger sabotage for them. The game can end early, because the usual win rules still apply."
+            )
         }
         .disabled(!isLobby)
         .themedRows()
@@ -393,5 +409,4 @@ private struct FamiliesTable: View {
     private var families: [FamilyInfo] {
         host.state.families.values.sorted { $0.id < $1.id }
     }
-
 }

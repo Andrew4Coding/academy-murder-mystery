@@ -80,11 +80,21 @@ struct GameControlView: View {
 
     private func actions(_ game: GameState) -> some View {
         BentoGrid {
-            BentoButton(title: "Ring Bell", subtitle: "Plays on this Mac. Doesn't start the discussion.", systemImage: "bell.fill", tint: Theme.warning) {
+            BentoButton(
+                title: "Ring Bell",
+                subtitle: "Plays on this Mac. Doesn't start the discussion.",
+                systemImage: "bell.fill",
+                tint: Theme.warning
+            ) {
                 host.ringBell()
             }
             .keyboardShortcut("b", modifiers: .command)
-            BentoButton(title: "Start Discussion", subtitle: "Call everyone to the Town Hall", systemImage: "person.3.fill", isProminent: game.phase == .running) {
+            BentoButton(
+                title: "Start Discussion",
+                subtitle: "Call everyone to the Town Hall",
+                systemImage: "person.3.fill",
+                isProminent: game.phase == .running
+            ) {
                 attempt { try host.applyAsOC(.startMeeting) }
             }
             .keyboardShortcut("d", modifiers: .command)
@@ -99,7 +109,13 @@ struct GameControlView: View {
                     }
                 }
             } label: {
-                BentoTile(title: "Vote for a Family", subtitle: "Cast a vote for a family that can't", systemImage: "hand.raised.fill", tint: Theme.accent, isProminent: isVoting(game))
+                BentoTile(
+                    title: "Vote for a Family",
+                    subtitle: "Cast a vote for a family that can't",
+                    systemImage: "hand.raised.fill",
+                    tint: Theme.accent,
+                    isProminent: isVoting(game)
+                )
             }
             .buttonStyle(.plain)
             .menuIndicator(.hidden)
@@ -111,7 +127,13 @@ struct GameControlView: View {
             ) { target, seconds in
                 attempt { try host.applyAsOC(.adjustTimer(target, seconds: seconds)) }
             }
-            BentoButton(title: "Resolve Sabotage", subtitle: "Mark the active sabotage as fixed", systemImage: "checkmark.shield.fill", tint: Theme.success, isProminent: game.sabotage != nil) {
+            BentoButton(
+                title: "Resolve Sabotage",
+                subtitle: "Mark the active sabotage as fixed",
+                systemImage: "checkmark.shield.fill",
+                tint: Theme.success,
+                isProminent: game.sabotage != nil
+            ) {
                 attempt { try host.applyAsOC(.resolveSabotage) }
             }
             .keyboardShortcut("r", modifiers: [.command, .shift])
@@ -128,7 +150,12 @@ struct GameControlView: View {
                         }
                     }
                 } label: {
-                    BentoTile(title: "Trigger Sabotage", subtitle: "Testing only", systemImage: "exclamationmark.triangle.fill", tint: Theme.warning)
+                    BentoTile(
+                        title: "Trigger Sabotage",
+                        subtitle: "Testing only",
+                        systemImage: "exclamationmark.triangle.fill",
+                        tint: Theme.warning
+                    )
                 }
                 .buttonStyle(.plain)
                 .menuIndicator(.hidden)

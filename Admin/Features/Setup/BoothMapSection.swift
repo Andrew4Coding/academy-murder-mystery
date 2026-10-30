@@ -34,7 +34,9 @@ struct BoothMapSection: View {
         } header: {
             Text("Booth map")
         } footer: {
-            Text("Optional. Players and the OC iPad can open it from their devices. Large images are shrunk to 3000 px. Changes reach connected devices straight away.")
+            Text(
+                "Optional. Players and the OC iPad can open it from their devices. Large images are shrunk to 3000 px. Changes reach connected devices straight away."
+            )
         }
         .themedRows()
     }
