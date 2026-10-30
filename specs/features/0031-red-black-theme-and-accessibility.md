@@ -1,7 +1,7 @@
 ---
 id: 0031
 title: Red and black theme and accessibility pass
-status: approved
+status: in-progress
 owner: AND
 app: all
 created: 2026-10-31
