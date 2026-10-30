@@ -26,11 +26,11 @@ While a game is running, the MoonfalliOS player app shows a Live Activity on the
 
 - [ ] **AC1**: Given a signed-in `.player` identity whose `ClientView.game` becomes non-nil while the app is foregrounded, when the view arrives, then one Live Activity is requested; given OC or admin identities, then none is requested.
 - [ ] **AC2**: Given a running activity, when a new `ClientView` arrives that changes the headline, task count, or a deadline, then the activity updates; unchanged views cause no update.
-- [ ] **AC3**: Headline priority is killed or expelled, then meeting (`.discussion`), then voting (`.voting`, with a final-vote label when `isFinal`), then active sabotage, then booth progress.
+- [x] **AC3**: Headline priority is killed or expelled, then meeting (`.discussion`), then voting (`.voting`, with a final-vote label when `isFinal`), then active sabotage, then booth progress.
 - [ ] **AC4**: Given a meeting, vote or sabotage deadline, then the countdown is rendered with `Text(timerInterval:)` from the absolute deadline converted by the `ServerClock` offset, so it ticks without app updates and does not drift by host-device skew.
 - [ ] **AC5**: Given the host edits a timer (`adjustTimer`, spec 0025), when the new `ClientView` arrives, then the activity shows the new deadline.
-- [ ] **AC6**: `ContentState` never contains role, allies, kill or sabotage cooldowns, proximity or body data, votes, `bleToken`, or other families' roles. Villager and werewolf views of the same game map to the same `ContentState`.
-- [ ] **AC7**: Given `life` is `.killed` or `.expelled`, then the activity shows the killed headline immediately, without waiting for `announcedDeaths`, and still shows booth progress (spec 0024).
+- [x] **AC6**: `ContentState` never contains role, allies, kill or sabotage cooldowns, proximity or body data, votes, `bleToken`, or other families' roles. Villager and werewolf views of the same game map to the same `ContentState`.
+- [x] **AC7**: Given `life` is `.killed` or `.expelled`, then the activity shows the killed headline immediately, without waiting for `announcedDeaths`, and still shows booth progress (spec 0024).
 - [ ] **AC8**: Given the app is suspended and a deadline passes, then at `staleDate` the headline becomes a neutral "Open Moonfall to refresh" and never shows a wrong phase.
 - [ ] **AC9**: Given `phase` is `.ended`, then the activity ends with a final content state that shows the winner and stays on screen for about 10 minutes, unless the player dismisses it.
 - [ ] **AC10**: Given the player leaves the game or the client signs out, then any running activity ends immediately.
@@ -80,4 +80,10 @@ No SwiftData or schema changes. New `GameActivityAttributes` (with a role-neutra
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- `Shared/LiveActivity/GameActivityState.swift` is the Codable state; `GameActivityState+Game.swift` maps a `GameView` and the `ServerClock` offset to it (app targets only).
+- `iOS/LiveActivity/GameActivityAttributes.swift` and `LiveActivityController.swift`: the controller is driven from `RootView` on view and scene-phase changes, dedups on state and stale date, and serialises ActivityKit calls.
+- `LiveActivity/` is the `MoonfalliOSLiveActivity` extension. Display strings live there (`GameActivityKind+Display.swift`), not in `GameLabels`, because the extension does not compile app types.
+- Tests: `Tests/Shared/GameActivityStateTests.swift` covers AC3, AC6 and AC7 and the offset conversion in AC4.
+- AC1, AC2, AC4, AC5, AC8 to AC13 are implemented but need a real-device check (ActivityKit and the Dynamic Island are not exercised by unit tests).
+- Release plumbing is not done: the new bundle ID `com.andrew4coding.Moonfall.LiveActivity` needs registering and a match profile before `ios beta` can sign it.
+- Two host tests (`connectivityCheckFlagsUnreachableAndOfflineDevices`, `fullFamiliesAndStartedGamesRejectNewMembers`) fail on the baseline too; they are not caused by this feature.
