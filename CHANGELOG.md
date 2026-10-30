@@ -34,6 +34,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- New app icon: a wolf face cut out of a blood-red moon.
 - Kill and sabotage are ready at the start of the game, with no opening cooldown ([0011](specs/features/0011-lifecycle-bugfixes.md)).
 
 #### Removed
@@ -44,6 +45,10 @@ Tooling and refactors that users can't see don't go here.
 - Connection badge from the Join toolbar.
 
 ### MoonfallAdminiPad
+
+#### Changed
+
+- New app icon: the wolf moon with a teal check banner.
 
 #### Fixed
 
@@ -86,9 +91,9 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- New app icon: the wolf moon with a gold star banner.
 - The OC PIN is hidden by default in Setup, with buttons to show it and to generate a new random one.
 - The Public Display lobby list shows each family's selfie.
-- App icon is the Liquid Glass icon from Icon Composer.
 - Families are no longer set by a stepper: they fill from the game code ([0012](specs/features/0012-join-and-families.md)).
 
 #### Removed
