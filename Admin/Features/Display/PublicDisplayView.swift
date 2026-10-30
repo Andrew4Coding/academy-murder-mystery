@@ -1,5 +1,4 @@
 import AppKit
-import Charts
 import SwiftUI
 
 enum PublicDisplayWindow {
@@ -9,8 +8,6 @@ enum PublicDisplayWindow {
 struct PublicDisplayView: View {
     let controller: HostController
     var playsSound = true
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var isRunning: Bool {
         if case .running = controller.status {
@@ -22,29 +19,17 @@ struct PublicDisplayView: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.5)) { _ in
-            let display = controller.host.publicDisplayState(hostRunning: isRunning)
-            let now = controller.host.clock.now
-            VStack(spacing: 32) {
-                if let alarm = display.alarm {
-                    AlarmBanner(alarm: alarm, now: now, animate: !reduceMotion, playsSound: playsSound)
-                }
-                Spacer(minLength: 0)
-                content(display, now: now)
-                Spacer(minLength: 0)
-                if let remaining = display.familiesRemaining {
-                    Text("\(remaining) families still in the game")
-                        .font(.system(size: PublicDisplayLayout.detailFontSize))
-                        .foregroundStyle(.white.opacity(0.7))
-                }
-            }
-            .padding(48)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.black)
-            .foregroundStyle(.white)
-            .environment(\.colorScheme, .dark)
+            PublicDisplayScreen(
+                display: controller.host.publicDisplayState(hostRunning: isRunning),
+                now: controller.host.clock.now,
+                playsSound: playsSound,
+                joinedCount: controller.host.state.players.count
+            )
         }
         .onChange(of: isDiscussionOpen) { _, open in
-            if open, playsSound { NSSound(named: "Hero")?.play() }
+            if open, playsSound {
+                NSSound(named: "Hero")?.play()
+            }
         }
     }
 
@@ -55,340 +40,91 @@ struct PublicDisplayView: View {
             false
         }
     }
+}
+
+struct PublicDisplayScreen: View {
+    let display: PublicDisplayState
+    let now: Date
+    var playsSound = true
+    var joinedCount: Int?
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        GeometryReader { proxy in
+            let scale = min(proxy.size.width / PublicDisplayLayout.canvas.width, proxy.size.height / PublicDisplayLayout.canvas.height)
+            stage
+                .frame(width: proxy.size.width / scale, height: proxy.size.height / scale)
+                .scaleEffect(scale)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .background(DisplayPalette.base)
+        .environment(\.colorScheme, .dark)
+        .preferredColorScheme(.dark)
+    }
+
+    private var stage: some View {
+        VStack(spacing: 32) {
+            if let alarm = display.alarm {
+                AlarmBanner(alarm: alarm, now: now, animate: !reduceMotion, playsSound: playsSound)
+            }
+            Spacer(minLength: 0)
+            content
+            Spacer(minLength: 0)
+            if let remaining = display.familiesRemaining {
+                Label("\(remaining) families still in the game", systemImage: "person.2.fill")
+                    .font(.stageRounded(38, weight: .medium))
+                    .foregroundStyle(DisplayPalette.secondary)
+            }
+        }
+        .padding(.horizontal, PublicDisplayLayout.safeInsetX)
+        .padding(.vertical, PublicDisplayLayout.safeInsetY)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(DisplayPalette.primary)
+        .background { StageBackground(alarmActive: display.alarm != nil) }
+    }
+
+    private var compact: Bool {
+        display.alarm != nil
+    }
 
     @ViewBuilder
-    private func content(_ display: PublicDisplayState, now: Date) -> some View {
+    private var content: some View {
         switch display.screen {
         case .hostOffline:
-            Headline("Host offline", detail: "The game host isn't running.")
+            Headline(title: "Host offline", detail: "The game host isn't running.", systemImage: "wifi.slash")
         case .waiting:
-            JoinBlock(code: display.joinCode, joined: controller.host.state.players.count, families: display.lobbyFamilies)
+            JoinBlock(
+                code: display.joinCode,
+                joined: joinedCount ?? display.lobbyFamilies.filter { $0.player != nil }.count,
+                families: display.lobbyFamilies
+            )
         case let .starting(at):
-            TimerBlock(title: "Game starts in", until: at, now: now)
+            TimerBlock(title: "Game starts in", until: at, now: now, compact: compact)
         case let .playing(gameEndsAt):
-            TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: now)
+            TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: now, compact: compact)
         case let .discussion(until):
-            TimerBlock(title: "Discussion", until: until, now: now)
-            DeathList(names: display.announcedDeaths)
+            HStack(spacing: 64) {
+                TimerBlock(title: "Discussion", until: until, now: now, compact: true)
+                DeathList(names: display.announcedDeaths)
+            }
         case let .voting(until, isFinal, cast, total):
-            TimerBlock(title: isFinal ? "Final vote" : "Voting", until: until, now: now)
-            Text("\(cast) of \(total) families have voted")
-                .font(.system(size: PublicDisplayLayout.detailFontSize))
+            VStack(spacing: 32) {
+                TimerBlock(title: isFinal ? "Final vote" : "Voting", until: until, now: now, compact: true)
+                VotesCast(cast: cast, total: total)
+            }
         case let .result(result):
             ResultBlock(result: result)
         case let .ended(outcome):
             if display.reveal.isEmpty {
                 Headline(
-                    outcome.winner == .villagers ? "Villagers win!" : "Werewolves win!",
-                    detail: outcome.reason.explanation
+                    title: outcome.winner == .villagers ? "Villagers win!" : "Werewolves win!",
+                    detail: outcome.reason.explanation,
+                    systemImage: outcome.winner == .villagers ? "sun.max.fill" : Role.werewolf.symbol
                 )
             } else {
                 RevealBlock(outcome: outcome, families: display.reveal)
             }
         }
-    }
-}
-
-private struct JoinBlock: View {
-    let code: String?
-    let joined: Int
-    let families: [LobbyFamily]
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 64) {
-            VStack(spacing: 24) {
-                Text("Scan to join")
-                    .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .semibold))
-                if let code {
-                    QRCodeView(text: code)
-                        .frame(width: 420, height: 420)
-                        .padding(16)
-                        .background(.white)
-                    Text(code)
-                        .font(.system(size: PublicDisplayLayout.detailFontSize, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.8))
-                }
-                Text("\(joined) players joined")
-                    .font(.system(size: PublicDisplayLayout.detailFontSize))
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-            if !families.isEmpty {
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 24)], alignment: .leading, spacing: 24) {
-                        ForEach(families) { family in
-                            HStack(spacing: 16) {
-                                selfieFace(family)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(family.name)
-                                        .font(.system(size: PublicDisplayLayout.detailFontSize, weight: .bold))
-                                    Text(family.player ?? "Waiting…")
-                                        .font(.system(size: PublicDisplayLayout.detailFontSize * 0.7))
-                                        .foregroundStyle(.white.opacity(0.7))
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                }
-                .frame(maxWidth: 1000)
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-
-    @ViewBuilder
-    private func selfieFace(_ family: LobbyFamily) -> some View {
-        if let data = family.selfie, let image = NSImage(data: data) {
-            Image(nsImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 72, height: 72)
-                .clipShape(.circle)
-        } else {
-            Text(String(family.player?.first ?? family.name.first ?? "?").uppercased())
-                .font(.system(size: 34, weight: .bold, design: .rounded))
-                .frame(width: 72, height: 72)
-                .background(.white.opacity(0.15), in: .circle)
-        }
-    }
-}
-
-private struct RevealBlock: View {
-    let outcome: Outcome
-    let families: [RevealedFamily]
-
-    var body: some View {
-        VStack(spacing: 32) {
-            VStack(spacing: 8) {
-                Text("Werewolves win!")
-                    .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold, design: .rounded))
-                Text(outcome.reason.explanation)
-                    .font(.system(size: PublicDisplayLayout.detailFontSize))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-            }
-            CenteredFlowLayout(spacing: 20) {
-                ForEach(families) { family in
-                    card(family)
-                        .frame(width: 340)
-                }
-            }
-        }
-        .padding(.horizontal, 48)
-    }
-
-    private func card(_ family: RevealedFamily) -> some View {
-        HStack(spacing: 16) {
-            face(family)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(family.name)
-                    .font(.system(size: PublicDisplayLayout.detailFontSize * 0.8, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                if let player = family.player {
-                    Text(player)
-                        .font(.system(size: PublicDisplayLayout.detailFontSize * 0.55))
-                        .foregroundStyle(.white.opacity(0.7))
-                        .lineLimit(1)
-                }
-                if family.isWerewolf {
-                    Label("Werewolf", systemImage: Role.werewolf.symbol)
-                        .font(.system(size: PublicDisplayLayout.detailFontSize * 0.55, weight: .semibold))
-                        .foregroundStyle(.red)
-                }
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(14)
-        .background(family.isWerewolf ? Color.red.opacity(0.25) : Color.white.opacity(0.08), in: .rect(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(family.isWerewolf ? Color.red : .clear, lineWidth: 4))
-        .accessibilityElement(children: .combine)
-    }
-
-    @ViewBuilder
-    private func face(_ family: RevealedFamily) -> some View {
-        if let data = family.selfie, let image = NSImage(data: data) {
-            Image(nsImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 110, height: 110)
-                .clipShape(.circle)
-        } else {
-            Text(String(family.player?.first ?? family.name.first ?? "?").uppercased())
-                .font(.system(size: 52, weight: .bold, design: .rounded))
-                .frame(width: 110, height: 110)
-                .background(.white.opacity(0.15), in: .circle)
-        }
-    }
-}
-
-private struct Headline: View {
-    let title: String
-    let detail: String
-
-    init(_ title: String, detail: String) {
-        self.title = title
-        self.detail = detail
-    }
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text(title)
-                .font(.system(size: PublicDisplayLayout.timerFontSize * 0.6, weight: .bold, design: .rounded))
-                .minimumScaleFactor(0.4)
-                .lineLimit(1)
-            Text(detail)
-                .font(.system(size: PublicDisplayLayout.headlineFontSize))
-                .foregroundStyle(.white.opacity(0.8))
-                .multilineTextAlignment(.center)
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct TimerBlock: View {
-    let title: String
-    let until: Date
-    let now: Date
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Text(title)
-                .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .semibold))
-            Text(Duration.seconds(max(0, until.timeIntervalSince(now))), format: .time(pattern: .minuteSecond))
-                .font(.system(size: PublicDisplayLayout.timerFontSize, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct DeathList: View {
-    let names: [String]
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Text("Since the last meeting")
-                .font(.system(size: PublicDisplayLayout.detailFontSize, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.7))
-            if names.isEmpty {
-                Text("No families were eliminated")
-                    .font(.system(size: PublicDisplayLayout.headlineFontSize * 0.7))
-            } else {
-                Text(names.joined(separator: ", "))
-                    .font(.system(size: PublicDisplayLayout.headlineFontSize * 0.7, weight: .bold))
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-            }
-        }
-    }
-}
-
-private struct ResultBlock: View {
-    let result: VoteResultView
-
-    var body: some View {
-        VStack(spacing: 24) {
-            Text(result.isFinal ? "Final vote result" : "Vote result")
-                .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .semibold))
-            if let expelled = result.expelled.first {
-                Text("\(expelled.name) was voted out")
-                    .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold))
-            } else {
-                Text("Nobody was voted out")
-                    .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold))
-            }
-            if !result.rows.isEmpty {
-                Chart(result.rows) { row in
-                    BarMark(x: .value("Votes", row.count), y: .value("Candidate", row.name))
-                        .foregroundStyle(row.isSkip ? Color.gray : Color.red)
-                        .annotation(position: .trailing) {
-                            Text("\(row.count)").font(.system(size: PublicDisplayLayout.detailFontSize, design: .rounded))
-                        }
-                }
-                .chartXAxis(.hidden)
-                .chartYAxis {
-                    AxisMarks { _ in
-                        AxisValueLabel().font(.system(size: PublicDisplayLayout.detailFontSize * 0.8))
-                    }
-                }
-                .frame(maxWidth: 1000, maxHeight: 420)
-            }
-        }
-        .multilineTextAlignment(.center)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct AlarmBanner: View {
-    let alarm: PublicDisplayState.Alarm
-    let now: Date
-    let animate: Bool
-    let playsSound: Bool
-
-    @State private var sound = AdminSound("alarm", loops: true)
-
-    var body: some View {
-        HStack(spacing: 24) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .symbolEffect(.pulse, isActive: animate)
-            Text("SABOTAGE: \(alarm.kind.title)")
-            Spacer()
-            Text(Duration.seconds(max(0, alarm.endsAt.timeIntervalSince(now))), format: .time(pattern: .minuteSecond))
-                .monospacedDigit()
-        }
-        .onAppear { if playsSound { sound.play() } }
-        .onDisappear { sound.stop() }
-        .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .bold))
-        .padding(24)
-        .background(.red, in: .rect(cornerRadius: 24))
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct CenteredFlowLayout: Layout {
-    let spacing: CGFloat
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let rows = rows(in: proposal.width ?? .infinity, subviews)
-        let height = rows.map(\.height).reduce(0, +) + spacing * CGFloat(max(rows.count - 1, 0))
-        return CGSize(width: proposal.width ?? rows.map(\.width).max() ?? 0, height: height)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var y = bounds.minY
-        for row in rows(in: bounds.width, subviews) {
-            var x = bounds.minX + (bounds.width - row.width) / 2
-            for index in row.indices {
-                let size = subviews[index].sizeThatFits(.unspecified)
-                subviews[index].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
-                x += size.width + spacing
-            }
-            y += row.height + spacing
-        }
-    }
-
-    private struct Row {
-        var indices: [Int] = []
-        var width: CGFloat = 0
-        var height: CGFloat = 0
-    }
-
-    private func rows(in maxWidth: CGFloat, _ subviews: Subviews) -> [Row] {
-        var rows = [Row()]
-        for index in subviews.indices {
-            let size = subviews[index].sizeThatFits(.unspecified)
-            let added = rows[rows.count - 1].indices.isEmpty ? size.width : spacing + size.width
-            if rows[rows.count - 1].width + added > maxWidth, !rows[rows.count - 1].indices.isEmpty {
-                rows.append(Row())
-            }
-            let isFirst = rows[rows.count - 1].indices.isEmpty
-            rows[rows.count - 1].width += isFirst ? size.width : spacing + size.width
-            rows[rows.count - 1].height = max(rows[rows.count - 1].height, size.height)
-            rows[rows.count - 1].indices.append(index)
-        }
-        return rows
     }
 }
