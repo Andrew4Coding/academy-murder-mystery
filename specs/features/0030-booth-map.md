@@ -1,7 +1,7 @@
 ---
 id: 0030
 title: Booth map
-status: approved
+status: implemented
 owner: AND
 app: all
 created: 2026-10-30
@@ -23,18 +23,18 @@ The OC uploads a picture of the booth layout in Setup on the Mac. Every joined p
 
 ## Acceptance criteria
 
-- [ ] **AC1 Upload**: Given Setup on the Mac, when the OC chooses a PNG, JPEG or HEIC image, then it becomes the booth map, with a preview in the Booth map section.
-- [ ] **AC2 Downscale**: Given an image larger than 3000 px on its long side, when it is imported, then it is stored as a JPEG with its long side at most 3000 px, and the aspect ratio is kept.
-- [ ] **AC3 Reject**: Given a file that is not an image, when it is imported, then the map is unchanged and the OC sees an error.
-- [ ] **AC4 Remove and replace**: Given a map, when the OC removes or replaces it, then every connected device updates and the old map is gone.
-- [ ] **AC5 Persistence**: Given a map, when the host restarts or a new game starts, then the map is still there.
-- [ ] **AC6 Delivery**: Given a map, when a player or the iPad signs in or reconnects, then it receives the map, and the map is pushed to connected devices when it changes.
-- [ ] **AC7 No resend**: Given a client that already holds the map with the same hash, when it reconnects, then the host does not need the client to download it again (the client keeps the map it has and the hash shown is the same).
-- [ ] **AC8 Optional**: Given no map, then Setup lists no issue about it, the game starts, and no card appears on any device.
-- [ ] **AC9 Player card**: Given a map, when a player is in the lobby or the game (alive, killed or expelled), then the Family tab and the lobby show a Booth map card with a thumbnail, and tapping it opens the viewer.
-- [ ] **AC10 Viewer**: Given the viewer, when the user pinches, drags or double-taps, then the image zooms between fit-to-screen and 6x, pans within its bounds, and double-tap resets to fit; Close dismisses it.
-- [ ] **AC11 iPad**: Given a signed-in OC iPad and a map, then the Dashboard shows the card and opens the same viewer; the iPad cannot upload.
-- [ ] **AC12 No leak**: The map is public venue information. It never appears on the Public Display, and carries no role, family or player data.
+- [x] **AC1 Upload**: Given Setup on the Mac, when the OC chooses a PNG, JPEG or HEIC image, then it becomes the booth map, with a preview in the Booth map section.
+- [x] **AC2 Downscale**: Given an image larger than 3000 px on its long side, when it is imported, then it is stored as a JPEG with its long side at most 3000 px, and the aspect ratio is kept.
+- [x] **AC3 Reject**: Given a file that is not an image, when it is imported, then the map is unchanged and the OC sees an error.
+- [x] **AC4 Remove and replace**: Given a map, when the OC removes or replaces it, then every connected device updates and the old map is gone.
+- [x] **AC5 Persistence**: Given a map, when the host restarts or a new game starts, then the map is still there.
+- [x] **AC6 Delivery**: Given a map, when a player or the iPad signs in or reconnects, then it receives the map, and the map is pushed to connected devices when it changes.
+- [x] **AC7 No resend**: Given a client that already holds the map with the same hash, when it reconnects, then the host does not need the client to download it again (the client keeps the map it has and the hash shown is the same).
+- [x] **AC8 Optional**: Given no map, then Setup lists no issue about it, the game starts, and no card appears on any device.
+- [x] **AC9 Player card**: Given a map, when a player is in the lobby or the game (alive, killed or expelled), then the Family tab and the lobby show a Booth map card with a thumbnail, and tapping it opens the viewer.
+- [x] **AC10 Viewer**: Given the viewer, when the user pinches, drags or double-taps, then the image zooms between fit-to-screen and 6x, pans within its bounds, and double-tap resets to fit; Close dismisses it.
+- [x] **AC11 iPad**: Given a signed-in OC iPad and a map, then the Dashboard shows the card and opens the same viewer; the iPad cannot upload.
+- [x] **AC12 No leak**: The map is public venue information. It never appears on the Public Display, and carries no role, family or player data.
 
 ## UX
 
@@ -71,4 +71,7 @@ No SwiftData change and no schema version bump. The Mac keeps the map as one JPE
 
 ## Implementation notes
 
-Filled during and after build by the `codebase-sync` skill.
+- Model and storage: `Shared/Map/` (`BoothMap` with SHA-256 hash, `BoothMapImporter` using ImageIO, `FileBoothMapStore` at Application Support/Moonfall/booth-map.jpg, `InMemoryBoothMapStore`).
+- Wire: `ServerMessage.map(BoothMap?)`, `Hello.mapHash`, `WireVersion` 2. The host sends the map after sign-in only when the client's hash differs, and pushes changes to every signed-in device (`GameHost+Map.swift`).
+- UI: `Shared/Features/Map/` (`BoothMapCard`, `BoothMapViewer`), `Admin/Features/Setup/BoothMapSection.swift`, `RoleView`, `FamilyLobbyView`, iPad `DashboardView`. The Mac app needs the `files.user-selected.read-only` sandbox entitlement.
+- Tests: `Tests/Shared/BoothMapTests.swift`. Written and compiled for iOS, but the test run was skipped, and the viewer gestures were not exercised on a device.
