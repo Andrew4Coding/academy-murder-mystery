@@ -115,7 +115,8 @@ extension GameHost {
     }
 
     func newGame() throws {
-        var fresh = HostState(ocPin: Self.makePIN())
+        var fresh = HostState(ocPin: state.ocPin)
+        fresh.ocDevices = state.ocDevices
         fresh.gameCode = Self.makeJoinCode(excluding: [])
         fresh.settings = state.settings
         fresh.werewolfCount = state.werewolfCount
@@ -125,9 +126,11 @@ extension GameHost {
         gameID = UUID()
         state = fresh
         selfies = [:]
-        for id in sessions.keys {
-            sessions[id]?.identity = nil
-            send(.reset, to: id)
+        for (id, session) in sessions {
+            if case .player? = session.identity {
+                sessions[id]?.identity = nil
+                send(.reset, to: id)
+            }
         }
         if count > 0, testingToolsEnabled {
             try configure(familyCount: count, werewolfCount: fresh.werewolfCount, settings: fresh.settings)

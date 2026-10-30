@@ -29,6 +29,16 @@ struct GameHostLifecycleTests {
         #expect(await eventually { client.view == nil && !client.isResuming })
     }
 
+    @Test func newGameKeepsTheOCPinAndSignedInOCDevices() throws {
+        let host = try GameHost(repository: InMemoryGameRepository())
+        let device = OCDevice(id: UUID(), station: .admin)
+        host.replaceState { $0.ocDevices[device.id] = device }
+        let pin = host.state.ocPin
+        try host.newGame()
+        #expect(host.state.ocPin == pin)
+        #expect(host.state.ocDevices[device.id] == device)
+    }
+
     @Test func syncDeliversTheCurrentViewAfterATimerFired() async throws {
         let (harness, heads) = try await HostHarness.seated(families: 3)
         try harness.host.startTestGame(roles: [1: .werewolf])
