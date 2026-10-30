@@ -7,8 +7,6 @@ struct OCRootView: View {
     var body: some View {
         if case let .oc(_, station) = view.identity {
             switch station {
-            case let .booth(booth):
-                BoothStampView(booth: booth, oc: view.oc, client: client)
             case let .sabotage(kind):
                 SabotageStationView(kind: kind, oc: view.oc, client: client)
             case .admin:
@@ -23,7 +21,7 @@ struct OCRootView: View {
                 ContentUnavailableView {
                     Label("Station removed", systemImage: "xmark.circle")
                 } description: {
-                    Text("The Town Hall observer no longer exists. Sign out and pick a booth.")
+                    Text("The Town Hall observer no longer exists. Sign out and pick a sabotage station.")
                 } actions: {
                     OCSignOutButton(client: client)
                 }

@@ -54,7 +54,6 @@ struct GameEngine: Codable, Equatable, Sendable {
                 role: roles[id] ?? .villager,
                 life: .alive,
                 tasks: tasks,
-                stamps: [],
                 killReadyAt: now
             )
         }
@@ -166,8 +165,6 @@ private extension GameEngine {
         case let .kill(killer, victim): try kill(killer: killer, victim: victim, at: now)
         case let .requestSabotage(by, kind): try requestSabotage(by: by, kind: kind, at: now)
         case .resolveSabotage: try resolveSabotage(at: now)
-        case let .recordStamp(family, booth): try recordStamp(family: family, booth: booth, at: now)
-        case let .undoStamp(family, booth): try undoStamp(family: family, booth: booth, at: now)
         case .startMeeting: try startMeeting(at: now)
         case let .reportBody(by, body): try reportBody(by: by, body: body, at: now)
         case let .castVote(by, choice): try castVote(by: by, choice: choice, at: now)
@@ -214,20 +211,6 @@ private extension GameEngine {
         guard state.sabotage != nil else { throw RuleError.noActiveSabotage }
         state.sabotage = nil
         return [GameEvent(at: now, kind: .sabotageResolved)]
-    }
-
-    mutating func recordStamp(family id: FamilyID, booth: Booth, at now: Date) throws -> [GameEvent] {
-        let family = try state.family(id)
-        guard !family.stamps.contains(booth) else { throw RuleError.alreadyStamped }
-        state.families[id]?.stamps.insert(booth)
-        return [GameEvent(at: now, kind: .stampRecorded(id, booth))] + evaluateWin(at: now)
-    }
-
-    mutating func undoStamp(family id: FamilyID, booth: Booth, at now: Date) throws -> [GameEvent] {
-        let family = try state.family(id)
-        guard family.stamps.contains(booth) else { throw RuleError.notStamped }
-        state.families[id]?.stamps.remove(booth)
-        return [GameEvent(at: now, kind: .stampUndone(id, booth))]
     }
 
     mutating func reportBody(by id: FamilyID, body: FamilyID, at now: Date) throws -> [GameEvent] {
@@ -461,13 +444,8 @@ private extension GameEngine {
     mutating func evaluateWin(at now: Date) -> [GameEvent] {
         let aliveWerewolves = state.aliveFamilies(role: .werewolf).count
         let aliveVillagers = state.aliveFamilies(role: .villager).count
-        let villagers = state.families.values.filter { $0.role == .villager }
-
         if aliveWerewolves == 0 {
             return end(.villagers, .allWerewolvesRemoved, at: now)
-        }
-        if !villagers.isEmpty, villagers.allSatisfy(\.hasCompletedTasks) {
-            return end(.villagers, .allTasksDone, at: now)
         }
         if !state.settings.isDebug, aliveVillagers <= aliveWerewolves {
             return end(.werewolves, .parity, at: now)

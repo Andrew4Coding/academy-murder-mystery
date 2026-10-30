@@ -41,7 +41,6 @@ final class GameHost {
     @ObservationIgnored var selfies: [PlayerID: Data] = [:]
     @ObservationIgnored var testingToolsEnabled = TestingTools.isEnabled
     @ObservationIgnored var sightings: [FamilyID: [FamilyID: SightingRecord]] = [:]
-    @ObservationIgnored var stampTimes: [StampKey: Date] = [:]
     @ObservationIgnored var lastNearby: [FamilyID: Set<FamilyID>] = [:]
     @ObservationIgnored var lastBodies: [FamilyID: Set<FamilyID>] = [:]
     @ObservationIgnored let clock: any HostClock
@@ -149,10 +148,6 @@ final class GameHost {
                 try requestSabotage(identity: signedIn(id), kind: kind)
             case .resolveSabotage:
                 try resolveSabotage(identity: signedIn(id))
-            case let .stamp(family, confirmOffList):
-                try stamp(identity: signedIn(id), family: family, confirmOffList: confirmOffList)
-            case let .undoStamp(family):
-                try undoStamp(identity: signedIn(id), family: family)
             case .leave:
                 try leave(identity: signedIn(id), clientID: id)
             case .sync:
@@ -343,7 +338,6 @@ final class GameHost {
 extension OCStation {
     var title: String {
         switch self {
-        case let .booth(booth): booth.title
         case let .sabotage(kind): kind.title
         case .townHall: "Town Hall"
         case .admin: "iPad dashboard"

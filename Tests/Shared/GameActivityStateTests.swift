@@ -6,7 +6,6 @@ private func makeGame(
     role: Role = .villager,
     life: LifeState = .alive,
     phase: PhaseView = .running,
-    done: Int = 3,
     sabotage: SabotageView? = nil
 ) -> GameView {
     GameView(
@@ -14,7 +13,7 @@ private func makeGame(
         family: FamilyID(1),
         familyName: "Cedar",
         life: life,
-        tasks: Booth.allCases.enumerated().map { TaskProgress(booth: $1, done: $0 < done) },
+        tasks: Booth.allCases,
         allies: role == .werewolf ? [] : nil,
         families: [],
         phase: phase,
@@ -34,11 +33,9 @@ private func makeGame(
 
 private let sabotage = SabotageView(kind: .oxygen, startedAt: at(0), endsAt: at(60))
 
-@Test func playingShowsBoothProgressWithoutACountdown() {
+@Test func playingShowsNoCountdown() {
     let state = GameActivityState(game: makeGame(), clockOffset: 0)
     #expect(state.kind == .playing)
-    #expect(state.tasksDone == 3)
-    #expect(state.tasksTotal == 7)
     #expect(state.countdownEnd == nil)
 }
 
@@ -51,7 +48,6 @@ private let sabotage = SabotageView(kind: .oxygen, startedAt: at(0), endsAt: at(
     let killed = GameActivityState(game: makeGame(life: .killed, phase: meeting, sabotage: sabotage), clockOffset: 0)
     #expect(killed.kind == .killed)
     #expect(killed.countdownEnd == nil)
-    #expect(killed.tasksDone == 3)
 }
 
 @Test func finalVoteAndExpelledAreDistinct() {

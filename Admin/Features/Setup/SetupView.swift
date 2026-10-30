@@ -262,7 +262,7 @@ struct SetupView: View {
         } header: {
             Text("Testing")
         } footer: {
-            Text("Rehearsal only. Pick each family's role, then start with as few as one family and one phone. Families without a phone stand in for others: use the Game screen to stamp, eliminate, vote and trigger sabotage for them. The game can end early, because the usual win rules still apply.")
+            Text("Rehearsal only. Pick each family's role, then start with as few as one family and one phone. Families without a phone stand in for others: use the Game screen to eliminate, vote and trigger sabotage for them. The game can end early, because the usual win rules still apply.")
         }
         .disabled(!isLobby)
     }

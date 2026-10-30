@@ -18,8 +18,6 @@ enum GameCommand: Codable, Equatable, Sendable {
     case kill(killer: FamilyID, victim: FamilyID)
     case requestSabotage(by: FamilyID, kind: SabotageKind)
     case resolveSabotage
-    case recordStamp(family: FamilyID, booth: Booth)
-    case undoStamp(family: FamilyID, booth: Booth)
     case startMeeting
     case reportBody(by: FamilyID, body: FamilyID)
     case castVote(by: FamilyID, choice: VoteChoice)
@@ -42,8 +40,6 @@ enum RuleError: Error, Equatable, Sendable {
     case cooldownActive(readyAt: Date)
     case sabotageAlreadyActive
     case noActiveSabotage
-    case alreadyStamped
-    case notStamped
     case invalidVoteTarget
     case notDead(FamilyID)
     case skipNotRequested

@@ -4,7 +4,6 @@ typealias PlayerID = UUID
 typealias ClientID = UUID
 
 enum OCStation: Hashable, Codable, Sendable {
-    case booth(Booth)
     case sabotage(SabotageKind)
     case townHall
     case admin

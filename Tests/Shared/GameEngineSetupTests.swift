@@ -10,8 +10,7 @@ struct GameEngineSetupTests {
         for family in fixture.engine.state.families.values {
             #expect(family.tasks.count == 5)
             #expect(family.life == .alive)
-            #expect(family.stamps.isEmpty)
-        }
+            }
     }
 
     @Test func rejectsInvalidSetups() throws {

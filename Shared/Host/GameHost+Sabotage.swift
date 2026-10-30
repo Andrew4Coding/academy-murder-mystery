@@ -25,10 +25,6 @@ extension GameHost {
         case .regenerateOCPIN: regenerateOCPIN()
         case let .setBoothMap(data): try setBoothMap(imageData: data)
         case .removeBoothMap: try removeBoothMap()
-        case let .stamp(families, booth, confirmOffList):
-            for family in families { try recordStamp(family: family, booth: booth, confirmOffList: confirmOffList) }
-        case let .undoStamp(families, booth):
-            for family in families { try removeStamp(family: family, booth: booth) }
         case let .eliminate(families):
             for family in families { try applyAsOC(.override(.forceKill(family))) }
         case let .revive(families):

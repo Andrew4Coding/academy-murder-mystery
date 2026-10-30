@@ -17,8 +17,6 @@ enum HostError: Error, Equatable, Sendable {
     case setup(String)
     case notNearby
     case notOC
-    case offList
-    case undoExpired
     case wrongStation
     case notInGame
     case familyHasMembers
@@ -41,8 +39,6 @@ enum HostError: Error, Equatable, Sendable {
         case let .setup(reason): reason
         case .notNearby: "That family isn't close enough."
         case .notOC: "Only organisers can do that."
-        case .offList: "Not on this family's list."
-        case .undoExpired: "Too late to undo this stamp."
         case .wrongStation: "This sabotage is handled at a different station."
         case .notInGame: "There's no game running."
         case .familyHasMembers: "That family already has members."
@@ -65,8 +61,6 @@ extension RuleError {
         case .cooldownActive: "Still on cooldown."
         case .sabotageAlreadyActive: "A sabotage is already running."
         case .noActiveSabotage: "There's no sabotage to resolve."
-        case .alreadyStamped: "Already stamped."
-        case .notStamped: "There's no stamp to undo."
         case .invalidVoteTarget: "That family can't receive votes."
         case .notDead: "That family is still in the game."
         case .sabotageActive: "No meetings while a sabotage is active."

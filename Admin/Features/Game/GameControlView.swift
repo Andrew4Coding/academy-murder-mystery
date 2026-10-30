@@ -6,7 +6,6 @@ struct GameControlView: View {
     @State private var showRoles = false
     @State private var selection: Set<FamilyID> = []
     @State private var confirmingEnd: Side?
-    @State private var offListStamp: OffListStamp?
     @State private var errorMessage: String?
 
     private var host: GameHost {
@@ -38,24 +37,6 @@ struct GameControlView: View {
             if let side = confirmingEnd {
                 Button("End Game", role: .destructive) { attempt { try host.applyAsOC(.override(.endGame(side))) } }
             }
-        }
-        .confirmationDialog(
-            "Not on this family's list",
-            isPresented: Binding(get: { offListStamp != nil }, set: {
-                if !$0 {
-                    offListStamp = nil
-                }
-            }),
-            titleVisibility: .visible,
-            presenting: offListStamp
-        ) { item in
-            Button("Stamp Anyway", role: .destructive) {
-                for id in item.ids {
-                    attempt { try host.recordStamp(family: id, booth: item.booth, confirmOffList: true) }
-                }
-            }
-        } message: { item in
-            Text("\(item.booth.title) isn't on every selected family's list. The stamp won't count toward their tasks.")
         }
         .alert("Can't do that", isPresented: .constant(errorMessage != nil)) {
             Button("OK") { errorMessage = nil }
@@ -102,9 +83,7 @@ struct GameControlView: View {
                     showRoles: showRoles,
                     selection: $selection,
                     onEliminate: eliminate,
-                    onRevive: revive,
-                    onStamp: stamp,
-                    onUnstamp: unstamp
+                    onRevive: revive
                 )
                 .frame(minHeight: 260)
             }
@@ -184,23 +163,6 @@ struct GameControlView: View {
                     .help("Call everyone to the Town Hall after the bell has rung")
                 }
             }
-        }
-    }
-
-    private func stamp(_ ids: Set<FamilyID>, _ booth: Booth) {
-        let tasks = host.state.engine?.state.families
-        if ids.contains(where: { tasks?[$0]?.tasks.contains(booth) == false }) {
-            offListStamp = OffListStamp(ids: ids, booth: booth)
-        } else {
-            for id in ids {
-                attempt { try host.recordStamp(family: id, booth: booth, confirmOffList: false) }
-            }
-        }
-    }
-
-    private func unstamp(_ ids: Set<FamilyID>, _ booth: Booth) {
-        for id in ids {
-            attempt { try host.removeStamp(family: id, booth: booth) }
         }
     }
 
@@ -286,8 +248,6 @@ private struct FamilyStatusTable: View {
     @Binding var selection: Set<FamilyID>
     let onEliminate: (Set<FamilyID>) -> Void
     let onRevive: (Set<FamilyID>) -> Void
-    let onStamp: (Set<FamilyID>, Booth) -> Void
-    let onUnstamp: (Set<FamilyID>, Booth) -> Void
 
     private var rows: [Family] {
         game.families.values.sorted { $0.id < $1.id }
@@ -309,25 +269,13 @@ private struct FamilyStatusTable: View {
                 }
             }
             TableColumn("Tasks") { (family: Family) in
-                Text("\(family.stamps.intersection(family.tasks).count) of \(family.tasks.count)")
+                Text(family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
             }
             TableColumn("Vote") { (family: Family) in
                 Text(voteStatus(family))
             }
         }
         .contextMenu(forSelectionType: FamilyID.self) { ids in
-            Menu("Record Stamp", systemImage: "checkmark.seal") {
-                ForEach(Booth.allCases, id: \.self) { booth in
-                    Button(booth.title) { onStamp(ids, booth) }
-                }
-            }
-            .disabled(ids.isEmpty)
-            Menu("Undo Stamp", systemImage: "arrow.uturn.backward") {
-                ForEach(Booth.allCases, id: \.self) { booth in
-                    Button(booth.title) { onUnstamp(ids, booth) }
-                }
-            }
-            .disabled(ids.isEmpty)
             Divider()
             Button("Eliminate Family", systemImage: "xmark.circle") { onEliminate(ids) }
                 .disabled(ids.isEmpty)
@@ -339,15 +287,6 @@ private struct FamilyStatusTable: View {
     private func voteStatus(_ family: Family) -> String {
         guard case .voting = game.phase, family.isAlive else { return "" }
         return game.votes[family.id] == nil ? "Waiting" : "Voted"
-    }
-}
-
-private struct OffListStamp: Identifiable {
-    let ids: Set<FamilyID>
-    let booth: Booth
-
-    var id: String {
-        "\(booth.rawValue)-\(ids.map(\.rawValue).sorted())"
     }
 }
 

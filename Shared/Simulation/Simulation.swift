@@ -106,18 +106,9 @@ private extension Simulation {
 
     func playRunning(_ game: GameState, seconds: TimeInterval) {
         let families = game.families.values.sorted { $0.id < $1.id }
-        stamp(families, seconds: seconds)
         kill(families, game: game, seconds: seconds)
         sabotage(families, game: game, seconds: seconds)
         meeting(game, seconds: seconds)
-    }
-
-    func stamp(_ families: [Family], seconds: TimeInterval) {
-        for family in families where family.isAlive {
-            let remaining = family.tasks.subtracting(family.stamps).sorted { $0.rawValue < $1.rawValue }
-            guard !remaining.isEmpty, roll(seconds / 90), let booth = pick(remaining) else { continue }
-            try? host.recordStamp(family: family.id, booth: booth, confirmOffList: false)
-        }
     }
 
     func kill(_ families: [Family], game _: GameState, seconds: TimeInterval) {

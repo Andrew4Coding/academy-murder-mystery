@@ -79,7 +79,7 @@ struct SetupTab: View {
             }
 
             Section("OC PIN") {
-                LabeledContent("PIN for booth organisers") {
+                LabeledContent("PIN for sabotage organisers") {
                     HStack {
                         Text(isPinVisible ? admin.ocPin : "••••").font(.title3.monospaced()).textSelection(.enabled)
                         Button(isPinVisible ? "Hide PIN" : "Show PIN", systemImage: isPinVisible ? "eye.slash" : "eye") {

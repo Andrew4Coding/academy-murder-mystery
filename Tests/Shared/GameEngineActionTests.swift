@@ -116,17 +116,4 @@ struct GameEngineActionTests {
         }
         try fixture.apply(.requestSabotage(by: wolf, kind: .reactor), at: 120)
     }
-
-    @Test func stampsAreIdempotentAndUndoable() throws {
-        var fixture = try Fixture()
-        let family = fixture.villagers[0]
-        try fixture.apply(.recordStamp(family: family, booth: .morseCode), at: 10)
-        #expect(throws: RuleError.alreadyStamped) {
-            try fixture.apply(.recordStamp(family: family, booth: .morseCode), at: 11)
-        }
-        try fixture.apply(.undoStamp(family: family, booth: .morseCode), at: 12)
-        #expect(throws: RuleError.notStamped) {
-            try fixture.apply(.undoStamp(family: family, booth: .morseCode), at: 13)
-        }
-    }
 }

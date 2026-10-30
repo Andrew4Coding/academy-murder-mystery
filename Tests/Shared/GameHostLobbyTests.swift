@@ -77,7 +77,6 @@ struct GameHostLobbyTests {
         for client in heads.values {
             let game = try #require(client.view?.game)
             #expect(game.tasks.count == 5)
-            #expect(game.tasks.allSatisfy { !$0.done })
             #expect(game.life == .alive)
             if game.role == .werewolf {
                 werewolves += 1

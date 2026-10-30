@@ -27,7 +27,6 @@ extension LifeState {
 extension Outcome.Reason {
     var explanation: String {
         switch self {
-        case .allTasksDone: "Every villager family finished its tasks."
         case .allWerewolvesRemoved: "Every werewolf family is out of the game."
         case .parity: "There are as many werewolves as villagers left."
         case .sabotageExpired: "A sabotage wasn't stopped in time."

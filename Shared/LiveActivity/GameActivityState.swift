@@ -15,8 +15,6 @@ struct GameActivityState: Codable, Hashable, Sendable {
     }
 
     let kind: Kind
-    let tasksDone: Int
-    let tasksTotal: Int
     let countdownEnd: Date?
     let familyName: String
 }

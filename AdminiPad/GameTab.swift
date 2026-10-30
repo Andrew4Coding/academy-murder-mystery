@@ -7,7 +7,6 @@ struct GameTab: View {
     @State private var showRoles = false
     @State private var selection: Set<FamilyID> = []
     @State private var confirmingEnd: Side?
-    @State private var offListStamp: OffListStamp?
 
     var body: some View {
         Group {
@@ -30,18 +29,6 @@ struct GameTab: View {
             if let side = confirmingEnd {
                 Button("End Game", role: .destructive) { client.send(.admin(.endGame(side))) }
             }
-        }
-        .confirmationDialog(
-            "Not on this family's list",
-            isPresented: Binding(get: { offListStamp != nil }, set: { if !$0 { offListStamp = nil } }),
-            titleVisibility: .visible,
-            presenting: offListStamp
-        ) { item in
-            Button("Stamp Anyway", role: .destructive) {
-                client.send(.admin(.stamp(families: Array(item.ids), booth: item.booth, confirmOffList: true)))
-            }
-        } message: { item in
-            Text("\(item.booth.title) isn't on every selected family's list. The stamp won't count toward their tasks.")
         }
     }
 
@@ -113,7 +100,7 @@ struct GameTab: View {
                 }
             }
             TableColumn("Tasks") { (family: AdminFamilyRow) in
-                Text(family.stampsTotal == 0 ? "-" : "\(family.stampsDone) of \(family.stampsTotal)")
+                Text(family.tasks.isEmpty ? "-" : family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
             }
             TableColumn("Vote") { (family: AdminFamilyRow) in
                 Text(voteStatus(family))
@@ -126,18 +113,6 @@ struct GameTab: View {
 
     @ViewBuilder
     private func familyActions(_ ids: Set<FamilyID>) -> some View {
-        Menu("Record Stamp", systemImage: "checkmark.seal") {
-            ForEach(Booth.allCases, id: \.self) { booth in
-                Button(booth.title) { stamp(ids, booth) }
-            }
-        }
-        .disabled(ids.isEmpty)
-        Menu("Undo Stamp", systemImage: "arrow.uturn.backward") {
-            ForEach(Booth.allCases, id: \.self) { booth in
-                Button(booth.title) { client.send(.admin(.undoStamp(families: Array(ids), booth: booth))) }
-            }
-        }
-        .disabled(ids.isEmpty)
         Divider()
         Button("Eliminate Family", systemImage: "xmark.circle") { client.send(.admin(.eliminate(Array(ids)))) }
             .disabled(ids.isEmpty)
@@ -202,15 +177,6 @@ struct GameTab: View {
         }
     }
 
-    private func stamp(_ ids: Set<FamilyID>, _ booth: Booth) {
-        let offList = admin.families.contains { ids.contains($0.id) && !$0.tasks.contains { $0.booth == booth } }
-        if offList {
-            offListStamp = OffListStamp(ids: ids, booth: booth)
-        } else {
-            client.send(.admin(.stamp(families: Array(ids), booth: booth, confirmOffList: false)))
-        }
-    }
-
     private func voteStatus(_ family: AdminFamilyRow) -> String {
         guard isVoting, family.life == .alive else { return "" }
         return family.voted ? "Voted" : "Waiting"
@@ -235,14 +201,5 @@ struct GameTab: View {
     private var serverNow: @Sendable (Date) -> Date {
         let clock = client.serverClock
         return { clock.now(local: $0) }
-    }
-}
-
-private struct OffListStamp: Identifiable {
-    let ids: Set<FamilyID>
-    let booth: Booth
-
-    var id: String {
-        "\(booth.rawValue)-\(ids.map(\.rawValue).sorted())"
     }
 }

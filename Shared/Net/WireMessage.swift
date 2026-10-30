@@ -13,8 +13,6 @@ enum ClientMessage: Codable, Equatable, Sendable {
     case kill(victim: FamilyID)
     case requestSabotage(SabotageKind)
     case resolveSabotage
-    case stamp(family: FamilyID, confirmOffList: Bool)
-    case undoStamp(family: FamilyID)
     case leave
     case sync
 }
@@ -45,8 +43,6 @@ enum AdminCommand: Codable, Equatable, Sendable {
     case regenerateOCPIN
     case setBoothMap(Data)
     case removeBoothMap
-    case stamp(families: [FamilyID], booth: Booth, confirmOffList: Bool)
-    case undoStamp(families: [FamilyID], booth: Booth)
     case eliminate([FamilyID])
     case revive([FamilyID])
     case proxyVote(family: FamilyID, choice: VoteChoice)

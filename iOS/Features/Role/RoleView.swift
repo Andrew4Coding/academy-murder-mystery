@@ -36,24 +36,15 @@ struct RoleView: View {
                 }
 
                 Section {
-                    ProgressView(value: Double(game.tasks.filter(\.done).count), total: Double(max(game.tasks.count, 1)))
-                        .accessibilityLabel("Tasks done")
-                        .accessibilityValue("\(game.tasks.filter(\.done).count) of \(game.tasks.count)")
-                    ForEach(game.tasks) { task in
-                        Label {
-                            Text(task.booth.title)
-                        } icon: {
-                            Image(systemName: task.done ? "checkmark.circle.fill" : "circle")
-                                .foregroundStyle(task.done ? .green : .secondary)
-                        }
-                        .accessibilityValue(task.done ? "Done" : "Not done")
+                    ForEach(game.tasks, id: \.self) { booth in
+                        Text(booth.title)
                     }
                 } header: {
-                    Text("Your tasks")
+                    Text("Your booths")
                 } footer: {
                     Text(game.role == .werewolf
-                        ? "Pretend to do these. Booth organisers stamp werewolf families too, but it doesn't count."
-                        : "Ask the organiser at each booth for a stamp when you finish.")
+                        ? "Pretend to do these so nobody suspects you."
+                        : "Visit these booths and complete their challenges.")
                 }
 
                 if let allies = game.allies, isRevealed || game.life != .alive {

@@ -27,7 +27,7 @@ extension GameHost {
             if device.station == .admin {
                 view.admin = adminView()
             } else if let engine = state.engine {
-                view.oc = OCView(sabotage: sabotageView(engine), families: ocRows(engine, station: device.station))
+                view.oc = OCView(sabotage: sabotageView(engine))
             }
             return view
         }
@@ -48,11 +48,8 @@ extension GameHost {
                 name: info.name,
                 playerName: state.player(of: info.id)?.name,
                 life: game?.life ?? .alive,
-                stampsDone: game?.stamps.intersection(game?.tasks ?? []).count ?? 0,
-                stampsTotal: game?.tasks.count ?? 0,
                 role: game?.role,
-                tasks: (game?.tasks ?? []).sorted { $0.rawValue < $1.rawValue }
-                    .map { TaskProgress(booth: $0, done: game?.stamps.contains($0) ?? false) },
+                tasks: (game?.tasks ?? []).sorted { $0.rawValue < $1.rawValue },
                 voted: engine?.state.votes[info.id] != nil
             )
         }
@@ -77,25 +74,6 @@ extension GameHost {
             votesCast: engine?.state.votes.count ?? 0,
             devices: deviceStatuses()
         )
-    }
-
-    func ocRows(_ engine: GameEngine, station: OCStation) -> [OCFamilyRow] {
-        let booth: Booth? = if case let .booth(booth) = station {
-            booth
-        } else {
-            nil
-        }
-        return engine.state.families.values.sorted { $0.id < $1.id }.map { family in
-            OCFamilyRow(
-                id: family.id,
-                name: state.families[family.id]?.name ?? "Unknown",
-                life: family.life,
-                stampsDone: family.stamps.intersection(family.tasks).count,
-                stampsTotal: family.tasks.count,
-                onList: booth.map { family.tasks.contains($0) },
-                stamped: booth.map { family.stamps.contains($0) }
-            )
-        }
     }
 
     func sabotageView(_ engine: GameEngine) -> SabotageView? {
@@ -132,8 +110,7 @@ extension GameHost {
             family: info.id,
             familyName: info.name,
             life: engineFamily.life,
-            tasks: engineFamily.tasks.sorted { $0.rawValue < $1.rawValue }
-                .map { TaskProgress(booth: $0, done: engineFamily.stamps.contains($0)) },
+            tasks: engineFamily.tasks.sorted { $0.rawValue < $1.rawValue },
             allies: allies,
             families: state.families.keys.sorted().compactMap { summary(of: $0, in: engine) },
             phase: phase,

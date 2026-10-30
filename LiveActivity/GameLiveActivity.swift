@@ -27,9 +27,6 @@ struct GameLiveActivity: Widget {
                         .font(.headline)
                         .lineLimit(1)
                 }
-                DynamicIslandExpandedRegion(.bottom) {
-                    TaskProgressRow(state: state)
-                }
             } compactLeading: {
                 Image(systemName: isStale ? "arrow.clockwise" : state.kind.symbol)
                     .foregroundStyle(isStale ? .gray : state.kind.tint)
@@ -38,9 +35,6 @@ struct GameLiveActivity: Widget {
                     CountdownText(end: end, isStale: false)
                         .monospacedDigit()
                         .frame(maxWidth: 52)
-                } else {
-                    Text("\(state.tasksDone)/\(state.tasksTotal)")
-                        .monospacedDigit()
                 }
             } minimal: {
                 Image(systemName: isStale ? "arrow.clockwise" : state.kind.symbol)
@@ -68,7 +62,6 @@ private struct LockScreenView: View {
                 CountdownText(end: state.countdownEnd, isStale: isStale)
                     .font(.title.monospacedDigit().bold())
             }
-            TaskProgressRow(state: state)
         }
         .foregroundStyle(.white)
         .accessibilityElement(children: .combine)
@@ -83,23 +76,6 @@ private struct CountdownText: View {
         if let end, !isStale, end > .now {
             Text(timerInterval: .now ... end, countsDown: true)
                 .multilineTextAlignment(.trailing)
-        }
-    }
-}
-
-private struct TaskProgressRow: View {
-    let state: GameActivityState
-
-    var body: some View {
-        if state.isEnded {
-            EmptyView()
-        } else {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Booths stamped \(state.tasksDone) of \(state.tasksTotal)")
-                    .font(.subheadline)
-                ProgressView(value: Double(state.tasksDone), total: Double(max(state.tasksTotal, 1)))
-                    .tint(.green)
-            }
         }
     }
 }

@@ -90,15 +90,10 @@ struct Family: Codable, Equatable, Sendable, Identifiable {
     let role: Role
     var life: LifeState
     let tasks: Set<Booth>
-    var stamps: Set<Booth>
     var killReadyAt: Date
 
     var isAlive: Bool {
         life == .alive
-    }
-
-    var hasCompletedTasks: Bool {
-        tasks.isSubset(of: stamps)
     }
 }
 
@@ -118,7 +113,6 @@ enum Phase: Codable, Equatable, Sendable {
 
 struct Outcome: Codable, Equatable, Sendable {
     enum Reason: String, Codable, Sendable {
-        case allTasksDone
         case allWerewolvesRemoved
         case parity
         case sabotageExpired

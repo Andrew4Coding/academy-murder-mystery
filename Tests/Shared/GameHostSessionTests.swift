@@ -53,14 +53,14 @@ struct GameHostSessionTests {
         #expect(!wrong.isSignedIn)
 
         let right = harness.makeClient()
-        right.signInAsOC(pin: "4242", station: .booth(.painting))
+        right.signInAsOC(pin: "4242", station: .sabotage(.oxygen))
         #expect(await eventually { right.view != nil })
         #expect(harness.host.state.ocDevices.count == 1)
         guard case let .oc(_, station)? = right.view?.identity else {
             Issue.record("Expected an OC identity")
             return
         }
-        #expect(station == .booth(.painting))
+        #expect(station == .sabotage(.oxygen))
     }
 
     @Test func fullFamiliesAndStartedGamesRejectNewMembers() async throws {

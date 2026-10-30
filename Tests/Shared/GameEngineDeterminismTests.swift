@@ -11,7 +11,6 @@ struct GameEngineDeterminismTests {
         events += try fixture.apply(.kill(killer: wolves[0], victim: villagers[0]), at: 70)
         events += try fixture.apply(.requestSabotage(by: wolves[1], kind: .oxygen), at: 130)
         events += try fixture.apply(.resolveSabotage, at: 170)
-        events += try fixture.apply(.recordStamp(family: villagers[1], booth: .locks), at: 180)
         events += try fixture.apply(.startMeeting, at: 200)
         events += fixture.advance(to: 320)
         events += try fixture.apply(.castVote(by: villagers[1], choice: .family(wolves[0])), at: 330)

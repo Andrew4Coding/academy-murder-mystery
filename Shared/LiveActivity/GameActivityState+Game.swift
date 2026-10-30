@@ -2,7 +2,6 @@ import Foundation
 
 extension GameActivityState {
     init(game: GameView, clockOffset: TimeInterval) {
-        let done = game.tasks.filter(\.done).count
         let local: (Date) -> Date = { $0.addingTimeInterval(-clockOffset) }
 
         var kind = Kind.playing
@@ -33,8 +32,6 @@ extension GameActivityState {
 
         self.init(
             kind: kind,
-            tasksDone: done,
-            tasksTotal: game.tasks.count,
             countdownEnd: end.map(local),
             familyName: game.familyName
         )

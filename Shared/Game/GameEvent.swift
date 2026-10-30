@@ -17,8 +17,6 @@ struct GameEvent: Codable, Equatable, Sendable {
         case sabotageStarted(kind: SabotageKind, by: FamilyID, endsAt: Date)
         case sabotageResolved
         case sabotageExpired
-        case stampRecorded(FamilyID, Booth)
-        case stampUndone(FamilyID, Booth)
         case meetingStarted(deadFamilies: [FamilyID])
         case votingOpened(isFinal: Bool)
         case voteCast(by: FamilyID)

@@ -92,8 +92,6 @@ enum SimulationLog {
         case let .sabotageStarted(kind, by, _): "\(name(by)) started a \(kind.title) sabotage"
         case .sabotageResolved: "Sabotage resolved"
         case .sabotageExpired: "Sabotage ran out of time"
-        case let .stampRecorded(family, booth): "\(name(family)) stamped at \(booth.title)"
-        case .stampUndone: nil
         case let .meetingStarted(dead): dead.isEmpty ? "Meeting started" : "Meeting started, \(dead.count) eliminated"
         case let .votingOpened(isFinal): isFinal ? "Final vote opened" : "Voting opened"
         case .voteCast: nil

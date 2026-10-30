@@ -27,32 +27,25 @@ struct SimulationTests {
         }
     }
 
-    @Test func botsStampKillSabotageMeetAndVoteUntilTheGameEnds() throws {
-        let sim = try make(seed: 7)
-        sim.runToCompletion()
-        #expect(sim.isFinished)
-        let kinds = sim.events.map(\.kind)
-        #expect(kinds.contains {
-            if case .stampRecorded = $0 {
-                true
-            } else {
-                false
+    @Test func botsKillSabotageMeetAndVoteUntilTheGameEnds() throws {
+        var sawVoting = false
+        for seed in 1 ... 8 {
+            let sim = try make(seed: UInt64(seed))
+            sim.runToCompletion()
+            #expect(sim.isFinished)
+            let kinds = sim.events.map(\.kind)
+            #expect(kinds.contains {
+                if case .gameEnded = $0 {
+                    true
+                } else {
+                    false
+                }
+            })
+            for case .votingOpened in kinds {
+                sawVoting = true
             }
-        })
-        #expect(kinds.contains {
-            if case .votingOpened = $0 {
-                true
-            } else {
-                false
-            }
-        })
-        #expect(kinds.contains {
-            if case .gameEnded = $0 {
-                true
-            } else {
-                false
-            }
-        })
+        }
+        #expect(sawVoting)
     }
 
     @Test func someSeedsProduceKillsAndSabotages() throws {

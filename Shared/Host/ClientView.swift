@@ -14,15 +14,6 @@ struct FamilySummary: Codable, Equatable, Sendable, Identifiable {
     var playerName: String?
 }
 
-struct TaskProgress: Codable, Equatable, Sendable, Identifiable {
-    let booth: Booth
-    let done: Bool
-
-    var id: Int {
-        booth.rawValue
-    }
-}
-
 enum PhaseView: Codable, Equatable, Sendable {
     case running
     case discussion(until: Date)
@@ -68,25 +59,13 @@ struct SabotageView: Codable, Equatable, Sendable {
     let endsAt: Date
 }
 
-struct OCFamilyRow: Codable, Equatable, Sendable, Identifiable {
-    let id: FamilyID
-    let name: String
-    let life: LifeState
-    let stampsDone: Int
-    let stampsTotal: Int
-    let onList: Bool?
-    let stamped: Bool?
-}
-
 struct AdminFamilyRow: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let name: String
     let playerName: String?
     let life: LifeState
-    let stampsDone: Int
-    let stampsTotal: Int
     var role: Role?
-    var tasks: [TaskProgress] = []
+    var tasks: [Booth] = []
     var voted = false
 }
 
@@ -114,7 +93,6 @@ struct AdminView: Codable, Equatable, Sendable {
 
 struct OCView: Codable, Equatable, Sendable {
     let sabotage: SabotageView?
-    let families: [OCFamilyRow]
 }
 
 struct SabotageTiming: Codable, Equatable, Sendable, Identifiable {
@@ -131,7 +109,7 @@ struct GameView: Codable, Equatable, Sendable {
     let family: FamilyID
     let familyName: String
     let life: LifeState
-    let tasks: [TaskProgress]
+    let tasks: [Booth]
     let allies: [FamilySummary]?
     let families: [FamilySummary]
     let phase: PhaseView

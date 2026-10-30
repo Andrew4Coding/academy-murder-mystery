@@ -5,7 +5,7 @@ struct OCSignInView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var pin = ""
-    @State private var station: OCStation = .booth(.morseCode)
+    @State private var station: OCStation = .sabotage(.reactor)
 
     var body: some View {
         NavigationStack {
@@ -20,11 +20,6 @@ struct OCSignInView: View {
 
                 Section("Your station") {
                     Picker("Station", selection: $station) {
-                        Section("Task booths") {
-                            ForEach(Booth.allCases, id: \.self) { booth in
-                                Text(booth.title).tag(OCStation.booth(booth))
-                            }
-                        }
                         Section("Sabotage booths") {
                             ForEach(SabotageKind.allCases, id: \.self) { kind in
                                 Text(kind.title).tag(OCStation.sabotage(kind))
