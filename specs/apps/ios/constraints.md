@@ -24,4 +24,4 @@ These add to [../../constraints.md](../../constraints.md) and never contradict i
 ## Performance
 
 - Cold launch to the first interactive frame takes under 1.5 s on the oldest supported device (to be named after the venue dry run).
-- The app stays in the foreground during play, because BLE scanning and timers are only guaranteed there.
+- The app stays in the foreground during play, because BLE scanning and timers are only guaranteed there. The Live Activity (0029) keeps countdowns ticking on the Lock Screen from absolute deadlines, but discrete changes only update it while the app is foregrounded.

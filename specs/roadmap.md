@@ -29,6 +29,8 @@ Each item links to a spec once one exists. Move items between sections at every 
 
 ## Next
 
+- [0029 Live Activities](apps/ios/features/0029-live-activities.md): draft, waiting for approval.
+
 
 ## Later
 

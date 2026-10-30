@@ -22,5 +22,7 @@
 	<array>
 		<string>_moonfall._tcp</string>
 	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>

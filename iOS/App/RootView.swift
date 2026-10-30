@@ -2,6 +2,8 @@ import SwiftUI
 
 struct RootView: View {
     let client: GameClient
+    @State private var liveActivity = LiveActivityController()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
@@ -25,6 +27,13 @@ struct RootView: View {
             }
         }
         .task { client.start() }
+        .onChange(of: client.view) { syncLiveActivity() }
+        .onChange(of: scenePhase) { syncLiveActivity() }
+    }
+
+    private func syncLiveActivity() {
+        guard scenePhase == .active else { return }
+        liveActivity.sync(view: client.view, clock: client.serverClock)
     }
 }
 
