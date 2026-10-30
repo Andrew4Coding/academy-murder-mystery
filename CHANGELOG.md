@@ -32,6 +32,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- Bluetooth kills and body reports keep working while the phone is locked or the app is in the background (not after force-quitting the app).
 - App icon now shows on the home screen.
 - Meetings and body reports are refused while a sabotage is active.
 - A majority of alive families voting to skip discussion opens voting at once, with no organiser approval.
