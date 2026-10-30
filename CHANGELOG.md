@@ -72,6 +72,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- New Game keeps the OC PIN and signed-in OC devices, so the iPad stays signed in.
 - App icon now shows on the home screen.
 
 #### Added
