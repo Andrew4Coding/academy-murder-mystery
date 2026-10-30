@@ -16,12 +16,18 @@ struct AdminFixturesTests {
         #expect(AdminFixtures.adminView(.lobbyReady).isLobby)
         #expect(AdminFixtures.adminView(.lobbyReady).setupIssues.isEmpty)
         #expect(AdminFixtures.adminView(.running).phase == .running)
-        if case .discussion = AdminFixtures.adminView(.discussion).phase {} else { Issue.record("not discussion") }
-        if case .voting = AdminFixtures.adminView(.voting).phase {} else { Issue.record("not voting") }
+        if case .discussion = AdminFixtures.adminView(.discussion).phase {} else {
+            Issue.record("not discussion")
+        }
+        if case .voting = AdminFixtures.adminView(.voting).phase {} else {
+            Issue.record("not voting")
+        }
         #expect(AdminFixtures.adminView(.result).lastResult != nil)
         #expect(AdminFixtures.adminView(.result).phase == .running)
         #expect(AdminFixtures.adminView(.sabotage).sabotage != nil)
-        if case .ended = AdminFixtures.adminView(.ended).phase {} else { Issue.record("not ended") }
+        if case .ended = AdminFixtures.adminView(.ended).phase {} else {
+            Issue.record("not ended")
+        }
     }
 
     @Test func simulationStagesBuild() {
