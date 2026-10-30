@@ -30,6 +30,9 @@ targets:
         NSBonjourServices:
           - _moonfall._tcp
         NSSupportsLiveActivities: true
+        UIBackgroundModes:
+          - bluetooth-central
+          - bluetooth-peripheral
     sources:
       - Shared
       - path: iOS

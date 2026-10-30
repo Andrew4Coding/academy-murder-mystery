@@ -91,10 +91,12 @@ struct GameTabsView: View {
         let token: String
         let advertise: Bool
         let scan: Bool
+        let isActive: Bool
 
         init(game: GameView, isActive: Bool) {
             token = game.bleToken
-            let inPlay = isActive && !game.phase.isEnded
+            self.isActive = isActive
+            let inPlay = !game.phase.isEnded
             advertise = inPlay && (game.life == .alive || game.bodyActive)
             scan = inPlay && game.life == .alive
         }
