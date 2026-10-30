@@ -33,8 +33,10 @@ struct FamiliesTab: View {
                                         Button("Eliminate", systemImage: "xmark.circle") { client.send(.admin(.eliminate([family.id]))) }
                                             .tint(Theme.accent)
                                     } else {
-                                        Button("Revive", systemImage: "arrow.uturn.backward.circle") { client.send(.admin(.revive([family.id]))) }
-                                            .tint(Theme.success)
+                                        Button("Revive", systemImage: "arrow.uturn.backward.circle") {
+                                            client.send(.admin(.revive([family.id])))
+                                        }
+                                        .tint(Theme.success)
                                     }
                                 }
                             }
@@ -64,7 +66,11 @@ struct FamiliesTab: View {
         }
         .confirmationDialog(
             deleting.map { "Delete \($0.name)?" } ?? "",
-            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            isPresented: Binding(get: { deleting != nil }, set: {
+                if !$0 {
+                    deleting = nil
+                }
+            }),
             titleVisibility: .visible
         ) {
             if let family = deleting {

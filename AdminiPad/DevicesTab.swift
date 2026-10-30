@@ -49,7 +49,11 @@ struct DevicesTab: View {
         }
         .confirmationDialog(
             deleting.map { "Delete \($0.label), \($0.detail)?" } ?? "",
-            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            isPresented: Binding(get: { deleting != nil }, set: {
+                if !$0 {
+                    deleting = nil
+                }
+            }),
             titleVisibility: .visible
         ) {
             if let device = deleting {

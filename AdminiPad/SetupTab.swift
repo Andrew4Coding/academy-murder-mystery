@@ -86,14 +86,36 @@ struct SetupTab: View {
             .themedRows()
 
             Section {
-                Stepper("Reactor fix time: \(Self.clock(admin.settings.sabotageDuration))", value: seconds(.reactor, duration: true), in: 15 ... 600, step: 15)
-                Stepper("Reactor cooldown: \(Self.clock(admin.settings.sabotageCooldown))", value: seconds(.reactor, duration: false), in: 0 ... 600, step: 15)
-                Stepper("Oxygen fix time: \(Self.clock(admin.settings.sabotageDuration(for: .oxygen)))", value: seconds(.oxygen, duration: true), in: 15 ... 600, step: 15)
-                Stepper("Oxygen cooldown: \(Self.clock(admin.settings.sabotageCooldown(for: .oxygen)))", value: seconds(.oxygen, duration: false), in: 0 ... 600, step: 15)
+                Stepper(
+                    "Reactor fix time: \(Self.clock(admin.settings.sabotageDuration))",
+                    value: seconds(.reactor, duration: true),
+                    in: 15 ... 600,
+                    step: 15
+                )
+                Stepper(
+                    "Reactor cooldown: \(Self.clock(admin.settings.sabotageCooldown))",
+                    value: seconds(.reactor, duration: false),
+                    in: 0 ... 600,
+                    step: 15
+                )
+                Stepper(
+                    "Oxygen fix time: \(Self.clock(admin.settings.sabotageDuration(for: .oxygen)))",
+                    value: seconds(.oxygen, duration: true),
+                    in: 15 ... 600,
+                    step: 15
+                )
+                Stepper(
+                    "Oxygen cooldown: \(Self.clock(admin.settings.sabotageCooldown(for: .oxygen)))",
+                    value: seconds(.oxygen, duration: false),
+                    in: 0 ... 600,
+                    step: 15
+                )
             } header: {
                 Text("Sabotage")
             } footer: {
-                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
+                Text(
+                    "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family."
+                )
             }
             .disabled(!admin.isLobby)
             .themedRows()
@@ -185,10 +207,16 @@ struct SetupTab: View {
             }
         }
         .onChange(of: client.boothMap == nil) { _, gone in
-            if gone { isShowingMap = false }
+            if gone {
+                isShowingMap = false
+            }
         }
         .fileImporter(isPresented: $isChoosingMap, allowedContentTypes: [.image]) { importMap($0) }
-        .alert("Rename family", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+        .alert("Rename family", isPresented: Binding(get: { renaming != nil }, set: {
+            if !$0 {
+                renaming = nil
+            }
+        })) {
             TextField("Name", text: $renameText)
             Button("Cancel", role: .cancel) { renaming = nil }
             Button("Rename") {
@@ -200,7 +228,11 @@ struct SetupTab: View {
         }
         .confirmationDialog(
             deleting.map { "Delete \($0.name)?" } ?? "",
-            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            isPresented: Binding(get: { deleting != nil }, set: {
+                if !$0 {
+                    deleting = nil
+                }
+            }),
             titleVisibility: .visible
         ) {
             if let family = deleting {
@@ -269,8 +301,12 @@ struct SetupTab: View {
         do {
             let url = try result.get()
             let isScoped = url.startAccessingSecurityScopedResource()
-            defer { if isScoped { url.stopAccessingSecurityScopedResource() } }
-            client.send(.admin(.setBoothMap(try Data(contentsOf: url))))
+            defer {
+                if isScoped {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+            try client.send(.admin(.setBoothMap(Data(contentsOf: url))))
             mapError = nil
         } catch {
             mapError = "Couldn't read that file."

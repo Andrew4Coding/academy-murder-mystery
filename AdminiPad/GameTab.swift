@@ -22,7 +22,11 @@ struct GameTab: View {
         .navigationTitle("Game")
         .confirmationDialog(
             confirmingEnd == .villagers ? "End the game with a villager win?" : "End the game with a werewolf win?",
-            isPresented: Binding(get: { confirmingEnd != nil }, set: { if !$0 { confirmingEnd = nil } }),
+            isPresented: Binding(get: { confirmingEnd != nil }, set: {
+                if !$0 {
+                    confirmingEnd = nil
+                }
+            }),
             titleVisibility: .visible
         ) {
             if let side = confirmingEnd {
@@ -111,10 +115,20 @@ struct GameTab: View {
 
     private var actions: some View {
         BentoGrid {
-            BentoButton(title: "Ring Bell", subtitle: "Rings on the Mac. Doesn't start the discussion.", systemImage: "bell.fill", tint: Theme.warning) {
+            BentoButton(
+                title: "Ring Bell",
+                subtitle: "Rings on the Mac. Doesn't start the discussion.",
+                systemImage: "bell.fill",
+                tint: Theme.warning
+            ) {
                 client.send(.admin(.ringBell))
             }
-            BentoButton(title: "Start Discussion", subtitle: "Call everyone to the Town Hall", systemImage: "person.3.fill", isProminent: admin.phase == .running) {
+            BentoButton(
+                title: "Start Discussion",
+                subtitle: "Call everyone to the Town Hall",
+                systemImage: "person.3.fill",
+                isProminent: admin.phase == .running
+            ) {
                 client.send(.admin(.startMeeting))
             }
             .disabled(admin.phase != .running)
@@ -130,7 +144,13 @@ struct GameTab: View {
                     }
                 }
             } label: {
-                BentoTile(title: "Vote for a Family", subtitle: "Cast a vote for a family that can't", systemImage: "hand.raised.fill", tint: Theme.accent, isProminent: isVoting)
+                BentoTile(
+                    title: "Vote for a Family",
+                    subtitle: "Cast a vote for a family that can't",
+                    systemImage: "hand.raised.fill",
+                    tint: Theme.accent,
+                    isProminent: isVoting
+                )
             }
             .buttonStyle(.plain)
             .menuIndicator(.hidden)
@@ -142,7 +162,13 @@ struct GameTab: View {
             ) { target, seconds in
                 client.send(.admin(.adjustTimer(target, seconds: seconds)))
             }
-            BentoButton(title: "Resolve Sabotage", subtitle: "Mark the active sabotage as fixed", systemImage: "checkmark.shield.fill", tint: Theme.success, isProminent: admin.sabotage != nil) {
+            BentoButton(
+                title: "Resolve Sabotage",
+                subtitle: "Mark the active sabotage as fixed",
+                systemImage: "checkmark.shield.fill",
+                tint: Theme.success,
+                isProminent: admin.sabotage != nil
+            ) {
                 client.send(.admin(.resolveSabotage))
             }
             .disabled(admin.sabotage == nil)
