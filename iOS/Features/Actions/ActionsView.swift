@@ -29,6 +29,7 @@ struct ActionsView: View {
             }
             .navigationTitle("Actions")
             .navigationBarTitleDisplayMode(.inline)
+            .refreshToolbar(client)
             .confirmationDialog(
                 target.map { "Eliminate \($0.name)?" } ?? "",
                 isPresented: Binding(get: { target != nil }, set: {

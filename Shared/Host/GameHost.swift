@@ -361,6 +361,20 @@ extension Booth {
     }
 }
 
+extension Booth {
+    var instructions: String {
+        switch self {
+        case .morseCode: "Decipher the Morse code message to reveal the hidden word."
+        case .painting: "Recreate the painting from the reference as closely as you can."
+        case .message: "Pass the message to the passenger without breaking the rules at the booth."
+        case .rightPlace: "Put each item in its right place."
+        case .pattern: "Follow the pattern and repeat it correctly."
+        case .tower: "Handle the tower danger challenge safely."
+        case .locks: "Separate the metal locks."
+        }
+    }
+}
+
 extension SabotageKind {
     var title: String {
         switch self {

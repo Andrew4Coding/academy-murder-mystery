@@ -19,7 +19,7 @@ struct GameTabsView: View {
     var body: some View {
         TabView(selection: $selection) {
             Tab("Family", systemImage: "house", value: .family) {
-                RoleView(game: game, boothMap: client.boothMap)
+                RoleView(game: game, boothMap: client.boothMap, client: client)
             }
             Tab("Meeting", systemImage: "person.3", value: .meeting) {
                 MeetingView(game: game, client: client)
@@ -39,14 +39,6 @@ struct GameTabsView: View {
                         : "Somebody reported a body. Go to the Town Hall."
                 )
             }
-        }
-        .overlay(alignment: .topTrailing) {
-            Button("Refresh", systemImage: "arrow.clockwise") { client.refresh() }
-                .labelStyle(.iconOnly)
-                .buttonStyle(.bordered)
-                .clipShape(.circle)
-                .padding(.trailing, 12)
-                .padding(.top, 4)
         }
         .overlay {
             if let startsAt = game.startsAt {

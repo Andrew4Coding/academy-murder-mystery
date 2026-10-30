@@ -3,6 +3,7 @@ import SwiftUI
 struct RoleView: View {
     let game: GameView
     let boothMap: BoothMap?
+    let client: GameClient
 
     @Environment(\.scenePhase) private var scenePhase
     @State private var isRevealed = false
@@ -21,32 +22,6 @@ struct RoleView: View {
                     }
                 }
 
-                if game.life != .alive {
-                    Section {
-                        StatusLabel(
-                            game.life == .killed ? "Your family was eliminated" : "Your family was voted out",
-                            systemImage: "xmark.circle.fill",
-                            tint: .red
-                        )
-                        Text(game.role == .werewolf
-                            ? "You can't vote anymore. Your werewolf family can still use sabotage."
-                            : "You can't vote anymore, but keep finishing your tasks: "
-                            + "your team still wins when every villager family is done.")
-                    }
-                }
-
-                Section {
-                    ForEach(game.tasks, id: \.self) { booth in
-                        Text(booth.title)
-                    }
-                } header: {
-                    Text("Your booths")
-                } footer: {
-                    Text(game.role == .werewolf
-                        ? "Pretend to do these so nobody suspects you."
-                        : "Visit these booths and complete their challenges.")
-                }
-
                 if let allies = game.allies, isRevealed || game.life != .alive {
                     Section("Fellow werewolf families") {
                         if allies.isEmpty {
@@ -62,6 +37,37 @@ struct RoleView: View {
                     }
                 }
 
+                if game.life != .alive {
+                    Section {
+                        StatusLabel(
+                            game.life == .killed ? "Your family was eliminated" : "Your family was voted out",
+                            systemImage: "xmark.circle.fill",
+                            tint: .red
+                        )
+                        Text(game.role == .werewolf
+                            ? "You can't vote anymore. Your werewolf family can still use sabotage."
+                            : "You can't vote anymore, but keep finishing your tasks: "
+                            + "your team still wins when every villager family is done.")
+                    }
+                }
+
+                Section {
+                    ForEach(Booth.allCases, id: \.self) { booth in
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(booth.title)
+                            Text(booth.instructions)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("All booths")
+                } footer: {
+                    Text(game.role == .werewolf
+                        ? "Pretend to do these so nobody suspects you."
+                        : "Visit every booth and complete its challenge.")
+                }
+
                 if let boothMap {
                     Section {
                         BoothMapCard(map: boothMap) { isShowingMap = true }
@@ -74,6 +80,7 @@ struct RoleView: View {
             }
             .navigationTitle(game.familyName)
             .navigationBarTitleDisplayMode(.inline)
+            .refreshToolbar(client)
             .onChange(of: scenePhase) { _, phase in
                 if phase != .active {
                     isRevealed = false

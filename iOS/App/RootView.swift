@@ -41,12 +41,20 @@ private struct ReconnectingView: View {
     let client: GameClient
 
     var body: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-            Text("Reconnecting to the game…")
-                .foregroundStyle(.secondary)
-            Button("Start Over", role: .destructive) { client.signOut() }
-                .buttonStyle(.bordered)
+        NavigationStack {
+            VStack(spacing: 16) {
+                ProgressView()
+                Text("Reconnecting to the game…")
+                    .foregroundStyle(.secondary)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Start Over", role: .destructive) { client.signOut() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Retry", systemImage: "arrow.clockwise") { client.refresh() }
+                }
+            }
         }
     }
 }

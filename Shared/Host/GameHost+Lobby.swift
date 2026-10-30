@@ -20,9 +20,6 @@ extension HostState {
         if !debug, werewolfCount * 2 >= families.count, !families.isEmpty {
             issues.append("Werewolf families must be fewer than half of all families.")
         }
-        if !(1 ... Booth.allCases.count).contains(settings.tasksPerFamily) {
-            issues.append("Tasks per family must be between 1 and \(Booth.allCases.count).")
-        }
         for family in families.values.sorted(by: { $0.id < $1.id }) where player(of: family.id) == nil {
             issues.append("\(family.name) has no player.")
         }

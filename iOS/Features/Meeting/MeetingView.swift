@@ -21,6 +21,7 @@ struct MeetingView: View {
             }
             .navigationTitle("Meeting")
             .navigationBarTitleDisplayMode(.inline)
+            .refreshToolbar(client)
         }
     }
 
@@ -172,7 +173,7 @@ private struct DeathsSection: View {
     let families: [FamilySummary]
 
     var body: some View {
-        Section("Since the last meeting") {
+        Section("Last Found Dead") {
             if families.isEmpty {
                 Text("No families were eliminated.")
             } else {

@@ -3,12 +3,12 @@ import Testing
 @testable import Moonfall
 
 struct GameEngineSetupTests {
-    @Test func assignsRolesAndFiveDistinctBoothsPerFamily() throws {
+    @Test func assignsRolesAndEveryBoothToEveryFamily() throws {
         let fixture = try Fixture(families: 10, werewolves: 2)
         #expect(fixture.werewolves.count == 2)
         #expect(fixture.villagers.count == 8)
         for family in fixture.engine.state.families.values {
-            #expect(family.tasks.count == 5)
+            #expect(family.tasks.count == Booth.allCases.count)
             #expect(family.life == .alive)
             }
     }
@@ -21,9 +21,6 @@ struct GameEngineSetupTests {
         }
         #expect(throws: RuleError.self) {
             try GameEngine.start(familyIDs: ids, werewolfCount: 3, at: t0, using: &generator)
-        }
-        #expect(throws: RuleError.self) {
-            try GameEngine.start(familyIDs: ids, werewolfCount: 1, settings: GameSettings(tasksPerFamily: 8), at: t0, using: &generator)
         }
         #expect(throws: RuleError.self) {
             try GameEngine.start(familyIDs: [1, 1, 2, 3], werewolfCount: 1, at: t0, using: &generator)

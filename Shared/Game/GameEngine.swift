@@ -16,9 +16,6 @@ struct GameEngine: Codable, Equatable, Sendable {
         guard settings.isDebug ? werewolfCount < ids.count : werewolfCount * 2 < ids.count else {
             throw RuleError.invalidSetup("Werewolf families must be fewer than half of all families")
         }
-        guard (1 ... Booth.allCases.count).contains(settings.tasksPerFamily) else {
-            throw RuleError.invalidSetup("Tasks per family must be between 1 and \(Booth.allCases.count)")
-        }
 
         let werewolves = Set(ids.shuffled(using: &generator).prefix(werewolfCount))
         let roles = Dictionary(uniqueKeysWithValues: ids.map { ($0, werewolves.contains($0) ? Role.werewolf : .villager) })
@@ -34,9 +31,6 @@ struct GameEngine: Codable, Equatable, Sendable {
         using generator: inout some RandomNumberGenerator
     ) throws -> (engine: GameEngine, events: [GameEvent]) {
         guard !roles.isEmpty else { throw RuleError.invalidSetup("At least one family is required") }
-        guard (1 ... Booth.allCases.count).contains(settings.tasksPerFamily) else {
-            throw RuleError.invalidSetup("Tasks per family must be between 1 and \(Booth.allCases.count)")
-        }
         return begin(roles: roles, settings: settings, at: now, using: &generator)
     }
 
@@ -48,7 +42,7 @@ struct GameEngine: Codable, Equatable, Sendable {
     ) -> (engine: GameEngine, events: [GameEvent]) {
         var families: [FamilyID: Family] = [:]
         for id in roles.keys.sorted() {
-            let tasks = Set(Booth.allCases.shuffled(using: &generator).prefix(settings.tasksPerFamily))
+            let tasks = Set(Booth.allCases)
             families[id] = Family(
                 id: id,
                 role: roles[id] ?? .villager,
