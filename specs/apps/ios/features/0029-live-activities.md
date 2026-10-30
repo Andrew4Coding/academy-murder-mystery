@@ -1,7 +1,7 @@
 ---
 id: 0029
 title: Live Activities
-status: draft
+status: in-progress
 owner: AND
 app: ios
 created: 2026-10-30
