@@ -37,13 +37,6 @@ struct DevicesView: View {
             ToolbarItem(placement: .status) {
                 HostStatusLabel(status: controller.status)
             }
-            ToolbarItem {
-                Button("Check Connectivity", systemImage: "antenna.radiowaves.left.and.right") {
-                    controller.host.checkConnectivity()
-                }
-                .keyboardShortcut("r", modifiers: .command)
-                .help("Ask every connected device to reply and flag the ones that can't be reached")
-            }
         }
     }
 }
