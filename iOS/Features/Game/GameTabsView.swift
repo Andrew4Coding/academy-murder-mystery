@@ -146,9 +146,16 @@ private struct StartCountdownView: View {
     let startsAt: Date
     let client: GameClient
 
+    @State private var remaining: TimeInterval
+
+    init(startsAt: Date, client: GameClient) {
+        self.startsAt = startsAt
+        self.client = client
+        _remaining = State(initialValue: startsAt.timeIntervalSince(client.serverNow))
+    }
+
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.25)) { context in
-            let remaining = startsAt.timeIntervalSince(client.serverClock.now(local: context.date))
+        Group {
             if remaining > 0 {
                 VStack(spacing: 12) {
                     Text("Game starts in").font(.title2)
@@ -161,6 +168,13 @@ private struct StartCountdownView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.background)
                 .accessibilityElement(children: .combine)
+            }
+        }
+        .task(id: startsAt) {
+            while !Task.isCancelled {
+                remaining = startsAt.timeIntervalSince(client.serverNow)
+                if remaining <= 0 { break }
+                try? await Task.sleep(for: .milliseconds(200))
             }
         }
     }

@@ -5,7 +5,7 @@ struct CountdownView: View {
     let now: @Sendable (Date) -> Date
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.25)) { context in
+        TimelineView(.periodic(from: .now, by: 0.25)) { context in
             let remaining = max(0, until.timeIntervalSince(now(context.date)).rounded(.up))
             Text(Duration.seconds(remaining), format: .time(pattern: .minuteSecond))
                 .monospacedDigit()
