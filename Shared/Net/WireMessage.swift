@@ -26,6 +26,7 @@ enum ServerMessage: Codable, Equatable, Sendable {
     case probe(UUID)
     case reset
     case selfies([Selfie])
+    case map(BoothMap?)
 }
 
 enum AdminCommand: Codable, Equatable, Sendable {

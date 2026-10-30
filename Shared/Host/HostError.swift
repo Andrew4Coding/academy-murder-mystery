@@ -12,6 +12,7 @@ enum HostError: Error, Equatable, Sendable {
     case notAPlayer
     case invalidName
     case photoTooLarge
+    case invalidImage
     case notNearBody
     case setup(String)
     case notNearby
@@ -35,6 +36,7 @@ enum HostError: Error, Equatable, Sendable {
         case .notAPlayer: "Only players can do that."
         case .notNearBody: "Get closer to the body to report it."
         case .photoTooLarge: "That photo is too large."
+        case .invalidImage: "That file isn't an image the map can use."
         case .invalidName: "Family names need 1 to 24 characters."
         case let .setup(reason): reason
         case .notNearby: "That family isn't close enough."
