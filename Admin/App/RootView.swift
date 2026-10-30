@@ -38,6 +38,7 @@ struct RootView: View {
 
     @State private var selection: AdminSection? = .setup
     @Environment(\.openWindow) private var openWindow
+    @State private var bell = AdminSound("bell")
 
     var body: some View {
         NavigationSplitView {
@@ -53,7 +54,7 @@ struct RootView: View {
             case .game:
                 GameControlView(controller: controller)
             case .display:
-                DisplaySettingsView()
+                DisplaySettingsView(controller: controller)
             case .simulation:
                 SimulationView(controller: simulation)
             case .devices:
@@ -69,6 +70,7 @@ struct RootView: View {
             }
         }
         .task { await controller.start() }
+        .onChange(of: controller.host.bellRings) { _, _ in bell.play() }
     }
 }
 
