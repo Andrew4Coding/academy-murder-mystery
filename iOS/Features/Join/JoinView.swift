@@ -65,9 +65,6 @@ struct JoinView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("I'm an Organiser", systemImage: "person.badge.key") { isSigningInAsOC = true }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    ConnectionBadge(status: client.status)
-                }
             }
             .sheet(isPresented: $isSigningInAsOC) { OCSignInView(client: client) }
             .sheet(isPresented: $isScanning) {
@@ -90,24 +87,6 @@ struct JoinView: View {
     private func join() {
         guard canJoin else { return }
         client.join(code: code, name: name)
-    }
-}
-
-struct ConnectionBadge: View {
-    let status: ConnectionStatus
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        switch status {
-        case .connected:
-            Label("Connected", systemImage: "wifi")
-        case .failed:
-            Label("Offline", systemImage: "wifi.exclamationmark")
-        default:
-            Label("Searching", systemImage: "wifi")
-                .symbolEffect(.variableColor.iterative, isActive: !reduceMotion)
-        }
     }
 }
 
