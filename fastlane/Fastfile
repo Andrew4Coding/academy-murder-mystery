@@ -96,6 +96,50 @@ def build_signed(platform, target, key, **extra)
   end
 end
 
+BETA_REVIEW_VARS = %w[BETA_REVIEW_FIRST_NAME BETA_REVIEW_LAST_NAME BETA_REVIEW_PHONE BETA_REVIEW_EMAIL].freeze
+
+def beta_review_notes(target)
+  path = File.join(target[:metadata], "beta_review_notes.txt")
+  File.exist?(path) ? File.read(path).strip : ENV.fetch("BETA_REVIEW_NOTES", "")
+end
+
+def distribute_external(target, platform, options)
+  missing = BETA_REVIEW_VARS.reject { |name| ENV[name].to_s.strip != "" }
+  UI.user_error!("Set #{missing.join(', ')} in fastlane/.env (Beta App Review contact)") unless missing.empty?
+
+  key = api_key
+  build_number = (options[:build_number] || latest_testflight_build_number(api_key: key, app_identifier: target[:bundle_id], platform: platform)).to_s
+  upload_to_testflight(
+    api_key: key,
+    app_identifier: target[:bundle_id],
+    app_platform: platform,
+    distribute_only: true,
+    build_number: build_number,
+    distribute_external: true,
+    groups: [ENV.fetch("BETA_GROUP", "Beta")],
+    changelog: options[:changelog] || ENV.fetch("BETA_CHANGELOG", "First external beta."),
+    notify_external_testers: true,
+    # An explicit locale is needed: "default" and beta_app_description only update localizations that already exist,
+    # and a new app has none, so the description would silently stay empty.
+    localized_app_info: {
+      ENV.fetch("BETA_LOCALE", "en-US") => {
+        description: ENV.fetch("BETA_DESCRIPTION", "A social deduction game for events: families, hidden roles and tasks, played on phones around a Mac host."),
+        feedback_email: ENV.fetch("BETA_FEEDBACK_EMAIL", ENV.fetch("BETA_REVIEW_EMAIL")),
+        privacy_policy_url: ENV["BETA_PRIVACY_URL"],
+        marketing_url: ENV["BETA_MARKETING_URL"]
+      }.compact
+    },
+    beta_app_review_info: {
+      contact_first_name: ENV.fetch("BETA_REVIEW_FIRST_NAME"),
+      contact_last_name: ENV.fetch("BETA_REVIEW_LAST_NAME"),
+      contact_phone: ENV.fetch("BETA_REVIEW_PHONE"),
+      contact_email: ENV.fetch("BETA_REVIEW_EMAIL"),
+      demo_account_required: false,
+      notes: beta_review_notes(target)
+    }
+  )
+end
+
 def bump_marketing_version(xcconfig, type)
   content = File.read(xcconfig)
   bumped = content.sub(/MARKETING_VERSION = (\d+)\.(\d+)\.(\d+)/) do
@@ -204,6 +248,16 @@ platform :ios do
     upload_to_testflight(api_key: key, app_identifier: adminpad_app[:bundle_id], skip_waiting_for_build_processing: true)
   end
 
+  desc "Submit the latest MoonfalliOS TestFlight build to external testers (build_number:N changelog:\"...\")"
+  lane :beta_external do |options|
+    distribute_external(ios_app, "ios", options)
+  end
+
+  desc "Submit the latest MoonfallAdminiPad TestFlight build to external testers"
+  lane :adminpad_beta_external do |options|
+    distribute_external(adminpad_app, "ios", options)
+  end
+
   private_lane :prepare_ios do |target|
     generate_project
     key = api_key
@@ -244,6 +298,11 @@ platform :mac do
       platform: "osx",
       pkg: lane_context[SharedValues::PKG_OUTPUT_PATH]
     )
+  end
+
+  desc "Submit the latest MoonfallAdmin TestFlight build to external testers"
+  lane :beta_external do |options|
+    distribute_external(mac_app, "osx", options)
   end
 
   private_lane :prepare_mac do |target|
