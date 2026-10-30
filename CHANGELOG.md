@@ -43,6 +43,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- Joining asks only for a family name, which is also shown as your name.
 - New app icon: a wolf face cut out of a blood-red moon.
 - Kill and sabotage are ready at the start of the game, with no opening cooldown ([0011](specs/features/0011-lifecycle-bugfixes.md)).
 
@@ -78,6 +79,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- Setup now picks up changes made from the iPad instead of overwriting them with stale values.
 - App icon is shared with the iOS apps, from one Icon Composer bundle.
 - Sidebar rows can be clicked again.
 
