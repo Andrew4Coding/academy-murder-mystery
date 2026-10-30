@@ -46,8 +46,10 @@ private struct PinView: View {
                         .disabled(pin.isEmpty || client.status != .connected)
                 }
             }
-            .navigationTitle("Moonfall OC")
             .frame(maxWidth: 520)
+            .frame(maxWidth: .infinity)
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Moonfall OC")
         }
     }
 }
