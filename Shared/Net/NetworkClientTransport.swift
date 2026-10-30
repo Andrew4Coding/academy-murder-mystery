@@ -15,6 +15,8 @@ final class NetworkClientTransport: ClientTransport {
     private var connection: NWConnection?
     private var running = false
     private var retry: Task<Void, Never>?
+    private var cachedEndpoint: NWEndpoint?
+    private var triedCache = false
 
     init(target: Target = .discover) {
         self.target = target
@@ -48,6 +50,11 @@ final class NetworkClientTransport: ClientTransport {
             guard let port = NWEndpoint.Port(rawValue: port) else { return }
             connect(to: .hostPort(host: NWEndpoint.Host(host), port: port))
         case .discover:
+            if let cachedEndpoint, !triedCache {
+                triedCache = true
+                connect(to: cachedEndpoint)
+                return
+            }
             continuation.yield(.status(.searching))
             let browser = NWBrowser(for: .bonjour(type: NetworkHostTransport.serviceType, domain: nil), using: .moonfall())
             browser.browseResultsChangedHandler = { [weak self] results, _ in
@@ -75,6 +82,8 @@ final class NetworkClientTransport: ClientTransport {
         guard connection === self.connection else { return }
         switch state {
         case .ready:
+            triedCache = false
+            cachedEndpoint = connection.endpoint
             continuation.yield(.status(.connected))
             receive(on: connection)
         case let .failed(error):
@@ -86,14 +95,23 @@ final class NetworkClientTransport: ClientTransport {
         }
     }
 
+    func reconnect() {
+        guard running, connection != nil else { return }
+        connection?.cancel()
+    }
+
     private func lost(reason: String?) {
         connection?.cancel()
         connection = nil
+        if triedCache {
+            cachedEndpoint = nil
+            triedCache = false
+        }
         guard running else { return }
         continuation.yield(.status(reason.map { .failed($0) } ?? .searching))
         retry?.cancel()
         retry = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(1))
+            try? await Task.sleep(for: .milliseconds(500))
             guard !Task.isCancelled, let self, running else { return }
             if case .discover = target {
                 browser?.cancel(); browser = nil

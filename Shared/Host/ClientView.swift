@@ -162,10 +162,12 @@ struct ServerClock: Equatable, Sendable {
     private(set) var offset: TimeInterval = 0
 
     mutating func sync(serverTime: Date, receivedAt local: Date) {
-        offset = serverTime.timeIntervalSince(local)
+        samples = Array((samples + [serverTime.timeIntervalSince(local)]).suffix(8))
+        offset = samples.max() ?? 0
     }
 
     func now(local: Date = Date()) -> Date {
         local.addingTimeInterval(offset)
     }
 }
+    private var samples: [TimeInterval] = []

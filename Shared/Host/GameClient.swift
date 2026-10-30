@@ -39,6 +39,9 @@ final class GameClient {
     @ObservationIgnored private let store: any IdentityStore
     @ObservationIgnored private var pendingHello: Hello?
     @ObservationIgnored private var pump: Task<Void, Never>?
+    @ObservationIgnored private var heartbeat: Task<Void, Never>?
+    @ObservationIgnored private var lastHeard = Date()
+    @ObservationIgnored private var queuedKill: (message: ClientMessage, at: Date)?
 
     init(transport: any ClientTransport, store: any IdentityStore) {
         self.transport = transport
@@ -60,6 +63,33 @@ final class GameClient {
             }
         }
         transport.start()
+        heartbeat = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Self.heartbeatInterval))
+                self?.beat()
+            }
+        }
+    }
+
+    private static let heartbeatInterval: TimeInterval = 4
+    private static let silenceLimit: TimeInterval = 12
+
+    private func beat() {
+        guard isSignedIn else { return }
+        if Date().timeIntervalSince(lastHeard) > Self.silenceLimit {
+            transport.reconnect()
+        } else {
+            transport.send(.sync)
+        }
+    }
+
+    func refresh() {
+        lastError = nil
+        if isSignedIn {
+            transport.send(.sync)
+        } else {
+            transport.reconnect()
+        }
     }
 
     func clearError() {
@@ -69,6 +99,8 @@ final class GameClient {
     func stop() {
         pump?.cancel()
         pump = nil
+        heartbeat?.cancel()
+        heartbeat = nil
         transport.stop()
     }
 
@@ -81,7 +113,12 @@ final class GameClient {
     }
 
     func send(_ message: ClientMessage) {
-        guard isSignedIn else { return }
+        guard isSignedIn else {
+            if case .kill = message {
+                queuedKill = (message, Date())
+            }
+            return
+        }
         transport.send(message)
     }
 
@@ -114,12 +151,21 @@ final class GameClient {
         case let .status(newStatus):
             status = newStatus
             if newStatus == .connected {
+                lastHeard = Date()
                 announce()
             } else {
                 isSignedIn = false
             }
         case let .message(message):
             handle(message)
+        }
+    }
+
+    private func flushQueuedKill() {
+        guard let queued = queuedKill else { return }
+        queuedKill = nil
+        if Date().timeIntervalSince(queued.at) < 10 {
+            transport.send(queued.message)
         }
     }
 
@@ -130,14 +176,15 @@ final class GameClient {
     }
 
     private func announce() {
-        if let hello = pendingHello {
-            transport.send(.hello(withMapHash(hello)))
-        } else if let resumeID = store.resumeID {
+        if let resumeID = store.resumeID {
             transport.send(.hello(withMapHash(Hello(credential: .resume(resumeID)))))
+        } else if let hello = pendingHello {
+            transport.send(.hello(withMapHash(hello)))
         }
     }
 
     private func handle(_ message: ServerMessage) {
+        lastHeard = Date()
         switch message {
         case let .welcome(welcome):
             store.resumeID = welcome.resumeID
@@ -145,16 +192,15 @@ final class GameClient {
             isSignedIn = true
             isResuming = true
             lastError = nil
+            flushQueuedKill()
             serverClock.sync(serverTime: welcome.serverTime, receivedAt: Date())
         case let .state(newView):
             view = newView
             serverClock.sync(serverTime: newView.serverTime, receivedAt: Date())
         case let .rejected(reason):
             lastError = reason
-            pendingHello = nil
-            if reason == HostError.unknownDevice.message {
-                signOut()
-                lastError = reason
+            if reason != HostError.unknownDevice.message {
+                pendingHello = nil
             }
         case let .probe(nonce):
             transport.send(.probeReply(nonce))

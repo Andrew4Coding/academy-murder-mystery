@@ -266,11 +266,15 @@ final class GameHost {
         let identity: Identity
         do {
             identity = try resolve(hello)
-        } catch let error as HostError where error == .invalidCredential || error == .unknownDevice {
+        } catch let error as HostError where error == .invalidCredential {
             registerFailure(for: id)
             throw error
         }
 
+        for (other, session) in sessions where other != id && session.identity == identity {
+            sessions[other] = nil
+            transport?.disconnect(other)
+        }
         sessions[id]?.failures = 0
         sessions[id]?.identity = identity
         let resumeID: UUID = switch identity {

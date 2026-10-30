@@ -9,8 +9,8 @@ struct SetupView: View {
     @State private var werewolfCount = 2
     @State private var discussionMinutes = 2
     @State private var votingMinutes = 2
-    @State private var rssiThreshold = -65.0
-    @State private var sightingFreshness = 5
+    @State private var rssiThreshold = -75.0
+    @State private var sightingFreshness = 10
     @State private var testRoles: [FamilyID: Role] = [:]
     @State private var debugMode = false
     @State private var killCooldown = GameSettings.standard.killCooldown

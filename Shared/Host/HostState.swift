@@ -8,8 +8,8 @@ struct HostState: Codable, Equatable, Sendable {
     var players: [PlayerID: Player] = [:]
     var ocDevices: [UUID: OCDevice] = [:]
     var ocPin: String
-    var rssiThreshold = -65
-    var sightingFreshness: TimeInterval = 5
+    var rssiThreshold = -75
+    var sightingFreshness: TimeInterval = 10
     var engine: GameEngine?
     var simulated = false
 

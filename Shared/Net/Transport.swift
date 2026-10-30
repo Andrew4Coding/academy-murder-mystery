@@ -34,4 +34,9 @@ protocol ClientTransport: AnyObject {
     func start()
     func stop()
     func send(_ message: ClientMessage)
+    func reconnect()
+}
+
+extension ClientTransport {
+    func reconnect() {}
 }
