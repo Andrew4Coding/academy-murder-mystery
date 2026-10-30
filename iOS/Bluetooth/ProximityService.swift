@@ -26,6 +26,7 @@ final class ProximityService: NSObject {
         self.report = report
         wantsAdvertise = advertise
         wantsScan = scan
+        peripheral?.stopAdvertising()
         if advertise, peripheral == nil {
             peripheral = CBPeripheralManager(delegate: self, queue: .main)
         }
