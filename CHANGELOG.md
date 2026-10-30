@@ -65,6 +65,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Setup, Game and Devices tabs with everything the Mac has except Simulation and Display: settings, Bluetooth range, join QR, OC PIN, booth map, families, stamps, eliminate and revive, proxy votes, timers, end game, new game and a connection check.
 - Booth map card on the dashboard opens the uploaded map in a zoomable viewer ([0030](specs/features/0030-booth-map.md)).
 - Timers are one menu, and error and sabotage text keeps its colour on the icon only ([0027](specs/features/0027-hig-compliance.md)).
 - Add or remove time on the meeting timer, game clock and sabotage countdown, with presets and a custom entry ([0025](specs/features/0025-editable-timers.md)).
