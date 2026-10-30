@@ -29,10 +29,13 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSBonjourServices:
           - _moonfall._tcp
+        NSSupportsLiveActivities: true
     sources:
       - Shared
       - path: iOS
         excludes: ["*.xcconfig"]
+    dependencies:
+      - target: MoonfalliOSLiveActivity
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall
@@ -52,6 +55,32 @@ targets:
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+  MoonfalliOSLiveActivity:
+    type: app-extension
+    supportedDestinations: [iOS]
+    configFiles:
+      Debug: iOS/MoonfalliOS.xcconfig
+      Release: iOS/MoonfalliOS.xcconfig
+    info:
+      path: LiveActivity/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    sources:
+      - LiveActivity
+      - Shared/LiveActivity/GameActivityState.swift
+      - iOS/LiveActivity/GameActivityAttributes.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrew4coding.Moonfall.LiveActivity
+        INFOPLIST_KEY_CFBundleDisplayName: Moonfall Live Activity
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SKIP_INSTALL: YES
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
   MoonfalliOSTests:
     type: bundle.unit-test
     supportedDestinations: [iOS]
