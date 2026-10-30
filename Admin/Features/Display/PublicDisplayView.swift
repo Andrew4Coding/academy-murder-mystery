@@ -8,6 +8,7 @@ enum PublicDisplayWindow {
 
 struct PublicDisplayView: View {
     let controller: HostController
+    var playsSound = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -25,7 +26,7 @@ struct PublicDisplayView: View {
             let now = controller.host.clock.now
             VStack(spacing: 32) {
                 if let alarm = display.alarm {
-                    AlarmBanner(alarm: alarm, now: now, animate: !reduceMotion)
+                    AlarmBanner(alarm: alarm, now: now, animate: !reduceMotion, playsSound: playsSound)
                 }
                 Spacer(minLength: 0)
                 content(display, now: now)
@@ -153,9 +154,10 @@ private struct RevealBlock: View {
                     .foregroundStyle(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
             }
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: 20)], spacing: 20) {
+            CenteredFlowLayout(spacing: 20) {
                 ForEach(families) { family in
                     card(family)
+                        .frame(width: 340)
                 }
             }
         }
@@ -317,9 +319,9 @@ private struct AlarmBanner: View {
     let alarm: PublicDisplayState.Alarm
     let now: Date
     let animate: Bool
+    let playsSound: Bool
 
-    @AppStorage("displayAlarmMuted") private var muted = false
-    @State private var sound = AlarmSound()
+    @State private var sound = AdminSound("alarm", loops: true)
 
     var body: some View {
         HStack(spacing: 24) {
@@ -330,9 +332,8 @@ private struct AlarmBanner: View {
             Text(Duration.seconds(max(0, alarm.endsAt.timeIntervalSince(now))), format: .time(pattern: .minuteSecond))
                 .monospacedDigit()
         }
-        .onAppear { sound.play(muted: muted) }
+        .onAppear { if playsSound { sound.play() } }
         .onDisappear { sound.stop() }
-        .onChange(of: muted) { _, now in now ? sound.stop() : sound.play(muted: false) }
         .font(.system(size: PublicDisplayLayout.headlineFontSize, weight: .bold))
         .padding(24)
         .background(.red, in: .rect(cornerRadius: 24))
@@ -340,20 +341,47 @@ private struct AlarmBanner: View {
     }
 }
 
-@MainActor
-private final class AlarmSound {
-    private let sound = NSSound(named: "Sosumi")
+private struct CenteredFlowLayout: Layout {
+    let spacing: CGFloat
 
-    init() {
-        sound?.loops = true
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = rows(in: proposal.width ?? .infinity, subviews)
+        let height = rows.map(\.height).reduce(0, +) + spacing * CGFloat(max(rows.count - 1, 0))
+        return CGSize(width: proposal.width ?? rows.map(\.width).max() ?? 0, height: height)
     }
 
-    func play(muted: Bool) {
-        guard !muted else { return }
-        sound?.play()
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for row in rows(in: bounds.width, subviews) {
+            var x = bounds.minX + (bounds.width - row.width) / 2
+            for index in row.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            y += row.height + spacing
+        }
     }
 
-    func stop() {
-        sound?.stop()
+    private struct Row {
+        var indices: [Int] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    private func rows(in maxWidth: CGFloat, _ subviews: Subviews) -> [Row] {
+        var rows = [Row()]
+        for index in subviews.indices {
+            let size = subviews[index].sizeThatFits(.unspecified)
+            let added = rows[rows.count - 1].indices.isEmpty ? size.width : spacing + size.width
+            if rows[rows.count - 1].width + added > maxWidth, !rows[rows.count - 1].indices.isEmpty {
+                rows.append(Row())
+            }
+            let isFirst = rows[rows.count - 1].indices.isEmpty
+            rows[rows.count - 1].width += isFirst ? size.width : spacing + size.width
+            rows[rows.count - 1].height = max(rows[rows.count - 1].height, size.height)
+            rows[rows.count - 1].indices.append(index)
+        }
+        return rows
     }
 }

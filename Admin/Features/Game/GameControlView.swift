@@ -177,12 +177,17 @@ struct GameControlView: View {
                 .help("Resolve a sabotage or end the game")
             }
             ToolbarItem(placement: .primaryAction) {
-                Button("Start Discussion", systemImage: "bell.fill") {
-                    attempt { try host.applyAsOC(.startMeeting) }
+                ControlGroup {
+                    Button("Ring Bell", systemImage: "bell.fill") { host.ringBell() }
+                        .keyboardShortcut("b", modifiers: .command)
+                        .help("Ring the bell on this Mac. This does not start the discussion.")
+                    Button("Start Discussion", systemImage: "person.3.fill") {
+                        attempt { try host.applyAsOC(.startMeeting) }
+                    }
+                    .keyboardShortcut("d", modifiers: .command)
+                    .disabled(game.phase != .running)
+                    .help("Call everyone to the Town Hall after the bell has rung")
                 }
-                .keyboardShortcut("d", modifiers: .command)
-                .disabled(game.phase != .running)
-                .help("Call everyone to the Town Hall. Ring the bell first.")
             }
         }
     }
