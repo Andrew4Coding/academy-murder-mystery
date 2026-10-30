@@ -1,0 +1,3 @@
+Moonfall Admin is the host for an in-person game. No account or sign-in is needed.
+
+Open the app and use Setup to create a game. It advertises itself on the local network; phones running Moonfall join with the join code shown here. The OC PIN, also set in Setup, is what the Moonfall OC iPad app uses to sign in.

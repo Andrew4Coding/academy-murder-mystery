@@ -1,0 +1,3 @@
+Moonfall OC is the organizing-committee iPad companion for an in-person game. No account is needed.
+
+It connects to the Mac running Moonfall Admin on the same Wi-Fi network (it asks for Local Network access) and signs in with the OC PIN set in Moonfall Admin's Setup. Without a running Mac host it stays on the sign-in screen.
