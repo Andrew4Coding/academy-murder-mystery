@@ -83,13 +83,15 @@ struct ActionsView: View {
                         reportCount += 1
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(game.phase != .running)
+                    .disabled(game.phase != .running || game.sabotage != nil)
                 }
             }
         } header: {
             Text("Report a body")
         } footer: {
-            Text("Walk up to a fallen family and keep this app open. Reporting calls everyone to the Town Hall.")
+            Text(game.sabotage != nil
+                ? "Nobody can call a meeting while a sabotage is active."
+                : "Walk up to a fallen family and keep this app open. Reporting calls everyone to the Town Hall.")
         }
     }
 

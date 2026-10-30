@@ -11,12 +11,14 @@ struct RoleView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    RoleCard(role: game.role, isRevealed: $isRevealed)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                } footer: {
-                    Text("Keep your role secret. Never show your screen to anyone. It hides again when you leave the app.")
+                if game.life == .alive {
+                    Section {
+                        RoleCard(role: game.role, isRevealed: $isRevealed)
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                    } footer: {
+                        Text("Keep your role secret. Never show your screen to anyone. It hides again when you leave the app.")
+                    }
                 }
 
                 if game.life != .alive {
@@ -54,7 +56,7 @@ struct RoleView: View {
                         : "Ask the organiser at each booth for a stamp when you finish.")
                 }
 
-                if let allies = game.allies, isRevealed {
+                if let allies = game.allies, isRevealed || game.life != .alive {
                     Section("Fellow werewolf families") {
                         if allies.isEmpty {
                             Text("You are the only werewolf family.")

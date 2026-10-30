@@ -46,6 +46,10 @@ struct FamilyLobbyView: View {
                 }
             }
             .navigationTitle("Get Ready")
+            .task {
+                BluetoothPermission.shared.request()
+                MeetingAlert.shared.prepare()
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

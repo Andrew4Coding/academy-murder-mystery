@@ -74,12 +74,15 @@ struct MeetingView: View {
             Section {
                 Button(
                     game.mySkipVote ? "Withdraw skip vote" : "Vote to skip discussion",
-                    systemImage: "forward.end"
+                    systemImage: game.mySkipVote ? "checkmark.circle.fill" : "forward.end"
                 ) { client.send(.voteSkipDiscussion) }
+                    .buttonStyle(.borderedProminent)
+                    .tint(game.mySkipVote ? .green : .accentColor)
+                ProgressView(value: Double(game.skipVotes), total: Double(max(game.votersTotal, 1)))
                 Text("\(game.skipVotes) of \(game.votersTotal) families want to skip.")
                     .foregroundStyle(.secondary)
             } footer: {
-                Text("If most families agree, the organiser can approve and voting opens right away.")
+                Text("When more than half of the families agree, voting opens right away.")
             }
         }
     }
@@ -190,8 +193,8 @@ private struct ResultSection: View {
                 Text("Nobody was voted out.")
             }
             ForEach(result.expelled) { family in
-                Label("\(family.name) was a \(family.role.title.lowercased()) family", systemImage: family.role.symbol)
-                    .foregroundStyle(family.role.tint)
+                Label("\(family.name) was voted out", systemImage: "person.fill.xmark")
+                    .foregroundStyle(.red)
             }
             if !result.rows.isEmpty {
                 VoteChart(rows: result.rows)

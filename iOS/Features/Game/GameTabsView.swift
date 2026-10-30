@@ -33,6 +33,24 @@ struct GameTabsView: View {
         .onChange(of: game.phase.isMeeting) { _, isMeeting in
             if isMeeting {
                 selection = .meeting
+                MeetingAlert.shared.ring(
+                    body: game.announcedDeaths.isEmpty
+                        ? "A meeting was called. Go to the Town Hall."
+                        : "Somebody reported a body. Go to the Town Hall."
+                )
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            Button("Refresh", systemImage: "arrow.clockwise") { client.refresh() }
+                .labelStyle(.iconOnly)
+                .buttonStyle(.bordered)
+                .clipShape(.circle)
+                .padding(.trailing, 12)
+                .padding(.top, 4)
+        }
+        .overlay {
+            if let startsAt = game.startsAt {
+                StartCountdownView(startsAt: startsAt, client: client)
             }
         }
         .safeAreaInset(edge: .top) {
@@ -62,6 +80,9 @@ struct GameTabsView: View {
         .sensoryFeedback(.warning, trigger: game.phase.isMeeting)
         .sensoryFeedback(.error, trigger: game.sabotage?.startedAt)
         .task(id: game.deadline) { await syncAfterDeadline() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { client.refresh() }
+        }
         .task(id: ProximityPlan(game: game, isActive: scenePhase == .active)) { configureProximity() }
         .onDisappear { proximity.stop() }
     }
@@ -117,6 +138,30 @@ private extension PhaseView {
             true
         } else {
             false
+        }
+    }
+}
+
+private struct StartCountdownView: View {
+    let startsAt: Date
+    let client: GameClient
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 0.25)) { context in
+            let remaining = startsAt.timeIntervalSince(client.serverClock.now(local: context.date))
+            if remaining > 0 {
+                VStack(spacing: 12) {
+                    Text("Game starts in").font(.title2)
+                    Text("\(Int(remaining.rounded(.up)))")
+                        .scaledSystemFont(size: 96, weight: .bold)
+                        .monospacedDigit()
+                    Text("Get ready. Keep this app open.")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.background)
+                .accessibilityElement(children: .combine)
+            }
         }
     }
 }
