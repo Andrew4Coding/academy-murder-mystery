@@ -35,6 +35,7 @@ struct GameTab: View {
     private var content: some View {
         VStack(spacing: 0) {
             Form {
+                Section { actions }
                 statusSection
                 if let result = admin.lastResult {
                     Section(result.isFinal ? "Final vote result" : "Last vote") {
@@ -50,7 +51,7 @@ struct GameTab: View {
                 }
             }
             .formStyle(.grouped)
-            .frame(maxHeight: 300)
+            .frame(maxHeight: 480)
             familiesTable
         }
         .toolbar { toolbar }
@@ -125,29 +126,34 @@ struct GameTab: View {
         ToolbarItem {
             Toggle("Show Roles", systemImage: showRoles ? "eye" : "eye.slash", isOn: $showRoles)
         }
-        ToolbarItem {
-            Menu("Selected", systemImage: "checklist") {
-                familyActions(selection)
+    }
+
+    private var actions: some View {
+        BentoGrid {
+            BentoButton(title: "Ring Bell", subtitle: "Rings on the Mac. Doesn't start the discussion.", systemImage: "bell.fill", tint: .orange) {
+                client.send(.admin(.ringBell))
             }
-        }
-        ToolbarItem {
-            Menu("Meeting", systemImage: "person.3") {
-                Menu("Vote for a Family", systemImage: "hand.raised") {
-                    ForEach(admin.families.filter { $0.life == .alive && !$0.voted }) { voter in
-                        Menu(voter.name) {
-                            ForEach(admin.families.filter { $0.life == .alive }) { target in
-                                Button(target.name) {
-                                    client.send(.admin(.proxyVote(family: voter.id, choice: .family(target.id))))
-                                }
+            BentoButton(title: "Start Discussion", subtitle: "Call everyone to the Town Hall", systemImage: "person.3.fill", tint: .blue) {
+                client.send(.admin(.startMeeting))
+            }
+            .disabled(admin.phase != .running)
+            Menu {
+                ForEach(admin.families.filter { $0.life == .alive && !$0.voted }) { voter in
+                    Menu(voter.name) {
+                        ForEach(admin.families.filter { $0.life == .alive }) { target in
+                            Button(target.name) {
+                                client.send(.admin(.proxyVote(family: voter.id, choice: .family(target.id))))
                             }
-                            Button("Skip") { client.send(.admin(.proxyVote(family: voter.id, choice: .skip))) }
                         }
+                        Button("Skip") { client.send(.admin(.proxyVote(family: voter.id, choice: .skip))) }
                     }
                 }
-                .disabled(!isVoting)
+            } label: {
+                BentoTile(title: "Vote for a Family", subtitle: "Cast a vote for a family that can't", systemImage: "hand.raised.fill", tint: .teal)
             }
-        }
-        ToolbarItem {
+            .buttonStyle(.plain)
+            .menuIndicator(.hidden)
+            .disabled(!isVoting)
             TimerAdjustMenu(
                 meeting: admin.phase.isMeeting,
                 gameClock: !isEnded,
@@ -155,26 +161,30 @@ struct GameTab: View {
             ) { target, seconds in
                 client.send(.admin(.adjustTimer(target, seconds: seconds)))
             }
-        }
-        ToolbarItem {
-            Menu("Game", systemImage: "flag.checkered") {
-                Button("Resolve Sabotage", systemImage: "checkmark.shield") { client.send(.admin(.resolveSabotage)) }
-                    .disabled(admin.sabotage == nil)
-                Divider()
-                Menu("End Game", systemImage: "flag.checkered") {
-                    Button("Villagers Win") { confirmingEnd = .villagers }
-                    Button("Werewolves Win") { confirmingEnd = .werewolves }
-                }
-                .disabled(isEnded)
+            BentoButton(title: "Resolve Sabotage", subtitle: "Mark the active sabotage as fixed", systemImage: "checkmark.shield.fill", tint: .green) {
+                client.send(.admin(.resolveSabotage))
             }
-        }
-        ToolbarItem(placement: .primaryAction) {
-            ControlGroup {
-                Button("Ring Bell", systemImage: "bell.fill") { client.send(.admin(.ringBell)) }
-                Button("Start Discussion", systemImage: "person.3.fill") { client.send(.admin(.startMeeting)) }
-                    .disabled(admin.phase != .running)
+            .disabled(admin.sabotage == nil)
+            BentoButton(title: "Eliminate Selected", subtitle: "Remove the selected families", systemImage: "xmark.circle.fill", tint: .red) {
+                client.send(.admin(.eliminate(Array(selection))))
             }
+            .disabled(selection.isEmpty)
+            BentoButton(title: "Revive Selected", subtitle: "Bring the selected families back", systemImage: "arrow.uturn.backward.circle.fill", tint: .mint) {
+                client.send(.admin(.revive(Array(selection))))
+            }
+            .disabled(selection.isEmpty)
+            Menu {
+                Button("Villagers Win") { confirmingEnd = .villagers }
+                Button("Werewolves Win") { confirmingEnd = .werewolves }
+            } label: {
+                BentoTile(title: "End Game", subtitle: "Declare a winner", systemImage: "flag.checkered", tint: .red)
+            }
+            .buttonStyle(.plain)
+            .menuIndicator(.hidden)
+            .disabled(isEnded)
         }
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets())
     }
 
     private func voteStatus(_ family: AdminFamilyRow) -> String {
