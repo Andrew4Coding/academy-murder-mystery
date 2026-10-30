@@ -102,7 +102,7 @@ struct GameHostMeetingTests {
         #expect(!json.contains("\"skip\"") && !json.contains("family\":{\"_0\""))
     }
 
-    @Test func resultsAreSharedWithEveryoneAndExpelledFamiliesAreRevealed() async throws {
+    @Test func resultsAreSharedWithEveryoneAndExpelledRolesStayHidden() async throws {
         let (harness, heads) = try await startedGame()
         let wolf = werewolf(harness)
         try harness.host.applyAsOC(.startMeeting)
@@ -116,7 +116,8 @@ struct GameHostMeetingTests {
             heads.values.allSatisfy { $0.view?.game?.lastResult != nil }
         })
         let result = try #require(heads[1]?.view?.game?.lastResult)
-        #expect(result.expelled.map(\.role) == [.werewolf])
+        #expect(result.expelled.count == 1)
+        #expect(result.expelled.allSatisfy { $0.role == nil })
         #expect(result.rows.first { !$0.isSkip }?.count == 4)
         #expect(result.rows.first { $0.isSkip }?.count == 1)
         #expect(heads[wolf]?.view?.game?.life == .expelled)

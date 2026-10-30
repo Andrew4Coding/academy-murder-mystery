@@ -52,6 +52,8 @@ struct PublicDisplayView: View {
             Headline("Host offline", detail: "The game host isn't running.")
         case .waiting:
             JoinBlock(code: display.joinCode, joined: controller.host.state.players.count, families: display.lobbyFamilies)
+        case let .starting(at):
+            TimerBlock(title: "Game starts in", until: at, now: now)
         case let .playing(gameEndsAt):
             TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: now)
         case let .discussion(until):
@@ -283,12 +285,6 @@ private struct ResultBlock: View {
             if let expelled = result.expelled.first {
                 Text("\(expelled.name) was voted out")
                     .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold))
-                Label(
-                    "\(expelled.role.title) family",
-                    systemImage: expelled.role.symbol
-                )
-                .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.2, weight: .bold))
-                .foregroundStyle(expelled.role == .werewolf ? .red : .blue)
             } else {
                 Text("Nobody was voted out")
                     .font(.system(size: PublicDisplayLayout.headlineFontSize * 1.4, weight: .bold))

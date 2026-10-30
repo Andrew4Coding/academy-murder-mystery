@@ -95,7 +95,7 @@ extension GameHost {
             id: id,
             name: info.name,
             life: family.life,
-            revealedRole: family.life == .expelled ? family.role : nil,
+            revealedRole: engine.state.outcome != nil && family.life == .expelled ? family.role : nil,
             playerID: state.player(of: id)?.id,
             playerName: state.player(of: id)?.name
         )
@@ -142,7 +142,8 @@ extension GameHost {
             bodyActive: engineFamily.life == .killed && engine.state.deadSinceLastMeeting.contains(info.id),
             skipVotes: engine.state.skipVotes.count,
             mySkipVote: engine.state.skipVotes.contains(info.id),
-            skipRequested: engine.state.skipRequested
+            skipRequested: engine.state.skipRequested,
+            startsAt: engine.state.startedAt
         )
     }
 }

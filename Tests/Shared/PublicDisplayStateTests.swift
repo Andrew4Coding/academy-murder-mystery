@@ -55,11 +55,11 @@ struct PublicDisplayStateTests {
         let wolfID = wolf(harness)
         try harness.host.applyAsOC(.requestSabotage(by: wolfID, kind: .oxygen))
         #expect(harness.host.publicDisplayState().alarm?.kind == .oxygen)
-        try harness.host.applyAsOC(.startMeeting)
+        #expect(throws: RuleError.sabotageActive) { try harness.host.applyAsOC(.startMeeting) }
         #expect(harness.host.publicDisplayState().alarm?.endsAt == harness.host.state.engine?.state.sabotage?.endsAt)
     }
 
-    @Test func revealsTheRoleOfAnExpelledFamilyOnTheResultScreen() async throws {
+    @Test func hidesTheRoleOfAnExpelledFamilyOnTheResultScreen() async throws {
         let (harness, _) = try await HostHarness.seated(families: 6, werewolves: 2)
         try harness.host.startGame()
         harness.clock.advance(by: 121)
@@ -75,7 +75,7 @@ struct PublicDisplayStateTests {
             return
         }
         let name = harness.host.state.families[wolves[0]]!.name
-        #expect(view.expelled == [ExpelledView(name: name, role: .werewolf)])
+        #expect(view.expelled == [ExpelledView(name: name, role: nil)])
     }
 
     @Test func showsTheResultForThirtySecondsThenReturnsToThePlayingScreen() async throws {
@@ -92,7 +92,7 @@ struct PublicDisplayStateTests {
             Issue.record("Expected a result screen")
             return
         }
-        #expect(view.expelled.map(\.role) == [.villager])
+        #expect(view.expelled.allSatisfy { $0.role == nil })
         _ = wolfID
         harness.clock.advance(by: PublicDisplayState.resultDuration + 1)
         guard case .playing = harness.host.publicDisplayState().screen else {

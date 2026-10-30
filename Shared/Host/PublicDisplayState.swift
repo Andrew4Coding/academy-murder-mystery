@@ -4,6 +4,7 @@ struct PublicDisplayState: Codable, Equatable, Sendable {
     enum Screen: Codable, Equatable, Sendable {
         case hostOffline
         case waiting
+        case starting(at: Date)
         case playing(gameEndsAt: Date)
         case discussion(until: Date)
         case voting(until: Date, isFinal: Bool, cast: Int, total: Int)
@@ -51,6 +52,9 @@ extension GameHost {
             return PublicDisplayState(screen: .waiting, familiesRemaining: nil, alarm: nil, announcedDeaths: [], joinCode: state.gameCode, lobbyFamilies: lobbyFamilies())
         }
         let game = engine.state
+        if game.startedAt > clock.now {
+            return PublicDisplayState(screen: .starting(at: game.startedAt), familiesRemaining: nil, alarm: nil, announcedDeaths: [])
+        }
         let names = game.announcedDeaths.compactMap { state.families[$0]?.name }
         let alarm = game.sabotage.map { PublicDisplayState.Alarm(kind: $0.kind, endsAt: $0.endsAt) }
         let screen: PublicDisplayState.Screen = switch game.phase {
@@ -103,7 +107,7 @@ extension GameHost {
             case .skip: ResultRow(name: "Skip", count: count.count, isSkip: true)
             }
         }
-        let expelled = result.expelled.map { ExpelledView(name: state.families[$0.family]?.name ?? "Unknown", role: $0.role) }
+        let expelled = result.expelled.map { ExpelledView(name: state.families[$0.family]?.name ?? "Unknown", role: nil) }
         return VoteResultView(rows: rows, expelled: expelled, isFinal: result.isFinal)
     }
 }

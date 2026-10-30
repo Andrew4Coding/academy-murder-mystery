@@ -20,7 +20,7 @@ struct SimulationTests {
     @Test func fastForwardingMovesTimersWithTheSimulatedClock() throws {
         #expect(Simulation.virtualSeconds(real: 0.1, speed: 20) == 2)
         let sim = try make()
-        sim.step(by: 2700)
+        sim.step(by: 2720)
         let phase = sim.host.state.engine?.state.phase
         if case .voting(_, true)? = phase {} else if case .ended? = phase {} else {
             Issue.record("The final vote should be open or the game over after 45 simulated minutes, got \(String(describing: phase))")

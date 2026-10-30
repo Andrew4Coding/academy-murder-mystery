@@ -49,7 +49,7 @@ struct ResultRow: Codable, Equatable, Sendable, Identifiable {
 
 struct ExpelledView: Codable, Equatable, Sendable, Identifiable {
     let name: String
-    let role: Role
+    var role: Role?
 
     var id: String {
         name
@@ -152,6 +152,7 @@ struct ClientView: Codable, Equatable, Sendable {
     var admin: AdminView?
 }
 
+    var startsAt: Date?
 struct Welcome: Codable, Equatable, Sendable {
     let resumeID: UUID
     let serverTime: Date

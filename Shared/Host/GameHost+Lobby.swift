@@ -69,6 +69,8 @@ extension GameHost {
         }
     }
 
+    static let startCountdown: TimeInterval = 10
+
     func startGame() throws {
         var generator = SystemRandomNumberGenerator()
         try startGame(using: &generator)
@@ -83,7 +85,7 @@ extension GameHost {
             familyIDs: state.families.keys.sorted(),
             werewolfCount: state.werewolfCount,
             settings: state.settings,
-            at: clock.now,
+            at: clock.now.addingTimeInterval(state.settings.isDebug ? 0 : Self.startCountdown),
             using: &generator
         )
         state.engine = engine
