@@ -28,7 +28,7 @@ struct TimerAdjustMenu: View {
     }
 
     var body: some View {
-        Menu("Timers", systemImage: "clock") {
+        Menu {
             ForEach(entries) { entry in
                 Menu(entry.title) {
                     Section("Add time") {
@@ -47,7 +47,12 @@ struct TimerAdjustMenu: View {
                 }
                 .disabled(!entry.isEnabled)
             }
+        } label: {
+            BentoTile(title: "Timers", subtitle: "Add or remove time", systemImage: "clock", tint: .indigo)
         }
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .disabled(!entries.contains { $0.isEnabled })
         .sheet(item: $customizing) { entry in
             CustomTimerSheet(title: entry.title) { onAdjust(entry.target, $0) }
         }
