@@ -5,6 +5,13 @@ struct ConnectionStatusView: View {
     var retry: () -> Void = {}
 
     var body: some View {
+        content
+            .foregroundStyle(Theme.text)
+            .themedBackground()
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch status {
         case .idle, .searching:
             ContentUnavailableView {
@@ -18,27 +25,27 @@ struct ConnectionStatusView: View {
             ContentUnavailableView {
                 ProgressView().controlSize(.large)
                 Text("Connecting").font(.title2.bold())
+            } description: {
+                Text("Hang on, this only takes a moment.")
             }
             .accessibilityElement(children: .combine)
         case .connected:
-            ContentUnavailableView("Connected", systemImage: "checkmark.circle", description: Text("Waiting for the game host."))
+            ContentUnavailableView {
+                Label("Connected", systemImage: "checkmark.circle.fill")
+            } description: {
+                Text("Waiting for the game host.")
+            }
         case let .failed(reason):
             ContentUnavailableView {
                 Label("Can't reach the host", systemImage: "wifi.exclamationmark")
             } description: {
                 Text(reason)
+                Text("Check that you are on the event Wi-Fi, then try again.")
             } actions: {
-                Button("Try Again", action: retry)
-                    .buttonStyle(.borderedProminent)
+                Button("Try Again", systemImage: "arrow.clockwise", action: retry)
+                    .buttonStyle(.accentFill)
+                    .frame(maxWidth: 280)
             }
         }
     }
-}
-
-#Preview("Searching") {
-    ConnectionStatusView(status: .searching)
-}
-
-#Preview("Failed") {
-    ConnectionStatusView(status: .failed("The network connection was lost."))
 }

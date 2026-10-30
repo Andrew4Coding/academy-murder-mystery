@@ -13,11 +13,11 @@ struct BoothMapCard: View {
                     .frame(width: 96, height: 72)
                     .clipShape(.rect(cornerRadius: Radius.sm))
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("Booth map").font(.headline)
-                    Text("Tap to open and zoom").font(.subheadline).foregroundStyle(.secondary)
+                    Text("Booth map").font(.headline).foregroundStyle(Theme.text)
+                    Text("Tap to open and zoom").font(.subheadline).foregroundStyle(Theme.textSecondary)
                 }
                 Spacer()
-                Image(systemName: "arrow.up.left.and.arrow.down.right").foregroundStyle(.secondary)
+                Image(systemName: "arrow.up.left.and.arrow.down.right").foregroundStyle(Theme.textSecondary)
             }
             .frame(minHeight: 44)
             .contentShape(.rect)
@@ -36,7 +36,7 @@ struct BoothMapThumbnail: View {
 
     var body: some View {
         ZStack {
-            Color.secondary.opacity(0.15)
+            Theme.surfaceRaised
             if let image {
                 Image(decorative: image, scale: 1)
                     .resizable()
