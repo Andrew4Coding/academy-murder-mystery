@@ -3,8 +3,6 @@ import SwiftUI
 struct GameControlView: View {
     let controller: HostController
 
-    @State private var showRoles = false
-    @State private var selection: Set<FamilyID> = []
     @State private var confirmingEnd: Side?
     @State private var errorMessage: String?
 
@@ -77,26 +75,8 @@ struct GameControlView: View {
                     }
                 }
             }
-
-            Section("Families") {
-                FamilyStatusTable(
-                    host: host,
-                    game: game,
-                    showRoles: showRoles,
-                    selection: $selection,
-                    onEliminate: eliminate,
-                    onRevive: revive
-                )
-                .frame(minHeight: 260)
-            }
         }
         .formStyle(.grouped)
-        .toolbar {
-            ToolbarItem {
-                Toggle("Show Roles", systemImage: showRoles ? "eye" : "eye.slash", isOn: $showRoles)
-                    .help("Anyone who can see this screen will see every family's role")
-            }
-        }
     }
 
     private func actions(_ game: GameState) -> some View {
@@ -155,14 +135,6 @@ struct GameControlView: View {
                 .menuIndicator(.hidden)
                 .disabled(game.sabotage != nil || game.phase != .running)
             }
-            BentoButton(title: "Eliminate Selected", subtitle: "Remove the selected families", systemImage: "xmark.circle.fill", tint: .red) {
-                eliminate(selection)
-            }
-            .disabled(selection.isEmpty)
-            BentoButton(title: "Revive Selected", subtitle: "Bring the selected families back", systemImage: "arrow.uturn.backward.circle.fill", tint: .mint) {
-                revive(selection)
-            }
-            .disabled(selection.isEmpty)
             Menu {
                 Button("Villagers Win") { confirmingEnd = .villagers }
                 Button("Werewolves Win") { confirmingEnd = .werewolves }
@@ -175,18 +147,6 @@ struct GameControlView: View {
         }
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets())
-    }
-
-    private func eliminate(_ ids: Set<FamilyID>) {
-        for id in ids {
-            attempt { try host.applyAsOC(.override(.forceKill(id))) }
-        }
-    }
-
-    private func revive(_ ids: Set<FamilyID>) {
-        for id in ids {
-            attempt { try host.applyAsOC(.override(.revive(id))) }
-        }
     }
 
     private var hostNow: @Sendable (Date) -> Date {
@@ -249,55 +209,6 @@ private struct PhaseRow: View {
             LabeledContent("Result", value: outcome.winner == .villagers ? "Villagers win" : "Werewolves win")
             Text(outcome.reason.explanation)
         }
-    }
-}
-
-private struct FamilyStatusTable: View {
-    let host: GameHost
-    let game: GameState
-    let showRoles: Bool
-    @Binding var selection: Set<FamilyID>
-    let onEliminate: (Set<FamilyID>) -> Void
-    let onRevive: (Set<FamilyID>) -> Void
-
-    private var rows: [Family] {
-        game.families.values.sorted { $0.id < $1.id }
-    }
-
-    var body: some View {
-        Table(rows, selection: $selection) {
-            TableColumn("Family") { (family: Family) in
-                Text(host.state.families[family.id]?.name ?? "Unknown")
-            }
-            TableColumn("Status") { (family: Family) in
-                Label(family.life.title, systemImage: family.isAlive ? "checkmark.circle" : "xmark.circle")
-            }
-            TableColumn("Role") { (family: Family) in
-                if showRoles {
-                    Label(family.role.title, systemImage: family.role.symbol)
-                } else {
-                    Text("Hidden").foregroundStyle(.secondary)
-                }
-            }
-            TableColumn("Tasks") { (family: Family) in
-                Text(family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
-            }
-            TableColumn("Vote") { (family: Family) in
-                Text(voteStatus(family))
-            }
-        }
-        .contextMenu(forSelectionType: FamilyID.self) { ids in
-            Divider()
-            Button("Eliminate Family", systemImage: "xmark.circle") { onEliminate(ids) }
-                .disabled(ids.isEmpty)
-            Button("Revive Family", systemImage: "arrow.uturn.backward.circle") { onRevive(ids) }
-                .disabled(ids.isEmpty)
-        }
-    }
-
-    private func voteStatus(_ family: Family) -> String {
-        guard case .voting = game.phase, family.isAlive else { return "" }
-        return game.votes[family.id] == nil ? "Waiting" : "Voted"
     }
 }
 
