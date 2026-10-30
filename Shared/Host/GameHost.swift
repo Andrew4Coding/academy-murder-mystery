@@ -35,6 +35,7 @@ final class GameHost {
     var sessions: [ClientID: Session] = [:]
     private(set) var recentEvents: [GameEvent] = []
     private(set) var revision = 0
+    private(set) var bellRings = 0
 
     @ObservationIgnored var selfies: [PlayerID: Data] = [:]
     @ObservationIgnored var testingToolsEnabled = TestingTools.isEnabled
@@ -66,6 +67,10 @@ final class GameHost {
             state = initial
             try repository.save(StoredGame(id: gameID, state: state, updatedAt: clock.now))
         }
+    }
+
+    func ringBell() {
+        bellRings += 1
     }
 
     func regenerateOCPIN() {

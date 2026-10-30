@@ -10,6 +10,7 @@ extension GameHost {
     func adminCommand(_ command: AdminCommand, identity: Identity) throws {
         guard case let .oc(id) = identity, state.ocDevices[id]?.station == .admin else { throw HostError.notOC }
         switch command {
+        case .ringBell: ringBell()
         case .startMeeting: try applyAsOC(.startMeeting)
         case let .extendMeeting(seconds): try extendMeeting(seconds: seconds)
         case let .adjustTimer(target, seconds): try applyAsOC(.adjustTimer(target, seconds: seconds))

@@ -65,7 +65,9 @@ struct DashboardView: View {
 
     private var controlsSection: some View {
         Section("Controls") {
-            Button("Start Discussion", systemImage: "bell.fill") { client.send(.admin(.startMeeting)) }
+            Button("Ring Bell", systemImage: "bell.fill") { client.send(.admin(.ringBell)) }
+                .disabled(admin.isLobby)
+            Button("Start Discussion", systemImage: "person.3.fill") { client.send(.admin(.startMeeting)) }
                 .disabled(admin.isLobby || admin.phase != .running)
             TimerAdjustMenu(
                 meeting: isMeeting,
