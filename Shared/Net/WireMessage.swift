@@ -35,6 +35,7 @@ enum AdminCommand: Codable, Equatable, Sendable {
     case approveSkipDiscussion
     case resolveSabotage
     case removeFamily(FamilyID)
+    case removeDevice(UUID)
     case updateSettings(werewolfCount: Int, settings: GameSettings)
     case setProximity(rssiThreshold: Int, sightingFreshness: TimeInterval)
     case startGame

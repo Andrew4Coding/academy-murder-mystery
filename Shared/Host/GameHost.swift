@@ -13,6 +13,7 @@ struct DeviceStatus: Identifiable, Equatable, Codable, Sendable {
     let detail: String
     let connection: Connection
     let lastSeen: Date?
+    var isOC = false
 }
 
 @MainActor @Observable
@@ -207,7 +208,7 @@ final class GameHost {
         }
         let ocs = state.ocDevices.values.map { device -> DeviceStatus in
             let (status, seen) = connection(.oc(device.id))
-            return DeviceStatus(id: device.id, label: "OC", detail: device.station.title, connection: status, lastSeen: seen)
+            return DeviceStatus(id: device.id, label: "OC", detail: device.station.title, connection: status, lastSeen: seen, isOC: true)
         }
         return (players + ocs).sorted { ($0.detail, $0.label) < ($1.detail, $1.label) }
     }

@@ -149,6 +149,30 @@ extension GameHost {
         commit()
     }
 
+    func removeDevice(_ id: UUID) throws {
+        let identity: Identity
+        if state.ocDevices[id] != nil {
+            state.ocDevices[id] = nil
+            identity = .oc(id)
+        } else if state.players[id] != nil {
+            guard state.isLobby else { throw HostError.gameAlreadyStarted }
+            state.players[id] = nil
+            selfies[id] = nil
+            identity = .player(id)
+        } else {
+            throw HostError.unknownDevice
+        }
+        for (clientID, session) in sessions where session.identity == identity {
+            sessions[clientID]?.identity = nil
+            send(.reset, to: clientID)
+        }
+        let update = ServerMessage.selfies(selfieList)
+        for (clientID, session) in sessions where session.identity != nil {
+            send(update, to: clientID)
+        }
+        commit()
+    }
+
     func removeFamily(_ id: FamilyID) throws {
         guard state.isLobby else { throw HostError.gameAlreadyStarted }
         guard state.families[id] != nil else { throw RuleError.unknownFamily(id) }

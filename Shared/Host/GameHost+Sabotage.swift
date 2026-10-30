@@ -17,6 +17,7 @@ extension GameHost {
         case .approveSkipDiscussion: try approveSkipDiscussion()
         case .resolveSabotage: try applyAsOC(.resolveSabotage)
         case let .removeFamily(family): try removeFamily(family)
+        case let .removeDevice(device): try removeDevice(device)
         case let .updateSettings(werewolfCount, settings): try updateSettings(werewolfCount: werewolfCount, settings: settings)
         case let .setProximity(rssi, freshness): setProximity(rssiThreshold: rssi, sightingFreshness: freshness)
         case .startGame: try startGame()
