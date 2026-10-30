@@ -16,7 +16,7 @@ struct GameHostSessionTests {
         }
         #expect(name == "Dewi")
         #expect(family == 1)
-        #expect(client.view?.familyName == "Family 1")
+        #expect(client.view?.familyName == "Dewi")
     }
 
     @Test func invalidCodesAndMissingNamesAreRejected() async throws {

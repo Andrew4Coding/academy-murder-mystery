@@ -205,6 +205,9 @@ extension GameHost {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard (1 ... 24).contains(trimmed.count), state.families[family] != nil else { throw HostError.invalidName }
         state.families[family]?.name = trimmed
+        for (id, player) in state.players where player.family == family {
+            state.players[id]?.name = trimmed
+        }
         commit()
     }
 

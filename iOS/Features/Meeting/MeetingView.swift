@@ -136,7 +136,7 @@ struct MeetingView: View {
                     AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] })
                     VStack(alignment: .leading) {
                         Text(title)
-                        if let player = family.playerName {
+                        if let player = family.playerName, player != family.name {
                             Text(player).font(.caption).foregroundStyle(.secondary)
                         }
                     }
@@ -229,7 +229,7 @@ private struct FamilyRow: View {
             AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] })
             VStack(alignment: .leading) {
                 Text(family.name)
-                if let player = family.playerName {
+                if let player = family.playerName, player != family.name {
                     Text(player).font(.caption).foregroundStyle(.secondary)
                 }
             }

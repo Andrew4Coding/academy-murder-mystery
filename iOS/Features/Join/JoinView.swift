@@ -17,6 +17,7 @@ struct JoinView: View {
     private var canJoin: Bool {
         !code.trimmingCharacters(in: .whitespaces).isEmpty
             && !name.trimmingCharacters(in: .whitespaces).isEmpty
+            && name.trimmingCharacters(in: .whitespaces).count <= 24
             && client.status == .connected
     }
 
@@ -34,17 +35,20 @@ struct JoinView: View {
                         isScanning = true
                     }
                 } header: {
-                    Text("Your family")
+                    Text("Game")
                 } footer: {
-                    Text("Scan the QR on the big screen. You are placed in a family automatically.")
+                    Text("Scan the QR on the big screen.")
                 }
 
-                Section("You") {
-                    TextField("Your name", text: $name)
-                        .textContentType(.givenName)
+                Section {
+                    TextField("Family name", text: $name)
                         .submitLabel(.join)
                         .focused($focus, equals: .name)
                         .onSubmit(join)
+                } header: {
+                    Text("Your family")
+                } footer: {
+                    Text("Pick a name for your family (up to 24 characters).")
                 }
 
                 Section {

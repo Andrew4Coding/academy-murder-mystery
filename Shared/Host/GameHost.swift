@@ -301,6 +301,8 @@ final class GameHost {
             } else {
                 family = try assignFamily()
             }
+            guard (1 ... 24).contains(name.count) else { throw HostError.invalidName }
+            state.families[family]?.name = name
             let player = Player(id: UUID(), name: name, family: family, bleToken: Self.makeToken())
             state.players[player.id] = player
             return .player(player.id)
