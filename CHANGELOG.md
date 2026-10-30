@@ -42,6 +42,7 @@ Tooling and refactors that users can't see don't go here.
 - Fellow werewolf families show right under the role card once you reveal your role.
 - Every family sees all 7 booths with a short instruction for each, instead of 5 random ones.
 - "Since the last meeting" is now "Last Found Dead".
+- Phones that stayed on "Looking for the game host" now retry the search by themselves and tell you when Local Network access is blocked.
 - The sabotage cooldown is shared by all werewolf families and starts when a sabotage ends, so no werewolf can sabotage right after another.
 - Reconnecting is faster and keeps you in the game: heartbeat, refresh button, sync on return to the app, and a kill sent while reconnecting is queued.
 - Meeting countdowns match across devices, and the Bluetooth prompt appears in the lobby instead of mid-game.
