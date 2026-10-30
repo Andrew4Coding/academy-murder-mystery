@@ -33,24 +33,6 @@ struct DevicesView: View {
             }
         }
         .navigationTitle("Devices")
-        .toolbar {
-            ToolbarItem(placement: .status) {
-                HostStatusLabel(status: controller.status)
-            }
-        }
-    }
-}
-
-private struct HostStatusLabel: View {
-    let status: HostController.Status
-
-    var body: some View {
-        switch status {
-        case .stopped: Label("Host stopped", systemImage: "stop.circle")
-        case .starting: Label("Starting host", systemImage: "hourglass")
-        case .running: Label("Hosting on the local network", systemImage: "dot.radiowaves.left.and.right")
-        case let .failed(reason): Label("Host failed: \(reason)", systemImage: "exclamationmark.triangle")
-        }
     }
 }
 
