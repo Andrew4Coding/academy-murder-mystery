@@ -10,17 +10,17 @@ struct BoothMapSection: View {
     var body: some View {
         Section {
             if let map {
-                HStack(alignment: .top, spacing: 16) {
+                HStack(alignment: .top, spacing: Spacing.md) {
                     BoothMapThumbnail(image: preview)
                         .frame(width: 240, height: 160)
                         .clipShape(.rect(cornerRadius: Radius.md))
                         .accessibilityLabel("Booth map preview")
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
                         if let preview {
-                            Text("\(preview.width) × \(preview.height) px").foregroundStyle(.secondary).monospacedDigit()
+                            Text("\(preview.width) × \(preview.height) px").foregroundStyle(Theme.textSecondary).monospacedDigit()
                         }
                         Text(ByteCountFormatter.string(fromByteCount: Int64(map.jpeg.count), countStyle: .file))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.textSecondary)
                         HStack {
                             Button("Replace…", action: onChoose)
                             Button("Remove", role: .destructive, action: onRemove)
@@ -36,5 +36,6 @@ struct BoothMapSection: View {
         } footer: {
             Text("Optional. Players and the OC iPad can open it from their devices. Large images are shrunk to 3000 px. Changes reach connected devices straight away.")
         }
+        .themedRows()
     }
 }

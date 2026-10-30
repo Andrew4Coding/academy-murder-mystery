@@ -50,6 +50,7 @@ struct RootView: View {
                     .tag(section)
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 220)
+            .accessibilityLabel("Sections")
         } detail: {
             switch selection ?? .setup {
             case .setup:
@@ -72,6 +73,7 @@ struct RootView: View {
                     openWindow(id: PublicDisplayWindow.id)
                 }
                 .help("Open the Public Display: join QR and families for the lab screens")
+                .accessibilityHint("Opens the Public Display window")
             }
         }
         .task { await controller.start() }

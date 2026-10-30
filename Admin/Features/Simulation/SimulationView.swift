@@ -19,7 +19,8 @@ struct SimulationView: View {
                     HStack {
                         TextField("Seed", text: $seedText)
                             .textFieldStyle(.roundedBorder)
-                            .frame(width: 120)
+                            .frame(minWidth: 120, maxWidth: 160)
+                            .accessibilityLabel("Simulation seed")
                             .multilineTextAlignment(.trailing)
                         Button("Random", systemImage: "dice") { seedText = String(UInt32.random(in: 1 ... 999_999)) }
                     }
@@ -31,6 +32,7 @@ struct SimulationView: View {
                     "Runs a full game with bots on the real rules. It never touches the real game, its families or its devices. The same seed plays out the same way."
                 )
             }
+            .themedRows()
 
             Section("Speed") {
                 Picker("Speed", selection: Binding(get: { controller.speed }, set: { controller.speed = $0 })) {
@@ -40,11 +42,13 @@ struct SimulationView: View {
                 }
                 .pickerStyle(.segmented)
             }
+            .themedRows()
 
             if let message = controller.errorMessage {
                 Section {
                     StatusLabel.error("Simulation can't start with these settings: \(message)")
                 }
+                .themedRows()
             }
 
             if let simulation = controller.simulation {
@@ -52,6 +56,7 @@ struct SimulationView: View {
             }
         }
         .formStyle(.grouped)
+        .themedBackground()
         .navigationTitle("Simulation")
         .toolbar {
             ToolbarItem {
@@ -89,11 +94,16 @@ private struct SimulationStatus: View {
                     }
                 }
             }
+            .themedRows()
             Section("Event log") {
                 ForEach(Array(SimulationLog.lines(for: simulation.events, names: names).enumerated()), id: \.offset) { _, line in
                     Text(line).font(.callout.monospaced())
                 }
+                if simulation.events.isEmpty {
+                    Text("Nothing has happened yet. Press Start Simulation or raise the speed.").foregroundStyle(Theme.textSecondary)
+                }
             }
+            .themedRows()
         }
     }
 

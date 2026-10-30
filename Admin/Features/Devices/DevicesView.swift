@@ -5,33 +5,41 @@ struct DevicesView: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { _ in
-            let devices = controller.host.deviceStatuses()
-            Group {
-                if devices.isEmpty {
-                    ContentUnavailableView(
-                        "No devices connected",
-                        systemImage: "iphone.slash",
-                        description: Text("Players and OC appear here once they join the game.")
-                    )
-                } else {
-                    Table(devices) {
-                        TableColumn("Name", value: \.label)
-                        TableColumn("Family or station", value: \.detail)
-                        TableColumn("Status") { device in
-                            Label(device.connection.title, systemImage: device.connection.symbol)
-                                .foregroundStyle(device.connection.tint)
-                        }
-                        TableColumn("Last seen") { device in
-                            if let lastSeen = device.lastSeen {
-                                Text(lastSeen, style: .relative)
-                            } else {
-                                Text("Not connected").foregroundStyle(.secondary)
-                            }
+            DevicesContent(devices: controller.host.deviceStatuses())
+        }
+    }
+}
+
+struct DevicesContent: View {
+    let devices: [DeviceStatus]
+
+    var body: some View {
+        Group {
+            if devices.isEmpty {
+                ContentUnavailableView(
+                    "No devices connected",
+                    systemImage: "iphone.slash",
+                    description: Text("Players and OC appear here once they join the game with the code from Setup.")
+                )
+            } else {
+                Table(devices) {
+                    TableColumn("Name", value: \.label)
+                    TableColumn("Family or station", value: \.detail)
+                    TableColumn("Status") { device in
+                        StatusLabel(device.connection.title, systemImage: device.connection.symbol, tint: device.connection.tint)
+                    }
+                    TableColumn("Last seen") { device in
+                        if let lastSeen = device.lastSeen {
+                            Text(lastSeen, style: .relative)
+                        } else {
+                            Text("Not connected").foregroundStyle(Theme.textSecondary)
                         }
                     }
                 }
+                .scrollContentBackground(.hidden)
             }
         }
+        .themedBackground()
         .navigationTitle("Devices")
     }
 }
@@ -55,9 +63,9 @@ private extension DeviceStatus.Connection {
 
     var tint: Color {
         switch self {
-        case .online: .green
-        case .unreachable: .orange
-        case .offline: .secondary
+        case .online: Theme.success
+        case .unreachable: Theme.warning
+        case .offline: Theme.textSecondary
         }
     }
 }

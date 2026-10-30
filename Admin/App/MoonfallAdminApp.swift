@@ -16,6 +16,7 @@ struct MoonfallAdminApp: App {
         WindowGroup {
             RootView(controller: controller, simulation: simulation)
                 .frame(minWidth: 720, minHeight: 480)
+                .tint(Theme.accent)
         }
         Window("Public Display", id: PublicDisplayWindow.id) {
             PublicDisplayView(controller: controller)

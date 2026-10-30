@@ -41,68 +41,47 @@ struct SetupView: View {
     var body: some View {
         let issues = host.state.setupIssues(testing: testing)
         Form {
-            Section("Game") {
-                if testing {
-                    Stepper("Families: \(familyCount)", value: $familyCount, in: 1 ... 40)
+            Section {
+                if !isLobby {
+                    StatusLabel("Game in progress", systemImage: "play.circle.fill", tint: Theme.success)
+                } else if issues.isEmpty {
+                    StatusLabel("Ready to start", systemImage: "checkmark.circle.fill", tint: Theme.success)
                 } else {
-                    Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... 10)
-                }
-                Toggle("Debug Mode", isOn: $debugMode)
-                Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
-                Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
-            }
-            .disabled(!isLobby)
-
-            Section {
-                Stepper("Reactor fix time: \(Self.clock(sabotageDuration))", value: $sabotageDuration, in: 15 ... 600, step: 15)
-                Stepper("Reactor cooldown: \(Self.clock(sabotageCooldown))", value: $sabotageCooldown, in: 0 ... 600, step: 15)
-                Stepper("Oxygen fix time: \(Self.clock(oxygenDuration))", value: $oxygenDuration, in: 15 ... 600, step: 15)
-                Stepper("Oxygen cooldown: \(Self.clock(oxygenCooldown))", value: $oxygenCooldown, in: 0 ... 600, step: 15)
-            } header: {
-                Text("Sabotage")
-            } footer: {
-                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
-            }
-            .disabled(!isLobby)
-
-            if testing {
-                testingSection
-            }
-
-            Section {
-                LabeledContent("Kill range") {
-                    Slider(value: $rssiThreshold, in: -90 ... -40, step: 1) {
-                        Text("Signal threshold")
-                    } minimumValueLabel: {
-                        Text("Far")
-                    } maximumValueLabel: {
-                        Text("Close")
+                    ForEach(issues, id: \.self) { issue in
+                        StatusLabel(issue, systemImage: "exclamationmark.circle.fill", tint: Theme.warning)
                     }
-                    .frame(maxWidth: 280)
-                    Text("\(Int(rssiThreshold)) dBm").monospacedDigit().frame(width: 70, alignment: .trailing)
                 }
-                Stepper("Sighting stays valid for \(sightingFreshness) s", value: $sightingFreshness, in: 1 ... 10)
+                Button("Start Game", systemImage: "play.fill", action: startFromForm)
+                    .buttonStyle(.accentFill)
+                    .disabled(!isLobby || !issues.isEmpty)
+                    .accessibilityHint(issues.first ?? "Assigns roles and starts the game")
             } header: {
-                Text("Bluetooth")
+                Text("Start the game")
             } footer: {
-                Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
+                if isLobby {
+                    Text("Players join with the code below. Start when every family has a player.")
+                }
             }
+            .themedRows()
 
             if !testing, let code = host.state.gameCode {
                 Section {
-                    HStack(spacing: 24) {
-                        QRCodeView(text: code).frame(width: 160, height: 160)
+                    HStack(spacing: Spacing.lg) {
+                        QRCodeView(text: code)
+                            .frame(width: 160, height: 160)
+                            .accessibilityLabel("QR code to join with code \(code)")
                         VStack(alignment: .leading, spacing: 4) {
                             Text(code).font(.title.monospaced()).textSelection(.enabled)
                             Text("\(host.state.players.count) players joined")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Theme.textSecondary)
                         }
                     }
                 } header: {
-                    Text("Join code")
+                    Text("Players join")
                 } footer: {
                     Text("The same QR is on the Public Display. Each player who scans becomes their own family.")
                 }
+                .themedRows()
             }
 
             Section("OC PIN") {
@@ -121,6 +100,57 @@ struct SetupView: View {
                     }
                 }
             }
+            .themedRows()
+
+            Section("Game") {
+                if testing {
+                    Stepper("Families: \(familyCount)", value: $familyCount, in: 1 ... 40)
+                } else {
+                    Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... 10)
+                }
+                Toggle("Debug Mode", isOn: $debugMode)
+                Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
+                Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
+            }
+            .disabled(!isLobby)
+            .themedRows()
+
+            Section {
+                Stepper("Reactor fix time: \(Self.clock(sabotageDuration))", value: $sabotageDuration, in: 15 ... 600, step: 15)
+                Stepper("Reactor cooldown: \(Self.clock(sabotageCooldown))", value: $sabotageCooldown, in: 0 ... 600, step: 15)
+                Stepper("Oxygen fix time: \(Self.clock(oxygenDuration))", value: $oxygenDuration, in: 15 ... 600, step: 15)
+                Stepper("Oxygen cooldown: \(Self.clock(oxygenCooldown))", value: $oxygenCooldown, in: 0 ... 600, step: 15)
+            } header: {
+                Text("Sabotage")
+            } footer: {
+                Text("Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.")
+            }
+            .disabled(!isLobby)
+            .themedRows()
+
+            if testing {
+                testingSection
+            }
+
+            Section {
+                LabeledContent("Kill range") {
+                    Slider(value: $rssiThreshold, in: -90 ... -40, step: 1) {
+                        Text("Signal threshold")
+                    } minimumValueLabel: {
+                        Text("Far")
+                    } maximumValueLabel: {
+                        Text("Close")
+                    }
+                    .frame(maxWidth: 280)
+                    Text("\(Int(rssiThreshold)) dBm").monospacedDigit().frame(minWidth: 70, alignment: .trailing)
+                }
+                Stepper("Sighting stays valid for \(sightingFreshness) s", value: $sightingFreshness, in: 1 ... 10)
+            } header: {
+                Text("Bluetooth")
+            } footer: {
+                Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
+            }
+            .themedRows()
 
             BoothMapSection(
                 map: host.boothMap,
@@ -134,16 +164,10 @@ struct SetupView: View {
                 FamiliesTable(host: host, onRename: { renameText = $0.name; renaming = $0 }, onDelete: { deleting = $0 })
                     .frame(minHeight: 220)
             }
-
-            if isLobby, !issues.isEmpty {
-                Section("Before you can start") {
-                    ForEach(issues, id: \.self) { issue in
-                        Label(issue, systemImage: "exclamationmark.circle")
-                    }
-                }
-            }
+            .themedRows()
         }
         .formStyle(.grouped)
+        .themedBackground()
         .navigationTitle("Setup")
         .onAppear(perform: loadDraft)
         .onChange(of: host.state.settings) { _, _ in loadDraft() }
@@ -168,11 +192,7 @@ struct SetupView: View {
                 Button("New Game", systemImage: "arrow.counterclockwise") { confirmingNewGame = true }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button("Start Game", systemImage: "play.fill") {
-                    do { try startGame() } catch let error as HostError { errorMessage = error.message } catch {
-                        errorMessage = "\(error)"
-                    }
-                }
+                Button("Start Game", systemImage: "play.fill", action: startFromForm)
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(!isLobby || !issues.isEmpty)
                 .help(issues.first ?? "Assign roles and start the game")
@@ -240,6 +260,12 @@ struct SetupView: View {
         }
     }
 
+    private func startFromForm() {
+        do { try startGame() } catch let error as HostError { errorMessage = error.message } catch {
+            errorMessage = "\(error)"
+        }
+    }
+
     private func startGame() throws {
         if testing {
             try host.startTestGame(roles: testRoles)
@@ -269,6 +295,7 @@ struct SetupView: View {
             Text("Rehearsal only. Pick each family's role, then start with as few as one family and one phone. Families without a phone stand in for others: use the Game screen to eliminate, vote and trigger sabotage for them. The game can end early, because the usual win rules still apply.")
         }
         .disabled(!isLobby)
+        .themedRows()
     }
 
     private func roleBinding(for id: FamilyID) -> Binding<Role> {
@@ -345,12 +372,13 @@ private struct FamiliesTable: View {
                 if let name = host.state.player(of: family.id)?.name {
                     Text(name)
                 } else {
-                    Text("Waiting…").foregroundStyle(.secondary)
+                    Text("Waiting for a player…").foregroundStyle(Theme.textSecondary)
                 }
             }
             TableColumn("Rename") { (family: FamilyInfo) in
                 Button("Rename", systemImage: "pencil") { onRename(family) }
                     .labelStyle(.iconOnly)
+                    .accessibilityLabel("Rename \(family.name)")
                     .help("Rename \(family.name)")
             }
             TableColumn("Delete") { (family: FamilyInfo) in

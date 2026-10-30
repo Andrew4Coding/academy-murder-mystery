@@ -26,10 +26,11 @@ struct FamiliesView: View {
                 ContentUnavailableView(
                     "No game running",
                     systemImage: "person.3.slash",
-                    description: Text("Families appear here once the game starts.")
+                    description: Text("Families appear here once the game starts. Create them from Setup.")
                 )
             }
         }
+        .themedBackground()
         .navigationTitle("Families")
         .toolbar {
             ToolbarItem {
@@ -91,13 +92,17 @@ struct FamilyStatusTable: View {
                 Text(host.state.families[family.id]?.name ?? "Unknown")
             }
             TableColumn("Status") { (family: Family) in
-                Label(family.life.title, systemImage: family.isAlive ? "checkmark.circle" : "xmark.circle")
+                StatusLabel(
+                    family.life.title,
+                    systemImage: family.isAlive ? "checkmark.circle.fill" : "xmark.circle.fill",
+                    tint: family.isAlive ? Theme.success : Theme.accent
+                )
             }
             TableColumn("Role") { (family: Family) in
                 if showRoles {
                     Label(family.role.title, systemImage: family.role.symbol)
                 } else {
-                    Text("Hidden").foregroundStyle(.secondary)
+                    Text("Hidden").foregroundStyle(Theme.textSecondary)
                 }
             }
             TableColumn("Tasks") { (family: Family) in
@@ -107,6 +112,7 @@ struct FamilyStatusTable: View {
                 Text(voteStatus(family))
             }
         }
+        .scrollContentBackground(.hidden)
         .contextMenu(forSelectionType: FamilyID.self) { ids in
             Divider()
             Button("Eliminate Family", systemImage: "xmark.circle") { onEliminate(ids) }
