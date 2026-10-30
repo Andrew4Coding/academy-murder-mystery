@@ -16,7 +16,7 @@ The game is "Among Us in real life": families of 6 move around a venue doing boo
 
 ## Vision
 
-Participants play without friction: they get a role, see their five tasks, get stamped by OC at booths and vote in under two minutes. OC trust the app as the single source of truth and can always override it from the Mac.
+Participants play without friction: they get a role, see their five tasks, visit booths and vote in under two minutes. OC trust the app as the single source of truth and can always override it from the Mac.
 
 ## Targets
 
@@ -38,7 +38,7 @@ Lab 1 is the Town Hall (meetings, bell, OC control). The collab spaces are the 7
 
 ## Rules the product implements
 
-Roles are per family. Villagers win when every villager family has 5 stamps or all werewolf families are expelled. Werewolves win when alive villager families are not more than alive werewolf families, a sabotage timer expires, or the final vote at 45:00 fails. The full rule set is owned by [features/0002-game-engine.md](features/0002-game-engine.md).
+Roles are per family. Villagers win when all werewolf families are expelled (the stamp-based win moved outside the app, ADR 0008). Werewolves win when alive villager families are not more than alive werewolf families, a sabotage timer expires, or the final vote at 45:00 fails. The full rule set is owned by [features/0002-game-engine.md](features/0002-game-engine.md).
 
 ## Success metrics
 

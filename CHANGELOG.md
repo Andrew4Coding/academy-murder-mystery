@@ -48,6 +48,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Removed
 
+- Booth stamping, task progress and checkmarks, and the villagers' task win. The Family tab now only lists your booths ([ADR 0008](specs/decisions/0008-stamping-outside-the-app.md)).
 - Hand Over, Become Head of Family and the member list: one family is one player ([0020](specs/features/0020-one-person-per-family.md)).
 - Town Hall observer station ([0016](specs/features/0016-oc-station-rework.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
@@ -57,6 +58,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- Stamp menus and task progress removed from the Game tab, since stamping now happens outside the app.
 - New app icon: the wolf moon with a teal check banner.
 
 #### Fixed
@@ -111,5 +113,6 @@ Tooling and refactors that users can't see don't go here.
 
 #### Removed
 
+- Recording and undoing stamps, and the task progress column, from the Game screen ([ADR 0008](specs/decisions/0008-stamping-outside-the-app.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 - Check Connectivity button in Devices, the sabotage alarm mute switch and the lab screens help in Display.

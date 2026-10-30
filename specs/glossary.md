@@ -14,7 +14,7 @@ Domain terms. Use the **Code name** in Swift identifiers, so specs and code read
 | Town Hall | `townHall` | Lab 1: meeting place, bell, OC control. | draft |
 | Booth | `Booth` | One of 7 task stations (Morse, Painting, Message, Right Place, Pattern, Tower, Locks). | draft |
 | Sabotage booth | `SabotageKind` | Reactor (Collab 7A, Heist Plan) or Oxygen (Collab 6, Scary Memory). | draft |
-| Stamp | `Stamp` | OC's record that a family finished a booth task. Only villager stamps count toward the win. | draft |
+| Stamp | n/a | Paper stamp an organiser gives a family at a booth. Tracked outside the app since ADR 0008. | draft |
 | Task list | `TaskList` | The 5 of 7 booths randomly assigned to a family. | draft |
 | Kill | `Kill` | A werewolf family eliminates a villager family in BLE range, subject to cooldown. | draft |
 | Sabotage | `Sabotage` | Werewolf-triggered countdown (1:30) that villagers must resolve at a sabotage booth. | draft |
