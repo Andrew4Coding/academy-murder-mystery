@@ -37,7 +37,7 @@ struct BentoTile: View {
         .padding(Spacing.md)
         .background(isProminent ? Theme.accentFill : Theme.surface, in: .rect(cornerRadius: Radius.lg))
         .overlay(RoundedRectangle(cornerRadius: Radius.lg).stroke(isProminent ? Color.clear : Theme.separator, lineWidth: 1))
-        .opacity(isEnabled ? 1 : 0.45)
+        .opacity(isEnabled ? 1 : 0.7)
         .contentShape(.rect(cornerRadius: Radius.lg))
     }
 }
