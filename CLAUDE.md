@@ -84,6 +84,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 - Debug Mode (`GameSettings.debugMode`, optional so stored games decode; read it via `isDebug`) allows 2 families, zeroes kill and sabotage cooldowns, and makes kills and parity never end the game. Rules live in `GameEngine` and `setupIssues`, not in views.
 - Rehearsal tools (one family and one phone is enough, chosen roles, sabotage trigger, adjustable cooldowns) sit behind `TestingTools.isEnabled` (`Shared/Host/TestingTools.swift`): Debug builds launched with `-TestingTools`, which only the `MoonfallAdmin-Testing` scheme passes. Never reach them from a normal path; `GameHost.startTestGame` refuses otherwise and marks the game `simulated` so a restart never restores it.
 - The Live Activity (`MoonfalliOS` only, spec 0029) is built from `GameActivityState` and never contains role, allies, cooldowns, proximity, votes or other families' roles: villager and werewolf views must map to the same state. Countdowns come from absolute deadlines shifted by `ServerClock.offset` and rendered with `Text(timerInterval:)`; `Activity` is not `Sendable`, so `LiveActivityController` touches it only through `@concurrent` functions that take its id. The extension compiles just `GameActivityState.swift` and `GameActivityAttributes.swift`: do not add `GameView` or other app types to it.
+- The booth map (spec 0030) is public venue info: it lives in `BoothMapStore` (a file on the Mac, outside `GameState`, so `newGame` keeps it) and travels as `ServerMessage.map` keyed by hash. Never put role or family data in it, and never show it on the Public Display.
 - XcodeGen generates `iOS/Info.plist`; put new Info.plist keys in `project.yml`, not in the file.
 
 ## Layout
@@ -95,8 +96,9 @@ Shared/Game                  pure game engine: GameEngine, GameState, GameComman
 Shared/Host                  GameHost (authority, sessions, persistence), GameClient, HostController, HostState, ClientView, HostClock, TestingTools
 Shared/Net                   wire messages, length-prefixed Network.framework transports, loopback transport
 Shared/Data                  ModelContainerFactory, GameRepository (SwiftData + in-memory), Schema/ (SchemaV1: GameRecord, GameEventRecord)
-Shared/Features              feature views shared by targets (Connection, Meeting/CountdownView)
+Shared/Features              feature views shared by targets (Connection, Meeting/CountdownView, Map/BoothMapCard and BoothMapViewer)
 Shared/LiveActivity           GameActivityState (role-neutral Live Activity content) and its mapping from GameView; no ActivityKit, so it compiles into every target
+Shared/Map                   BoothMap, BoothMapImporter (downscale to JPEG), BoothMapStore (file and in-memory)
 Shared/Simulation            Simulation (seeded bots on a separate GameHost), SimulationController, SimulationLog
 Shared/Core                  DesignSystem tokens, QRCodeView
 iOS/Bluetooth                ProximityService (CoreBluetooth advertise and scan)

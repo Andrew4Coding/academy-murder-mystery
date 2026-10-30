@@ -27,6 +27,7 @@ Tooling and refactors that users can't see don't go here.
 - Booth stamping as a grid of large family cards ([0016](specs/features/0016-oc-station-rework.md)).
 - Report a body: stand near a fallen family and tap Report to call a discussion ([0019](specs/features/0019-report-body.md)).
 - Kill, sabotage and voting App Intents (vote for a family, vote skip, skip discussion), usable from Siri and Shortcuts, including on Apple Watch, and they work when the app is in the background ([0018](specs/apps/ios/features/0018-watch-intents.md)).
+- Booth map: a card in the lobby and on the Family tab opens the map the OC uploaded, full screen, with pinch, pan and double-tap zoom ([0030](specs/features/0030-booth-map.md)).
 - Live Activity on the Lock Screen and Dynamic Island: meeting, voting and sabotage countdowns, booth progress, your own killed status and the winner, with no role information ([0029](specs/apps/ios/features/0029-live-activities.md)).
 
 #### Fixed
@@ -57,6 +58,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Booth map card on the dashboard opens the uploaded map in a zoomable viewer ([0030](specs/features/0030-booth-map.md)).
 - Timers are one menu, and error and sabotage text keeps its colour on the icon only ([0027](specs/features/0027-hig-compliance.md)).
 - Add or remove time on the meeting timer, game clock and sabotage countdown, with presets and a custom entry ([0025](specs/features/0025-editable-timers.md)).
 - Delete a family from the dashboard's families list while in the lobby ([0021](specs/features/0021-delete-families.md)).
@@ -71,6 +73,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Booth map upload in Setup (PNG, JPEG or HEIC, shrunk to 3000 px) with preview, replace and remove; it stays across games and reaches every device ([0030](specs/features/0030-booth-map.md)).
 - Ring Bell button, separate from Start Discussion, plus a live Public Display preview in Display; the bell and the looped sabotage alarm are bundled sounds.
 - Debug Mode toggle in Setup: 2 families are enough, no kill or sabotage cooldown, and a kill never ends the game ([0028](specs/features/0028-debug-mode.md)).
 - Game toolbar is grouped into five items (Show Roles, Meeting, Timers, Game, Start Discussion), with Shift-Cmd-K to approve a skip and Shift-Cmd-R to resolve a sabotage ([0027](specs/features/0027-hig-compliance.md)).

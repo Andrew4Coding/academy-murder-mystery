@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SetupView: View {
     let controller: HostController
@@ -23,6 +24,7 @@ struct SetupView: View {
     @State private var deleting: FamilyInfo?
     @State private var errorMessage: String?
     @State private var confirmingNewGame = false
+    @State private var isChoosingMap = false
 
     private var host: GameHost {
         controller.host
@@ -120,6 +122,14 @@ struct SetupView: View {
                 }
             }
 
+            BoothMapSection(
+                map: host.boothMap,
+                onChoose: { isChoosingMap = true },
+                onRemove: {
+                    do { try host.removeBoothMap() } catch { errorMessage = "\(error)" }
+                }
+            )
+
             Section("Families") {
                 FamiliesTable(host: host, onRename: { renameText = $0.name; renaming = $0 }, onDelete: { deleting = $0 })
                     .frame(minHeight: 220)
@@ -163,6 +173,9 @@ struct SetupView: View {
                 .disabled(!isLobby || !issues.isEmpty)
                 .help(issues.first ?? "Assign roles and start the game")
             }
+        }
+        .fileImporter(isPresented: $isChoosingMap, allowedContentTypes: [.image]) { result in
+            importMap(result)
         }
         .alert("Rename family", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
             TextField("Name", text: $renameText)
@@ -208,6 +221,19 @@ struct SetupView: View {
 
     private static func clock(_ seconds: TimeInterval) -> String {
         Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))
+    }
+
+    private func importMap(_ result: Result<URL, Error>) {
+        do {
+            let url = try result.get()
+            let isScoped = url.startAccessingSecurityScopedResource()
+            defer { if isScoped { url.stopAccessingSecurityScopedResource() } }
+            try host.setBoothMap(imageData: Data(contentsOf: url))
+        } catch let error as HostError {
+            errorMessage = error.message
+        } catch {
+            errorMessage = "Couldn't read that file."
+        }
     }
 
     private func startGame() throws {

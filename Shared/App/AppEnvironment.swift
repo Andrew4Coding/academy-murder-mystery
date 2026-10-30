@@ -4,10 +4,12 @@ import SwiftData
 final class AppEnvironment {
     let modelContainer: ModelContainer
     let gameRepository: any GameRepository
+    let boothMapStore: any BoothMapStore
 
-    init(modelContainer: ModelContainer, gameRepository: any GameRepository) {
+    init(modelContainer: ModelContainer, gameRepository: any GameRepository, boothMapStore: any BoothMapStore) {
         self.modelContainer = modelContainer
         self.gameRepository = gameRepository
+        self.boothMapStore = boothMapStore
     }
 
     static func live() -> AppEnvironment {
@@ -20,7 +22,7 @@ final class AppEnvironment {
 
     func makeHost() -> GameHost {
         do {
-            return try GameHost(repository: gameRepository)
+            return try GameHost(repository: gameRepository, boothMapStore: boothMapStore)
         } catch {
             fatalError("Failed to restore the game: \(error)")
         }
@@ -31,7 +33,8 @@ final class AppEnvironment {
             let container = try ModelContainerFactory.make(inMemory: inMemory)
             return AppEnvironment(
                 modelContainer: container,
-                gameRepository: SwiftDataGameRepository(context: container.mainContext)
+                gameRepository: SwiftDataGameRepository(context: container.mainContext),
+                boothMapStore: inMemory ? InMemoryBoothMapStore() : FileBoothMapStore.appSupport()
             )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")

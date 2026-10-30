@@ -7,6 +7,7 @@ struct FamilyLobbyView: View {
     @State private var confirmingLeave = false
     @State private var isRenaming = false
     @State private var isTakingSelfie = false
+    @State private var isShowingMap = false
     @State private var renameText = ""
 
     var body: some View {
@@ -22,6 +23,12 @@ struct FamilyLobbyView: View {
                     Text(lobby.familyName)
                 } footer: {
                     Text("Waiting for the game to start. Don't show your screen to anyone.")
+                }
+
+                if let map = client.boothMap {
+                    Section {
+                        BoothMapCard(map: map) { isShowingMap = true }
+                    }
                 }
 
                 Section {
@@ -47,6 +54,14 @@ struct FamilyLobbyView: View {
             }
             .fullScreenCover(isPresented: $isTakingSelfie) {
                 SelfieCamera { client.send(.selfie($0)) }.ignoresSafeArea()
+            }
+            .fullScreenCover(isPresented: $isShowingMap) {
+                if let map = client.boothMap {
+                    BoothMapViewer(map: map) { isShowingMap = false }
+                }
+            }
+            .onChange(of: client.boothMap == nil) { _, gone in
+                if gone { isShowingMap = false }
             }
             .alert("Rename family", isPresented: $isRenaming) {
                 TextField("Name", text: $renameText)

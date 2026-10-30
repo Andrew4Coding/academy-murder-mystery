@@ -33,6 +33,7 @@ final class GameClient {
     private(set) var isResuming = false
     private(set) var serverClock = ServerClock()
     private(set) var selfies: [PlayerID: Data] = [:]
+    private(set) var boothMap: BoothMap?
 
     @ObservationIgnored private let transport: any ClientTransport
     @ObservationIgnored private let store: any IdentityStore
@@ -97,13 +98,14 @@ final class GameClient {
         pendingHello = nil
         lastError = nil
         selfies = [:]
+        boothMap = nil
     }
 
     private func signIn(_ hello: Hello) {
         lastError = nil
         pendingHello = hello
         if status == .connected {
-            transport.send(.hello(hello))
+            transport.send(.hello(withMapHash(hello)))
         }
     }
 
@@ -121,11 +123,17 @@ final class GameClient {
         }
     }
 
+    private func withMapHash(_ hello: Hello) -> Hello {
+        var hello = hello
+        hello.mapHash = boothMap?.hash
+        return hello
+    }
+
     private func announce() {
         if let hello = pendingHello {
-            transport.send(.hello(hello))
+            transport.send(.hello(withMapHash(hello)))
         } else if let resumeID = store.resumeID {
-            transport.send(.hello(Hello(credential: .resume(resumeID))))
+            transport.send(.hello(withMapHash(Hello(credential: .resume(resumeID)))))
         }
     }
 
@@ -154,6 +162,8 @@ final class GameClient {
             signOut()
         case let .selfies(list):
             selfies = Dictionary(list.map { ($0.player, $0.jpeg) }, uniquingKeysWith: { _, last in last })
+        case let .map(map):
+            boothMap = map
         }
     }
 }

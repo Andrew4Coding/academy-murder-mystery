@@ -4,6 +4,8 @@ struct DashboardView: View {
     let admin: AdminView
     let client: GameClient
 
+    @State private var isShowingMap = false
+
     var body: some View {
         NavigationSplitView {
             List {
@@ -12,9 +14,20 @@ struct DashboardView: View {
                     joinSection
                 }
                 controlsSection
+                if let map = client.boothMap {
+                    Section { BoothMapCard(map: map) { isShowingMap = true } }
+                }
                 if let error = client.lastError {
                     Section { StatusLabel.error(error) }
                 }
+            }
+            .fullScreenCover(isPresented: $isShowingMap) {
+                if let map = client.boothMap {
+                    BoothMapViewer(map: map) { isShowingMap = false }
+                }
+            }
+            .onChange(of: client.boothMap == nil) { _, gone in
+                if gone { isShowingMap = false }
             }
             .navigationTitle("Dashboard")
             .navigationSplitViewColumnWidth(min: 320, ideal: 380)

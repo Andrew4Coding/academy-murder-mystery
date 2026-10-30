@@ -2,9 +2,11 @@ import SwiftUI
 
 struct RoleView: View {
     let game: GameView
+    let boothMap: BoothMap?
 
     @Environment(\.scenePhase) private var scenePhase
     @State private var isRevealed = false
+    @State private var isShowingMap = false
 
     var body: some View {
         NavigationStack {
@@ -67,6 +69,12 @@ struct RoleView: View {
                     }
                 }
 
+                if let boothMap {
+                    Section {
+                        BoothMapCard(map: boothMap) { isShowingMap = true }
+                    }
+                }
+
                 Section {
                     LabeledContent("Family", value: game.familyName)
                 }
@@ -77,6 +85,14 @@ struct RoleView: View {
                 if phase != .active {
                     isRevealed = false
                 }
+            }
+            .fullScreenCover(isPresented: $isShowingMap) {
+                if let boothMap {
+                    BoothMapViewer(map: boothMap) { isShowingMap = false }
+                }
+            }
+            .onChange(of: boothMap == nil) { _, gone in
+                if gone { isShowingMap = false }
             }
         }
     }

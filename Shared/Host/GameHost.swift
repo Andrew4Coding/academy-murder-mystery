@@ -36,6 +36,7 @@ final class GameHost {
     private(set) var recentEvents: [GameEvent] = []
     private(set) var revision = 0
     private(set) var bellRings = 0
+    var boothMap: BoothMap?
 
     @ObservationIgnored var selfies: [PlayerID: Data] = [:]
     @ObservationIgnored var testingToolsEnabled = TestingTools.isEnabled
@@ -45,12 +46,16 @@ final class GameHost {
     @ObservationIgnored var lastBodies: [FamilyID: Set<FamilyID>] = [:]
     @ObservationIgnored let clock: any HostClock
     @ObservationIgnored private let repository: any GameRepository
+    @ObservationIgnored let boothMapStore: any BoothMapStore
     @ObservationIgnored private var transport: (any HostTransport)?
     @ObservationIgnored private var pump: Task<Void, Never>?
 
-    init(repository: any GameRepository, clock: any HostClock = SystemHostClock(), initialState: HostState? = nil) throws {
+    init(repository: any GameRepository, clock: any HostClock = SystemHostClock(), initialState: HostState? = nil,
+         boothMapStore: any BoothMapStore = InMemoryBoothMapStore()) throws {
         self.repository = repository
         self.clock = clock
+        self.boothMapStore = boothMapStore
+        boothMap = boothMapStore.load()
         if let stored = try repository.latest() {
             gameID = stored.id
             state = stored.state
@@ -274,6 +279,9 @@ final class GameHost {
         }
         send(.welcome(Welcome(resumeID: resumeID, serverTime: now)), to: id)
         send(.selfies(selfieList), to: id)
+        if hello.mapHash != boothMap?.hash {
+            send(.map(boothMap), to: id)
+        }
         commit()
     }
 

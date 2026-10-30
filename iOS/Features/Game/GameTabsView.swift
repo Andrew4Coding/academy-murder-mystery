@@ -19,7 +19,7 @@ struct GameTabsView: View {
     var body: some View {
         TabView(selection: $selection) {
             Tab("Family", systemImage: "house", value: .family) {
-                RoleView(game: game)
+                RoleView(game: game, boothMap: client.boothMap)
             }
             Tab("Meeting", systemImage: "person.3", value: .meeting) {
                 MeetingView(game: game, client: client)
