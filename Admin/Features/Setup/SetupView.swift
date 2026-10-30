@@ -146,6 +146,10 @@ struct SetupView: View {
         .formStyle(.grouped)
         .navigationTitle("Setup")
         .onAppear(perform: loadDraft)
+        .onChange(of: host.state.settings) { _, _ in loadDraft() }
+        .onChange(of: host.state.werewolfCount) { _, _ in loadDraft() }
+        .onChange(of: host.state.rssiThreshold) { _, _ in loadDraft() }
+        .onChange(of: host.state.sightingFreshness) { _, _ in loadDraft() }
         .onChange(of: familyCount) { _, _ in apply() }
         .onChange(of: werewolfCount) { _, _ in apply() }
         .onChange(of: discussionMinutes) { _, _ in apply() }
