@@ -37,6 +37,21 @@ enum AdminCommand: Codable, Equatable, Sendable {
     case approveSkipDiscussion
     case resolveSabotage
     case removeFamily(FamilyID)
+    case updateSettings(werewolfCount: Int, settings: GameSettings)
+    case setProximity(rssiThreshold: Int, sightingFreshness: TimeInterval)
+    case startGame
+    case newGame
+    case renameFamily(FamilyID, String)
+    case regenerateOCPIN
+    case setBoothMap(Data)
+    case removeBoothMap
+    case stamp(families: [FamilyID], booth: Booth, confirmOffList: Bool)
+    case undoStamp(families: [FamilyID], booth: Booth)
+    case eliminate([FamilyID])
+    case revive([FamilyID])
+    case proxyVote(family: FamilyID, choice: VoteChoice)
+    case endGame(Side)
+    case checkConnectivity
 }
 
 struct Selfie: Codable, Equatable, Sendable {

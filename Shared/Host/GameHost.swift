@@ -1,8 +1,8 @@
 import Foundation
 import Observation
 
-struct DeviceStatus: Identifiable, Equatable, Sendable {
-    enum Connection: String, Sendable {
+struct DeviceStatus: Identifiable, Equatable, Codable, Sendable {
+    enum Connection: String, Codable, Sendable {
         case online
         case unreachable
         case offline

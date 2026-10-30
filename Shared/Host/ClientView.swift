@@ -85,6 +85,9 @@ struct AdminFamilyRow: Codable, Equatable, Sendable, Identifiable {
     let life: LifeState
     let stampsDone: Int
     let stampsTotal: Int
+    var role: Role?
+    var tasks: [TaskProgress] = []
+    var voted = false
 }
 
 struct AdminView: Codable, Equatable, Sendable {
@@ -98,6 +101,15 @@ struct AdminView: Codable, Equatable, Sendable {
     let skipVotes: Int
     let votersTotal: Int
     let skipRequested: Bool
+    var settings = GameSettings.standard
+    var werewolfCount = 1
+    var rssiThreshold = -75
+    var sightingFreshness: TimeInterval = 10
+    var ocPin = ""
+    var setupIssues: [String] = []
+    var lastResult: VoteResultView?
+    var votesCast = 0
+    var devices: [DeviceStatus] = []
 }
 
 struct OCView: Codable, Equatable, Sendable {
@@ -140,6 +152,7 @@ struct GameView: Codable, Equatable, Sendable {
     var skipVotes = 0
     var mySkipVote = false
     var skipRequested = false
+    var startsAt: Date?
 }
 
 struct ClientView: Codable, Equatable, Sendable {
@@ -152,7 +165,6 @@ struct ClientView: Codable, Equatable, Sendable {
     var admin: AdminView?
 }
 
-    var startsAt: Date?
 struct Welcome: Codable, Equatable, Sendable {
     let resumeID: UUID
     let serverTime: Date
@@ -160,7 +172,9 @@ struct Welcome: Codable, Equatable, Sendable {
 
 struct ServerClock: Equatable, Sendable {
     private(set) var offset: TimeInterval = 0
+    private var samples: [TimeInterval] = []
 
+    /// Transit delay only ever makes a sample too small, so the largest recent sample is the closest to the truth.
     mutating func sync(serverTime: Date, receivedAt local: Date) {
         samples = Array((samples + [serverTime.timeIntervalSince(local)]).suffix(8))
         offset = samples.max() ?? 0
@@ -170,4 +184,3 @@ struct ServerClock: Equatable, Sendable {
         local.addingTimeInterval(offset)
     }
 }
-    private var samples: [TimeInterval] = []

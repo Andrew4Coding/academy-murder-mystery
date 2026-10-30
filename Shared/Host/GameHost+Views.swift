@@ -49,7 +49,11 @@ extension GameHost {
                 playerName: state.player(of: info.id)?.name,
                 life: game?.life ?? .alive,
                 stampsDone: game?.stamps.intersection(game?.tasks ?? []).count ?? 0,
-                stampsTotal: game?.tasks.count ?? 0
+                stampsTotal: game?.tasks.count ?? 0,
+                role: game?.role,
+                tasks: (game?.tasks ?? []).sorted { $0.rawValue < $1.rawValue }
+                    .map { TaskProgress(booth: $0, done: game?.stamps.contains($0) ?? false) },
+                voted: engine?.state.votes[info.id] != nil
             )
         }
         return AdminView(
@@ -62,7 +66,16 @@ extension GameHost {
             sabotage: engine.flatMap { sabotageView($0) },
             skipVotes: engine?.state.skipVotes.count ?? 0,
             votersTotal: engine?.state.aliveFamilies().count ?? 0,
-            skipRequested: engine?.state.skipRequested ?? false
+            skipRequested: engine?.state.skipRequested ?? false,
+            settings: state.settings,
+            werewolfCount: state.werewolfCount,
+            rssiThreshold: state.rssiThreshold,
+            sightingFreshness: state.sightingFreshness,
+            ocPin: state.ocPin,
+            setupIssues: engine == nil ? state.setupIssues() : [],
+            lastResult: engine?.state.lastResult.map(publicResult),
+            votesCast: engine?.state.votes.count ?? 0,
+            devices: deviceStatuses()
         )
     }
 

@@ -17,6 +17,25 @@ extension GameHost {
         case .approveSkipDiscussion: try approveSkipDiscussion()
         case .resolveSabotage: try applyAsOC(.resolveSabotage)
         case let .removeFamily(family): try removeFamily(family)
+        case let .updateSettings(werewolfCount, settings): try updateSettings(werewolfCount: werewolfCount, settings: settings)
+        case let .setProximity(rssi, freshness): setProximity(rssiThreshold: rssi, sightingFreshness: freshness)
+        case .startGame: try startGame()
+        case .newGame: try newGame()
+        case let .renameFamily(family, name): try renameFamily(family, to: name)
+        case .regenerateOCPIN: regenerateOCPIN()
+        case let .setBoothMap(data): try setBoothMap(imageData: data)
+        case .removeBoothMap: try removeBoothMap()
+        case let .stamp(families, booth, confirmOffList):
+            for family in families { try recordStamp(family: family, booth: booth, confirmOffList: confirmOffList) }
+        case let .undoStamp(families, booth):
+            for family in families { try removeStamp(family: family, booth: booth) }
+        case let .eliminate(families):
+            for family in families { try applyAsOC(.override(.forceKill(family))) }
+        case let .revive(families):
+            for family in families { try applyAsOC(.override(.revive(family))) }
+        case let .proxyVote(family, choice): try applyAsOC(.proxyVote(for: family, choice: choice))
+        case let .endGame(side): try applyAsOC(.override(.endGame(side)))
+        case .checkConnectivity: checkConnectivity()
         }
     }
 
