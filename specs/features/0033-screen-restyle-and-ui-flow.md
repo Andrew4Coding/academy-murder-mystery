@@ -1,7 +1,7 @@
 ---
 id: 0033
 title: Screen restyle and UI flow polish
-status: approved
+status: in-progress
 owner: AND
 app: all
 created: 2026-10-31
@@ -51,4 +51,4 @@ None.
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+All three apps restyled; AX5 and VoiceOver passes not yet done in a simulator.

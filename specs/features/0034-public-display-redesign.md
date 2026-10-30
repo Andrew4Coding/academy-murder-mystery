@@ -1,7 +1,7 @@
 ---
 id: 0034
 title: Public Display redesign
-status: approved
+status: in-progress
 owner: AND
 app: admin
 created: 2026-10-31
@@ -50,4 +50,4 @@ None.
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+Redesign built and checked in rendered screenshots; contrast not yet measured and 720p not re-checked.

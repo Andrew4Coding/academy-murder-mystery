@@ -1,7 +1,7 @@
 ---
 id: 0032
 title: Preview galleries for every screen state
-status: approved
+status: in-progress
 owner: AND
 app: all
 created: 2026-10-31
@@ -50,4 +50,4 @@ None.
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+Galleries and fixtures exist for all three targets; previews not yet opened in Xcode canvas on every state.
