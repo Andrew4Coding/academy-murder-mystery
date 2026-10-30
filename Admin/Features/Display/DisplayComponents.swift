@@ -346,3 +346,20 @@ private extension Duration {
         formatted(.units(allowed: [.minutes, .seconds], width: .wide)) + " remaining"
     }
 }
+
+struct FitToStage<Content: View>: View {
+    @ViewBuilder let content: Content
+    @State private var natural: CGFloat = 0
+
+    var body: some View {
+        GeometryReader { proxy in
+            let scale = natural > proxy.size.height && natural > 0 ? proxy.size.height / natural : 1
+            content
+                .frame(width: proxy.size.width)
+                .fixedSize(horizontal: false, vertical: true)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { natural = $0 }
+                .scaleEffect(scale)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+    }
+}

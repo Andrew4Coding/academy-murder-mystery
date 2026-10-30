@@ -68,9 +68,7 @@ struct PublicDisplayScreen: View {
             if let alarm = display.alarm {
                 AlarmBanner(alarm: alarm, now: now, animate: !reduceMotion, playsSound: playsSound)
             }
-            Spacer(minLength: 0)
-            content
-            Spacer(minLength: 0)
+            FitToStage { content }
             if let remaining = display.familiesRemaining {
                 Label("\(remaining) families still in the game", systemImage: "person.2.fill")
                     .font(.stageRounded(38, weight: .medium))

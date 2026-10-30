@@ -1,4 +1,5 @@
 #if DEBUG
+    import AppKit
     import SwiftUI
 
     struct PublicDisplayGalleryEntry: Identifiable {
@@ -49,6 +50,66 @@
             ))
             return list
         }()
+    }
+
+    @MainActor
+    enum PublicDisplayGalleryExporter {
+        static func exportIfRequested() {
+            guard let directory = UserDefaults.standard.string(forKey: "DisplayGalleryExport") else { return }
+            let folder = URL(fileURLWithPath: directory)
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            for (index, entry) in PublicDisplayGallery.entries.enumerated() {
+                let view = PublicDisplayScreen(display: entry.display, now: DisplayFixtures.now, playsSound: false)
+                    .frame(width: 1920, height: 1080)
+                    .environment(\.colorScheme, .dark)
+                let renderer = ImageRenderer(content: view)
+                renderer.scale = 0.5
+                guard let image = renderer.nsImage, let tiff = image.tiffRepresentation,
+                      let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:])
+                else { continue }
+                try? png.write(to: folder.appending(path: "\(String(format: "%02d", index))-\(entry.title).png"))
+            }
+            NSApplication.shared.terminate(nil)
+        }
+    }
+
+    @MainActor
+    enum PublicDisplayWindowCapture {
+        static func captureIfRequested() async {
+            guard let path = UserDefaults.standard.string(forKey: "DisplayGalleryCapture") else { return }
+            try? await Task.sleep(for: .seconds(3))
+            if let view = NSApplication.shared.windows.first(where: { $0.isVisible })?.contentView,
+               let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds)
+            {
+                view.cacheDisplay(in: view.bounds, to: rep)
+                try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
+            }
+            NSApplication.shared.terminate(nil)
+        }
+    }
+
+    struct PublicDisplayGalleryLaunch: View {
+        var body: some View {
+            content
+                .task { await PublicDisplayWindowCapture.captureIfRequested() }
+        }
+
+        @ViewBuilder
+        private var content: some View {
+            let _ = PublicDisplayGalleryExporter.exportIfRequested()
+            if let raw = UserDefaults.standard.object(forKey: "DisplayGallery") as? Int ?? UserDefaults.standard
+                .string(forKey: "DisplayGallery").flatMap(Int.init),
+               PublicDisplayGallery.entries.indices.contains(raw)
+            {
+                PublicDisplayScreen(
+                    display: PublicDisplayGallery.entries[raw].display,
+                    now: DisplayFixtures.now,
+                    playsSound: false
+                )
+            } else {
+                PublicDisplayGalleryView()
+            }
+        }
     }
 
     struct PublicDisplayGalleryView: View {
