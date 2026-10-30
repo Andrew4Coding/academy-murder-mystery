@@ -91,6 +91,8 @@ scripts/check-branch-name.sh           # validate the current branch name
 - Expelled roles are never sent: `ExpelledView.role` is nil and `FamilySummary.revealedRole` is set only after the game ends.
 - `GameClient` sends `.sync` every 4 s and reconnects after 12 s of silence; `ServerClock` uses the largest of the last 8 offsets. The host evicts older sessions for the same identity, and `unknownDevice` does not sign the client out or count as a failed attempt.
 - Colours come from `Theme` (`Shared/Resources/Theme.xcassets`, dark and light variants, contrast-checked by `ThemeContrastTests`): never hard-code a colour or change a palette value without updating that test. `AccentColor` lives only in that shared catalogue; the Public Display is always dark (spec 0031).
+- Every screen has `#Preview`s in `iOS/Gallery`, `Admin/Gallery` and `AdminiPad/Gallery`, plus a gallery view per target, all `#if DEBUG`. Debug builds launch them with `-Gallery` (iOS, `-GalleryState <case>` for one state) and `-DisplayGallery [n]` (Mac Public Display); fixtures are built from the real engine, so keep them in step with `GameView` / `AdminView` / `PublicDisplayState`.
+- The Public Display lays out on a 1920x1080 canvas scaled to the window, and `FitToStage` shrinks tall content (rosters, reveals) to fit.
 - XcodeGen generates `iOS/Info.plist`; put new Info.plist keys in `project.yml`, not in the file.
 
 ## Layout
@@ -107,6 +109,7 @@ Shared/LiveActivity           GameActivityState (role-neutral Live Activity cont
 Shared/Map                   BoothMap, BoothMapImporter (downscale to JPEG), BoothMapStore (file and in-memory)
 Shared/Simulation            Simulation (seeded bots on a separate GameHost), SimulationController, SimulationLog
 Shared/Core                  DesignSystem tokens, QRCodeView
+Shared/Preview               DEBUG-only fixtures for #Preview galleries (ClientFixtures, AdminFixtures, DisplayFixtures)
 iOS/Bluetooth                ProximityService (CoreBluetooth advertise and scan)
 Shared/Core                  DesignSystem tokens (Spacing, Radius, Theme colours, ThemedBackground, ThemedCard, AccentFillButtonStyle)
 Shared/Resources             PrivacyInfo.xcprivacy
