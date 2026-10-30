@@ -41,6 +41,7 @@ Tooling and refactors that users can't see don't go here.
 - Hand Over, Become Head of Family and the member list: one family is one player ([0020](specs/features/0020-one-person-per-family.md)).
 - Town Hall observer station ([0016](specs/features/0016-oc-station-rework.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
+- Connection badge from the Join toolbar.
 
 ### MoonfallAdminiPad
 
@@ -85,9 +86,12 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- The OC PIN is hidden by default in Setup, with buttons to show it and to generate a new random one.
+- The Public Display lobby list shows each family's selfie.
 - App icon is the Liquid Glass icon from Icon Composer.
 - Families are no longer set by a stepper: they fill from the game code ([0012](specs/features/0012-join-and-families.md)).
 
 #### Removed
 
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
+- Check Connectivity button in Devices, the sabotage alarm mute switch and the lab screens help in Display.
