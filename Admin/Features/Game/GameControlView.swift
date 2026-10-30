@@ -47,6 +47,8 @@ struct GameControlView: View {
 
     private func content(_ game: GameState) -> some View {
         Form {
+            Section { actions(game) }
+
             Section("Status") {
                 PhaseRow(game: game, clock: host.clock)
                 if case .voting = game.phase {
@@ -94,76 +96,85 @@ struct GameControlView: View {
                 Toggle("Show Roles", systemImage: showRoles ? "eye" : "eye.slash", isOn: $showRoles)
                     .help("Anyone who can see this screen will see every family's role")
             }
-            ToolbarItem {
-                Menu("Meeting", systemImage: "person.3") {
-                    Menu("Vote for a Family", systemImage: "hand.raised") {
-                        ForEach(game.aliveFamilies().filter { game.votes[$0.id] == nil }, id: \.id) { voter in
-                            Menu(name(voter.id)) {
-                                ForEach(game.aliveFamilies(), id: \.id) { target in
-                                    Button(name(target.id)) { proxyVote(voter.id, .family(target.id)) }
-                                }
-                                Button("Skip") { proxyVote(voter.id, .skip) }
-                            }
-                        }
-                    }
-                    .disabled(!isVoting(game))
-                }
-                .help("Skip the discussion, or cast a vote for a family whose head can't")
-            }
-            ToolbarItem {
-                TimerAdjustMenu(
-                    meeting: game.phase.isMeetingPhase,
-                    gameClock: game.outcome == nil && !game.finalVoteStarted,
-                    sabotage: game.sabotage != nil
-                ) { target, seconds in
-                    attempt { try host.applyAsOC(.adjustTimer(target, seconds: seconds)) }
-                }
-                .help("Add or remove time on the meeting, the game clock or a sabotage")
-            }
-            ToolbarItem {
-                Menu("Game", systemImage: "flag.checkered") {
-                    Button("Resolve Sabotage", systemImage: "checkmark.shield") {
-                        attempt { try host.applyAsOC(.resolveSabotage) }
-                    }
-                    .keyboardShortcut("r", modifiers: [.command, .shift])
-                    .disabled(game.sabotage == nil)
-                    if host.testingToolsEnabled {
-                        Menu("Trigger Sabotage", systemImage: "exclamationmark.triangle") {
-                            ForEach(game.families.values.filter { $0.role == .werewolf }.sorted { $0.id < $1.id }, id: \.id) { family in
-                                Menu(name(family.id)) {
-                                    ForEach(SabotageKind.allCases, id: \.self) { kind in
-                                        Button(kind.title) {
-                                            attempt { try host.applyAsOC(.requestSabotage(by: family.id, kind: kind)) }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .disabled(game.sabotage != nil || game.phase != .running)
-                    }
-                    Divider()
-                    Menu("End Game", systemImage: "flag.checkered") {
-                        Button("Villagers Win") { confirmingEnd = .villagers }
-                        Button("Werewolves Win") { confirmingEnd = .werewolves }
-                    }
-                    .disabled(game.outcome != nil)
-                }
-                .help("Resolve a sabotage or end the game")
-            }
-            ToolbarItem(placement: .primaryAction) {
-                ControlGroup {
-                    Button("Ring Bell", systemImage: "bell.fill") { host.ringBell() }
-                        .keyboardShortcut("b", modifiers: .command)
-                        .help("Ring the bell on this Mac. This does not start the discussion.")
-                    Button("Start Discussion", systemImage: "person.3.fill") {
-                        attempt { try host.applyAsOC(.startMeeting) }
-                    }
-                    .keyboardShortcut("d", modifiers: .command)
-                    .disabled(game.phase != .running)
-                    .help("Call everyone to the Town Hall after the bell has rung")
-                }
-            }
         }
+    }
+
+    private func actions(_ game: GameState) -> some View {
+        BentoGrid {
+            BentoButton(title: "Ring Bell", subtitle: "Plays on this Mac. Doesn't start the discussion.", systemImage: "bell.fill", tint: .orange) {
+                host.ringBell()
+            }
+            .keyboardShortcut("b", modifiers: .command)
+            BentoButton(title: "Start Discussion", subtitle: "Call everyone to the Town Hall", systemImage: "person.3.fill", tint: .blue) {
+                attempt { try host.applyAsOC(.startMeeting) }
+            }
+            .keyboardShortcut("d", modifiers: .command)
+            .disabled(game.phase != .running)
+            Menu {
+                ForEach(game.aliveFamilies().filter { game.votes[$0.id] == nil }, id: \.id) { voter in
+                    Menu(name(voter.id)) {
+                        ForEach(game.aliveFamilies(), id: \.id) { target in
+                            Button(name(target.id)) { proxyVote(voter.id, .family(target.id)) }
+                        }
+                        Button("Skip") { proxyVote(voter.id, .skip) }
+                    }
+                }
+            } label: {
+                BentoTile(title: "Vote for a Family", subtitle: "Cast a vote for a family that can't", systemImage: "hand.raised.fill", tint: .teal)
+            }
+            .buttonStyle(.plain)
+            .menuIndicator(.hidden)
+            .disabled(!isVoting(game))
+            TimerAdjustMenu(
+                meeting: game.phase.isMeetingPhase,
+                gameClock: game.outcome == nil && !game.finalVoteStarted,
+                sabotage: game.sabotage != nil
+            ) { target, seconds in
+                attempt { try host.applyAsOC(.adjustTimer(target, seconds: seconds)) }
+            }
+            BentoButton(title: "Resolve Sabotage", subtitle: "Mark the active sabotage as fixed", systemImage: "checkmark.shield.fill", tint: .green) {
+                attempt { try host.applyAsOC(.resolveSabotage) }
+            }
+            .keyboardShortcut("r", modifiers: [.command, .shift])
+            .disabled(game.sabotage == nil)
+            if host.testingToolsEnabled {
+                Menu {
+                    ForEach(game.families.values.filter { $0.role == .werewolf }.sorted { $0.id < $1.id }, id: \.id) { family in
+                        Menu(name(family.id)) {
+                            ForEach(SabotageKind.allCases, id: \.self) { kind in
+                                Button(kind.title) {
+                                    attempt { try host.applyAsOC(.requestSabotage(by: family.id, kind: kind)) }
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    BentoTile(title: "Trigger Sabotage", subtitle: "Testing only", systemImage: "exclamationmark.triangle.fill", tint: .yellow)
+                }
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                .disabled(game.sabotage != nil || game.phase != .running)
+            }
+            BentoButton(title: "Eliminate Selected", subtitle: "Remove the selected families", systemImage: "xmark.circle.fill", tint: .red) {
+                eliminate(selection)
+            }
+            .disabled(selection.isEmpty)
+            BentoButton(title: "Revive Selected", subtitle: "Bring the selected families back", systemImage: "arrow.uturn.backward.circle.fill", tint: .mint) {
+                revive(selection)
+            }
+            .disabled(selection.isEmpty)
+            Menu {
+                Button("Villagers Win") { confirmingEnd = .villagers }
+                Button("Werewolves Win") { confirmingEnd = .werewolves }
+            } label: {
+                BentoTile(title: "End Game", subtitle: "Declare a winner", systemImage: "flag.checkered", tint: .red)
+            }
+            .buttonStyle(.plain)
+            .menuIndicator(.hidden)
+            .disabled(game.outcome != nil)
+        }
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets())
     }
 
     private func eliminate(_ ids: Set<FamilyID>) {
