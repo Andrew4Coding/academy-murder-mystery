@@ -14,7 +14,8 @@ struct BentoTile: View {
     let title: String
     let subtitle: String
     let systemImage: String
-    var tint: Color = .accentColor
+    var tint: Color = Theme.accent
+    var isProminent = false
 
     @Environment(\.isEnabled) private var isEnabled
 
@@ -22,21 +23,22 @@ struct BentoTile: View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Image(systemName: systemImage)
                 .font(.largeTitle)
-                .foregroundStyle(tint)
+                .foregroundStyle(isProminent ? Theme.onAccentFill : tint)
+                .accessibilityHidden(true)
             Spacer(minLength: Spacing.sm)
             Text(title)
                 .font(.title3.bold())
-                .foregroundStyle(.primary)
+                .foregroundStyle(isProminent ? Theme.onAccentFill : Theme.text)
             Text(subtitle)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+                .foregroundStyle(isProminent ? Theme.onAccentFill : Theme.textSecondary)
         }
         .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
         .padding(Spacing.md)
-        .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(isProminent ? Theme.accentFill : Theme.surface, in: .rect(cornerRadius: Radius.lg))
+        .overlay(RoundedRectangle(cornerRadius: Radius.lg).stroke(isProminent ? Color.clear : Theme.separator, lineWidth: 1))
         .opacity(isEnabled ? 1 : 0.45)
-        .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .contentShape(.rect(cornerRadius: Radius.lg))
     }
 }
 
@@ -44,13 +46,20 @@ struct BentoButton: View {
     let title: String
     let subtitle: String
     let systemImage: String
-    var tint: Color = .accentColor
+    var tint: Color = Theme.accent
+    var isProminent = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            BentoTile(title: title, subtitle: subtitle, systemImage: systemImage, tint: tint)
+            BentoTile(title: title, subtitle: subtitle, systemImage: systemImage, tint: tint, isProminent: isProminent)
         }
         .buttonStyle(.plain)
+    }
+}
+
+extension View {
+    func themedRows() -> some View {
+        listRowBackground(Theme.surface)
     }
 }
