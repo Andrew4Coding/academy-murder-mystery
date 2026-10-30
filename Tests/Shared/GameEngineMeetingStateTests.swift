@@ -61,4 +61,37 @@ struct GameEngineMeetingStateTests {
             try fixture.apply(.proxyVote(for: fixture.villagers[0], choice: .skip), at: 10)
         }
     }
+
+    @Test func meetingsAreRefusedWhileASabotageIsActive() throws {
+        var fixture = try Fixture()
+        let wolf = fixture.werewolves[0]
+        let victim = fixture.villagers[0]
+        try fixture.apply(.kill(killer: wolf, victim: victim), at: 70)
+        try fixture.apply(.requestSabotage(by: wolf, kind: .reactor), at: 80)
+        #expect(throws: RuleError.sabotageActive) { try fixture.apply(.startMeeting, at: 90) }
+        #expect(throws: RuleError.sabotageActive) {
+            try fixture.apply(.reportBody(by: fixture.villagers[1], body: victim), at: 90)
+        }
+        try fixture.apply(.resolveSabotage, at: 95)
+        try fixture.apply(.startMeeting, at: 100)
+    }
+
+    @Test func aMajorityOfSkipVotesOpensVotingImmediately() throws {
+        var fixture = try Fixture()
+        try fixture.apply(.startMeeting, at: 100)
+        let alive = fixture.engine.state.aliveFamilies().map(\.id)
+        let needed = alive.count / 2 + 1
+        for id in alive.prefix(needed - 1) {
+            try fixture.apply(.voteSkipDiscussion(by: id), at: 110)
+        }
+        guard case .discussion = fixture.engine.state.phase else {
+            Issue.record("Discussion should continue until a majority agrees")
+            return
+        }
+        try fixture.apply(.voteSkipDiscussion(by: alive[needed - 1]), at: 111)
+        guard case .voting = fixture.engine.state.phase else {
+            Issue.record("A majority should open voting")
+            return
+        }
+    }
 }

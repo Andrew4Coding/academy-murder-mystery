@@ -174,7 +174,7 @@ private extension GameEngine {
         case let .proxyVote(family, choice): try proxyVote(for: family, choice: choice, at: now)
         case let .extendMeeting(seconds): try extendMeeting(by: seconds)
         case let .adjustTimer(target, seconds): try adjustTimer(target, by: seconds, at: now)
-        case let .voteSkipDiscussion(by): try voteSkipDiscussion(by: by)
+        case let .voteSkipDiscussion(by): try voteSkipDiscussion(by: by, at: now)
         case .approveSkipDiscussion: try approveSkipDiscussion(at: now)
         case let .override(override): try applyOverride(override, at: now)
         }
@@ -232,6 +232,7 @@ private extension GameEngine {
 
     mutating func reportBody(by id: FamilyID, body: FamilyID, at now: Date) throws -> [GameEvent] {
         guard case .running = state.phase else { throw RuleError.wrongPhase }
+        guard state.sabotage == nil else { throw RuleError.sabotageActive }
         guard try state.family(id).isAlive else { throw RuleError.familyNotAlive(id) }
         guard state.deadSinceLastMeeting.contains(body), try state.family(body).life == .killed else {
             throw RuleError.notDead(body)
@@ -241,6 +242,7 @@ private extension GameEngine {
 
     mutating func startMeeting(at now: Date) throws -> [GameEvent] {
         guard case .running = state.phase else { throw RuleError.wrongPhase }
+        guard state.sabotage == nil else { throw RuleError.sabotageActive }
         let dead = state.deadSinceLastMeeting
         state.deadSinceLastMeeting = []
         state.announcedDeaths = dead
@@ -290,7 +292,7 @@ private extension GameEngine {
         return [GameEvent(at: now, kind: .ocOverride(.timerAdjusted(target, seconds: seconds)))]
     }
 
-    mutating func voteSkipDiscussion(by id: FamilyID) throws -> [GameEvent] {
+    mutating func voteSkipDiscussion(by id: FamilyID, at now: Date) throws -> [GameEvent] {
         guard case .discussion = state.phase else { throw RuleError.wrongPhase }
         guard try state.family(id).isAlive else { throw RuleError.familyNotAlive(id) }
         if state.skipVotes.contains(id) {
@@ -298,15 +300,20 @@ private extension GameEngine {
         } else {
             state.skipVotes.insert(id)
         }
-        return []
+        guard state.skipRequested else { return [] }
+        return skipDiscussion(at: now)
+    }
+
+    mutating func skipDiscussion(at now: Date) -> [GameEvent] {
+        state.skipVotes = []
+        state.phase = .voting(until: now.addingTimeInterval(state.settings.votingDuration), isFinal: false)
+        return [GameEvent(at: now, kind: .votingOpened(isFinal: false))]
     }
 
     mutating func approveSkipDiscussion(at now: Date) throws -> [GameEvent] {
         guard case .discussion = state.phase else { throw RuleError.wrongPhase }
         guard state.skipRequested else { throw RuleError.skipNotRequested }
-        state.skipVotes = []
-        state.phase = .voting(until: now.addingTimeInterval(state.settings.votingDuration), isFinal: false)
-        return [GameEvent(at: now, kind: .votingOpened(isFinal: false))]
+        return skipDiscussion(at: now)
     }
 
     mutating func castVote(by id: FamilyID, choice: VoteChoice, at now: Date) throws -> [GameEvent] {

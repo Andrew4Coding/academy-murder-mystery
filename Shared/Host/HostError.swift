@@ -69,6 +69,7 @@ extension RuleError {
         case .notStamped: "There's no stamp to undo."
         case .invalidVoteTarget: "That family can't receive votes."
         case .notDead: "That family is still in the game."
+        case .sabotageActive: "No meetings while a sabotage is active."
         }
     }
 }

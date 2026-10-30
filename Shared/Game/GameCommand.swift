@@ -48,4 +48,5 @@ enum RuleError: Error, Equatable, Sendable {
     case notDead(FamilyID)
     case skipNotRequested
     case timerFinished
+    case sabotageActive
 }
