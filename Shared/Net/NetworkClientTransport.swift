@@ -15,6 +15,7 @@ final class NetworkClientTransport: ClientTransport {
     private var connection: NWConnection?
     private var running = false
     private var retry: Task<Void, Never>?
+    private var watchdog: Task<Void, Never>?
     private var cachedEndpoint: NWEndpoint?
     private var triedCache = false
 
@@ -32,6 +33,7 @@ final class NetworkClientTransport: ClientTransport {
     func stop() {
         running = false
         retry?.cancel()
+        watchdog?.cancel()
         browser?.cancel()
         browser = nil
         connection?.cancel()
@@ -65,6 +67,27 @@ final class NetworkClientTransport: ClientTransport {
             }
             self.browser = browser
             browser.start(queue: .main)
+            watch(after: Self.searchTimeout)
+        }
+    }
+
+    private static let searchTimeout: Duration = .seconds(6)
+    private static let connectTimeout: Duration = .seconds(8)
+
+    // A browser can sit "ready" with no results, and a connection can sit in .waiting, on some phones; restart both instead of staying stuck.
+    private func watch(after delay: Duration) {
+        watchdog?.cancel()
+        watchdog = Task { [weak self] in
+            try? await Task.sleep(for: delay)
+            guard !Task.isCancelled, let self, running else { return }
+            if let connection {
+                guard connection.state != .ready else { return }
+                connection.cancel()
+            } else {
+                browser?.cancel()
+                browser = nil
+                begin()
+            }
         }
     }
 
@@ -72,6 +95,7 @@ final class NetworkClientTransport: ClientTransport {
         continuation.yield(.status(.connecting))
         let connection = NWConnection(to: endpoint, using: .moonfall())
         self.connection = connection
+        watch(after: Self.connectTimeout)
         connection.stateUpdateHandler = { [weak self] state in
             MainActor.assumeIsolated { self?.stateChanged(state, of: connection) }
         }
@@ -126,8 +150,15 @@ final class NetworkClientTransport: ClientTransport {
     }
 
     private func browserChanged(_ state: NWBrowser.State) {
-        if case let .failed(error) = state {
+        switch state {
+        case let .failed(error):
             continuation.yield(.status(.failed(error.localizedDescription)))
+        case .waiting:
+            continuation.yield(.status(.failed("Can't search the network. Allow Local Network access for Moonfall in Settings and join the event Wi-Fi.")))
+        case .ready:
+            if connection == nil { continuation.yield(.status(.searching)) }
+        default:
+            break
         }
     }
 

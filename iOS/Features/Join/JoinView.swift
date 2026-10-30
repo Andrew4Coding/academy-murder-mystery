@@ -83,7 +83,7 @@ struct JoinView: View {
 
     private var statusText: String {
         switch client.status {
-        case .failed: "Can't reach the host. Check the event Wi-Fi."
+        case let .failed(reason): reason
         default: "Looking for the game host…"
         }
     }
