@@ -117,11 +117,6 @@ struct GameControlView: View {
             }
             ToolbarItem {
                 Menu("Meeting", systemImage: "person.3") {
-                    Button("Approve Skip", systemImage: "forward.end.fill") {
-                        attempt { try host.approveSkipDiscussion() }
-                    }
-                    .keyboardShortcut("k", modifiers: [.command, .shift])
-                    .disabled(!(game.phase.isDiscussionPhase && game.skipRequested))
                     Menu("Vote for a Family", systemImage: "hand.raised") {
                         ForEach(game.aliveFamilies().filter { game.votes[$0.id] == nil }, id: \.id) { voter in
                             Menu(name(voter.id)) {
