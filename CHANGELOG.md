@@ -38,6 +38,10 @@ Tooling and refactors that users can't see don't go here.
 - A majority of alive families voting to skip discussion opens voting at once, with no organiser approval.
 - Game start shows a 10 second countdown on phones and the Public Display before roles appear.
 - Voted-out families no longer reveal their role until the game ends.
+- Refresh and Retry are toolbar buttons instead of a floating button that could not be tapped.
+- Fellow werewolf families show right under the role card once you reveal your role.
+- Every family sees all 7 booths with a short instruction for each, instead of 5 random ones.
+- "Since the last meeting" is now "Last Found Dead".
 - Reconnecting is faster and keeps you in the game: heartbeat, refresh button, sync on return to the app, and a kill sent while reconnecting is queued.
 - Meeting countdowns match across devices, and the Bluetooth prompt appears in the lobby instead of mid-game.
 - A bell and notification call everyone to the Town Hall when a meeting starts.
