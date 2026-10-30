@@ -3,6 +3,7 @@ import SwiftUI
 struct SetupView: View {
     let controller: HostController
 
+    @State private var isPinVisible = false
     @State private var familyCount = TestingTools.isEnabled ? 4 : 12
     @State private var werewolfCount = 2
     @State private var discussionMinutes = 2
@@ -104,9 +105,18 @@ struct SetupView: View {
 
             Section("OC PIN") {
                 LabeledContent("PIN for booth organisers") {
-                    Text(host.state.ocPin)
-                        .font(.title3.monospaced())
-                        .textSelection(.enabled)
+                    HStack {
+                        Text(isPinVisible ? host.state.ocPin : "••••")
+                            .font(.title3.monospaced())
+                            .textSelection(.enabled)
+                        Button(isPinVisible ? "Hide PIN" : "Show PIN", systemImage: isPinVisible ? "eye.slash" : "eye") {
+                            isPinVisible.toggle()
+                        }
+                        .labelStyle(.iconOnly)
+                        Button("New PIN", systemImage: "arrow.triangle.2.circlepath") { host.regenerateOCPIN() }
+                            .labelStyle(.iconOnly)
+                            .help("Generate a new random PIN")
+                    }
                 }
             }
 

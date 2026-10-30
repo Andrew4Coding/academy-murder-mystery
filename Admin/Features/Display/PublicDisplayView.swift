@@ -102,12 +102,15 @@ private struct JoinBlock: View {
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 24)], alignment: .leading, spacing: 24) {
                         ForEach(families) { family in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(family.name)
-                                    .font(.system(size: PublicDisplayLayout.detailFontSize, weight: .bold))
-                                Text(family.player ?? "Waiting…")
-                                    .font(.system(size: PublicDisplayLayout.detailFontSize * 0.7))
-                                    .foregroundStyle(.white.opacity(0.7))
+                            HStack(spacing: 16) {
+                                selfieFace(family)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(family.name)
+                                        .font(.system(size: PublicDisplayLayout.detailFontSize, weight: .bold))
+                                    Text(family.player ?? "Waiting…")
+                                        .font(.system(size: PublicDisplayLayout.detailFontSize * 0.7))
+                                        .foregroundStyle(.white.opacity(0.7))
+                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -117,6 +120,22 @@ private struct JoinBlock: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private func selfieFace(_ family: LobbyFamily) -> some View {
+        if let data = family.selfie, let image = NSImage(data: data) {
+            Image(nsImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 72, height: 72)
+                .clipShape(.circle)
+        } else {
+            Text(String(family.player?.first ?? family.name.first ?? "?").uppercased())
+                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .frame(width: 72, height: 72)
+                .background(.white.opacity(0.15), in: .circle)
+        }
     }
 }
 

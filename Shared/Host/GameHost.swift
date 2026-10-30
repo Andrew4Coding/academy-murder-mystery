@@ -68,6 +68,11 @@ final class GameHost {
         }
     }
 
+    func regenerateOCPIN() {
+        state.ocPin = Self.makePIN()
+        commit()
+    }
+
     static func makePIN() -> String {
         String(format: "%04d", Int.random(in: 0 ... 9999))
     }

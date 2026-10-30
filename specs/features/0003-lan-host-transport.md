@@ -67,5 +67,5 @@ New SwiftData models `GameRecord` and `GameEventRecord` (schema V1 of the real d
 - Code: `Shared/Net/` (`MessageFramer` length-prefixed framing over TCP, `NetworkHostTransport`, `NetworkClientTransport`, `LoopbackTransport` for tests and simulation, `WireMessage`), `Shared/Host/` (`GameHost` authority, `GameClient`, `HostController`, `HostState`, `ClientView`, `HostClock`), `Shared/Data/GameRepository.swift` (SwiftData and in-memory).
 - Wire protocol is versioned (`WireVersion.current`) JSON over length-prefixed TCP frames, not WebSocket: WebSocket client connections need a URL endpoint and do not work with Bonjour endpoints.
 - Persistence is a snapshot of `HostState` per accepted change plus an append-only `GameEventRecord` log; the host resumes from the latest non-simulated game.
-- Admin: `DevicesView` with Check Connectivity (Cmd+R). iOS: `ConnectionStatusView`; Info.plist declares `_moonfall._tcp` and the local network usage string.
+- Admin: `DevicesView` (the Check Connectivity toolbar button was removed later). iOS: `ConnectionStatusView`; Info.plist declares `_moonfall._tcp` and the local network usage string.
 - Tests: `GameHostSessionTests` (AC2), `GameHostResilienceTests` (AC3-AC7), `NetworkTransportTests`.
