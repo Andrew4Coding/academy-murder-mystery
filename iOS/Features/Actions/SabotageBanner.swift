@@ -4,13 +4,13 @@ import SwiftUI
 struct SabotageBanner: View {
     let sabotage: SabotageView
     let client: GameClient
-
-    private static let alertTint = Color(red: 0.66, green: 0.1, blue: 0.1)
+    var playsAlert = true
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.md) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title2)
+                .accessibilityHidden(true)
             VStack(alignment: .leading) {
                 Text("Sabotage! Go to \(sabotage.kind.title)")
                     .font(.headline)
@@ -21,13 +21,17 @@ struct SabotageBanner: View {
             CountdownView(until: sabotage.endsAt, now: serverNow)
                 .font(.title2.bold())
         }
-        .padding()
-        .foregroundStyle(.white)
-        .glassEffect(.regular.tint(Self.alertTint), in: .rect(cornerRadius: 16))
-        .padding(.horizontal)
+        .padding(Spacing.md)
+        .foregroundStyle(Theme.onAccentFill)
+        .background(Theme.accentFill, in: .rect(cornerRadius: Radius.lg))
+        .padding(.horizontal, Spacing.md)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
-        .onAppear { AudioServicesPlayAlertSound(SystemSoundID(1005)) }
+        .onAppear {
+            if playsAlert {
+                AudioServicesPlayAlertSound(SystemSoundID(1005))
+            }
+        }
     }
 
     private var serverNow: @Sendable (Date) -> Date {

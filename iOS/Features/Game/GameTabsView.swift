@@ -73,7 +73,9 @@ struct GameTabsView: View {
         .sensoryFeedback(.error, trigger: game.sabotage?.startedAt)
         .task(id: game.deadline) { await syncAfterDeadline() }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { client.refresh() }
+            if phase == .active {
+                client.refresh()
+            }
         }
         .task(id: ProximityPlan(game: game, isActive: scenePhase == .active)) { configureProximity() }
         .onDisappear { proximity.stop() }
@@ -136,7 +138,7 @@ private extension PhaseView {
     }
 }
 
-private struct StartCountdownView: View {
+struct StartCountdownView: View {
     let startsAt: Date
     let client: GameClient
 
@@ -153,21 +155,25 @@ private struct StartCountdownView: View {
             if remaining > 0 {
                 VStack(spacing: 12) {
                     Text("Game starts in").font(.title2)
+                        .accessibilityAddTraits(.isHeader)
                     Text("\(Int(remaining.rounded(.up)))")
                         .scaledSystemFont(size: 96, weight: .bold)
                         .monospacedDigit()
                     Text("Get ready. Keep this app open.")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textSecondary)
                 }
+                .foregroundStyle(Theme.text)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(.background)
+                .background(Theme.background.ignoresSafeArea())
                 .accessibilityElement(children: .combine)
             }
         }
         .task(id: startsAt) {
             while !Task.isCancelled {
                 remaining = startsAt.timeIntervalSince(client.serverNow)
-                if remaining <= 0 { break }
+                if remaining <= 0 {
+                    break
+                }
                 try? await Task.sleep(for: .milliseconds(200))
             }
         }

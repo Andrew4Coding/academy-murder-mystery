@@ -12,36 +12,46 @@ struct FamilyLobbyView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    HStack {
-                        AvatarView(name: lobby.playerName, jpeg: client.selfies[lobby.playerID])
-                        Text(lobby.playerName)
+            ThemedScreen {
+                ScreenSection(title: "Your family") {
+                    HStack(spacing: Spacing.md) {
+                        AvatarView(name: lobby.playerName, jpeg: client.selfies[lobby.playerID], size: 56)
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text(lobby.familyName).font(.title3.bold())
+                            Text(lobby.playerName).secondaryText()
+                        }
                     }
                     .accessibilityElement(children: .combine)
-                } header: {
-                    Text(lobby.familyName)
-                } footer: {
-                    Text("Waiting for the game to start. Don't show your screen to anyone.")
+                    HStack(spacing: Spacing.sm) {
+                        ProgressView()
+                        Text("Waiting for the organiser to start the game.").secondaryText()
+                    }
+                    .accessibilityElement(children: .combine)
                 }
 
+                Text("Keep your screen private once the game starts: it shows your secret role.")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.textSecondary)
+
                 if let map = client.boothMap {
-                    Section {
+                    ScreenSection(title: "Venue") {
                         BoothMapCard(map: map) { isShowingMap = true }
                     }
                 }
 
-                Section {
+                ScreenSection(title: "Get ready") {
                     if SelfieCamera.isAvailable {
                         Button("Take Selfie", systemImage: "camera") { isTakingSelfie = true }
+                            .buttonStyle(.secondary)
+                            .accessibilityHint("Your photo is shown to other players during meetings")
                     }
                     Button("Rename Family", systemImage: "pencil") {
                         renameText = lobby.familyName
                         isRenaming = true
                     }
-                } footer: {
+                    .buttonStyle(.secondary)
                     if let error = client.lastError {
-                        StatusLabel.error(error)
+                        ErrorRow(message: error)
                     }
                 }
             }
@@ -65,7 +75,9 @@ struct FamilyLobbyView: View {
                 }
             }
             .onChange(of: client.boothMap == nil) { _, gone in
-                if gone { isShowingMap = false }
+                if gone {
+                    isShowingMap = false
+                }
             }
             .alert("Rename family", isPresented: $isRenaming) {
                 TextField("Name", text: $renameText)

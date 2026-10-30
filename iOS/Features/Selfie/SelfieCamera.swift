@@ -18,7 +18,7 @@ struct SelfieCamera: UIViewControllerRepresentable {
         return picker
     }
 
-    func updateUIViewController(_ controller: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_: UIImagePickerController, context _: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -43,14 +43,14 @@ struct SelfieCamera: UIViewControllerRepresentable {
             self.parent = parent
         }
 
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        func imagePickerController(_: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let image = info[.originalImage] as? UIImage, let data = SelfieCamera.jpeg(from: image) {
                 parent.onCapture(data)
             }
             parent.dismiss()
         }
 
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        func imagePickerControllerDidCancel(_: UIImagePickerController) {
             parent.dismiss()
         }
     }
@@ -68,8 +68,9 @@ struct AvatarView: View {
             } else {
                 Text(name.prefix(1).uppercased())
                     .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.text)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.quaternary)
+                    .background(Theme.surfaceRaised)
             }
         }
         .frame(width: size, height: size)

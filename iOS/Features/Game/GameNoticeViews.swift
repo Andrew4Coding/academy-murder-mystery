@@ -18,7 +18,7 @@ struct KilledNoticeView: View {
     var body: some View {
         NoticeScaffold(
             symbol: "xmark.circle.fill",
-            tint: .red,
+            tint: Theme.accent,
             title: "You were killed",
             message: "Your whole family is out. Sit at your assigned seat and keep doing your tasks.",
             onDismiss: onDismiss
@@ -33,7 +33,7 @@ struct GameOverView: View {
     var body: some View {
         NoticeScaffold(
             symbol: outcome.winner == .villagers ? "house.fill" : "moon.stars.fill",
-            tint: outcome.winner == .villagers ? .green : .indigo,
+            tint: outcome.winner == .villagers ? Theme.success : Theme.accent,
             title: outcome.winner == .villagers ? "Villagers win!" : "Werewolves win!",
             message: outcome.reason.explanation,
             onDismiss: onDismiss
@@ -41,7 +41,7 @@ struct GameOverView: View {
     }
 }
 
-private struct NoticeScaffold: View {
+struct NoticeScaffold: View {
     let symbol: String
     let tint: Color
     let title: String
@@ -49,7 +49,7 @@ private struct NoticeScaffold: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             Spacer()
             Image(systemName: symbol)
                 .scaledSystemFont(size: 96)
@@ -58,18 +58,19 @@ private struct NoticeScaffold: View {
             Text(title)
                 .font(.largeTitle.bold())
                 .multilineTextAlignment(.center)
+                .accessibilityAddTraits(.isHeader)
             Text(message)
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
             Spacer()
             Button("OK", action: onDismiss)
-                .buttonStyle(.glassProminent)
-                .controlSize(.large)
+                .buttonStyle(.accentFill)
         }
-        .padding(32)
+        .foregroundStyle(Theme.text)
+        .padding(Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(tint.opacity(0.12).ignoresSafeArea())
+        .background(Theme.background.ignoresSafeArea())
         .accessibilityElement(children: .contain)
     }
 }

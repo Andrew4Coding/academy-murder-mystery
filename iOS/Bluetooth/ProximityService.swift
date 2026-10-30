@@ -247,3 +247,12 @@ extension CBManagerState {
         self == .poweredOn || self == .unknown || self == .resetting
     }
 }
+
+#if DEBUG
+    extension ProximityService {
+        convenience init(previewState: CBManagerState) {
+            self.init()
+            bluetoothState = previewState
+        }
+    }
+#endif

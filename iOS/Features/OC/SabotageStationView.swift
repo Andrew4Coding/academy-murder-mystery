@@ -19,6 +19,8 @@ struct SabotageStationView: View {
                         systemImage: "checkmark.shield",
                         description: Text("You'll see a countdown here when werewolves sabotage \(kind.title).")
                     )
+                    .foregroundStyle(Theme.text)
+                    .themedBackground()
                 }
             }
             .navigationTitle(kind.title)
@@ -29,26 +31,26 @@ struct SabotageStationView: View {
     }
 
     private func active(_ sabotage: SabotageView) -> some View {
-        List {
-            Section {
-                VStack(spacing: 8) {
-                    Text(sabotage.kind == kind ? "Sabotage at your booth" : "Sabotage at \(sabotage.kind.title)")
-                        .font(.headline)
-                    CountdownView(until: sabotage.endsAt, now: serverNow)
-                        .countdownDisplay()
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .accessibilityElement(children: .combine)
+        ThemedScreen {
+            VStack(spacing: Spacing.sm) {
+                Label(
+                    sabotage.kind == kind ? "Sabotage at your booth" : "Sabotage at \(sabotage.kind.title)",
+                    systemImage: "exclamationmark.triangle.fill"
+                )
+                .font(.headline)
+                .foregroundStyle(Theme.accent)
+                CountdownView(until: sabotage.endsAt, now: serverNow)
+                    .countdownDisplay()
             }
+            .frame(maxWidth: .infinity)
+            .themedCard()
+            .accessibilityElement(children: .combine)
             if sabotage.kind == kind {
-                Section {
+                ScreenSection(footer: "Tap once the villagers have finished the task at your booth.") {
                     Button("Mark as Resolved", systemImage: "checkmark.shield") { confirming = true }
-                        .frame(maxWidth: .infinity)
-                } footer: {
-                    Text("Tap once the villagers have finished the task at your booth.")
+                        .buttonStyle(.accentFill)
                     if let error = client.lastError {
-                        StatusLabel.error(error)
+                        ErrorRow(message: error)
                     }
                 }
             }

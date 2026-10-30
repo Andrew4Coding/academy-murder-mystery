@@ -17,6 +17,8 @@ struct OCRootView: View {
                 } actions: {
                     OCSignOutButton(client: client)
                 }
+                .foregroundStyle(Theme.text)
+                .themedBackground()
             case .townHall:
                 ContentUnavailableView {
                     Label("Station removed", systemImage: "xmark.circle")
@@ -25,6 +27,8 @@ struct OCRootView: View {
                 } actions: {
                     OCSignOutButton(client: client)
                 }
+                .foregroundStyle(Theme.text)
+                .themedBackground()
             }
         }
     }
@@ -35,6 +39,7 @@ struct OCSignOutButton: View {
 
     var body: some View {
         Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right") { client.signOut() }
+            .accessibilityHint("Returns to the join screen")
     }
 }
 
@@ -45,5 +50,7 @@ struct WaitingForGameView: View {
             systemImage: "person.3",
             description: Text("Families appear here once the game has started.")
         )
+        .foregroundStyle(Theme.text)
+        .themedBackground()
     }
 }

@@ -15,7 +15,7 @@ struct RootView: View {
                     } else if let lobby = view.lobby {
                         FamilyLobbyView(lobby: lobby, client: client)
                     } else {
-                        ProgressView()
+                        WaitingForStateView(client: client)
                     }
                 case .oc:
                     OCRootView(view: view, client: client)
@@ -37,28 +37,48 @@ struct RootView: View {
     }
 }
 
-private struct ReconnectingView: View {
+struct ReconnectingView: View {
     let client: GameClient
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                ProgressView()
-                Text("Reconnecting to the game…")
-                    .foregroundStyle(.secondary)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Start Over", role: .destructive) { client.signOut() }
+            ConnectionStatusView(status: .connecting) { client.refresh() }
+                .overlay(alignment: .bottom) {
+                    Text("Reconnecting to your game. This usually takes a few seconds.")
+                        .secondaryText()
+                        .multilineTextAlignment(.center)
+                        .padding(Spacing.md)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Retry", systemImage: "arrow.clockwise") { client.refresh() }
+                .themedBackground()
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Start Over", role: .destructive) { client.signOut() }
+                            .accessibilityHint("Forgets this game and returns to the join screen")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Retry", systemImage: "arrow.clockwise") { client.refresh() }
+                    }
                 }
-            }
         }
     }
 }
 
-#Preview {
-    RootView(client: GameClient(transport: LoopbackHub().makeClient(), store: InMemoryIdentityStore()))
+struct WaitingForStateView: View {
+    let client: GameClient
+
+    var body: some View {
+        NavigationStack {
+            ContentUnavailableView {
+                ProgressView().controlSize(.large)
+                Text("Getting your game ready").font(.title2.bold())
+            } description: {
+                Text("Hang on, the host is sending your family details.")
+            } actions: {
+                Button("Refresh", systemImage: "arrow.clockwise") { client.refresh() }
+                    .buttonStyle(.secondary)
+                    .frame(maxWidth: 280)
+            }
+            .themedBackground()
+        }
+    }
 }

@@ -9,33 +9,35 @@ struct OCSignInView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
+            ThemedScreen {
+                Text("Organisers run the booths. Enter the PIN, then pick the booth you are watching.")
+                    .foregroundStyle(Theme.textSecondary)
+
+                ScreenSection(title: "1. PIN", footer: "The PIN is shown on the Town Hall Mac.") {
                     SecureField("OC PIN", text: $pin)
                         .keyboardType(.numberPad)
                         .textContentType(.oneTimeCode)
-                } footer: {
-                    Text("The PIN is shown on the Town Hall Mac.")
+                        .themedField()
                 }
 
-                Section("Your station") {
+                ScreenSection(title: "2. Your station") {
                     Picker("Station", selection: $station) {
-                        Section("Sabotage booths") {
-                            ForEach(SabotageKind.allCases, id: \.self) { kind in
-                                Text(kind.title).tag(OCStation.sabotage(kind))
-                            }
+                        ForEach(SabotageKind.allCases, id: \.self) { kind in
+                            Text(kind.title).tag(OCStation.sabotage(kind))
                         }
                     }
-                    .pickerStyle(.navigationLink)
+                    .pickerStyle(.segmented)
                 }
 
-                Section {
+                VStack(spacing: Spacing.sm) {
                     Button("Sign In", action: signIn)
-                        .frame(maxWidth: .infinity)
+                        .buttonStyle(.accentFill)
                         .disabled(pin.isEmpty || client.status != .connected)
-                } footer: {
+                        .accessibilityHint(pin.isEmpty ? "Enter the PIN first" : "")
                     if let error = client.lastError {
-                        StatusLabel.error(error)
+                        ErrorRow(message: error)
+                    } else if client.status != .connected {
+                        Text("Waiting for the game host…").secondaryText()
                     }
                 }
             }

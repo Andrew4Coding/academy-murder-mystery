@@ -23,51 +23,46 @@ struct JoinView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
+            ThemedScreen {
+                Text("Scan the QR code on the big screen, then pick a name for your family.")
+                    .foregroundStyle(Theme.textSecondary)
+
+                ScreenSection(title: "1. Find the game", footer: "The code is shown under the QR code on the big screen.") {
                     TextField("Game code", text: $code)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                         .focused($focus, equals: .code)
                         .onSubmit { focus = .name }
+                        .themedField()
                     Button("Scan QR Code", systemImage: "qrcode.viewfinder") {
                         isScanning = true
                     }
-                } header: {
-                    Text("Game")
-                } footer: {
-                    Text("Scan the QR on the big screen.")
+                    .buttonStyle(.secondary)
                 }
 
-                Section {
+                ScreenSection(title: "2. Name your family", footer: "Up to 24 characters.") {
                     TextField("Family name", text: $name)
                         .submitLabel(.join)
                         .focused($focus, equals: .name)
                         .onSubmit(join)
-                } header: {
-                    Text("Your family")
-                } footer: {
-                    Text("Pick a name for your family (up to 24 characters).")
+                        .themedField()
                 }
 
-                Section {
+                VStack(spacing: Spacing.sm) {
                     Button("Join Game", action: join)
-                        .frame(maxWidth: .infinity)
+                        .buttonStyle(.accentFill)
                         .disabled(!canJoin)
-                } footer: {
-                    if let error = client.lastError {
-                        StatusLabel.error(error)
-                    } else if client.status != .connected {
-                        Text(statusText)
-                    }
+                        .accessibilityHint(canJoin ? "" : "Enter the game code and a family name first")
+                    connectionRow
                 }
             }
             .navigationTitle("Join the Game")
             .scrollDismissesKeyboard(.interactively)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("I'm an Organiser", systemImage: "person.badge.key") { isSigningInAsOC = true }
+                    Button("Organiser", systemImage: "person.badge.key") { isSigningInAsOC = true }
+                        .accessibilityHint("Sign in with the organiser PIN")
                 }
             }
             .sheet(isPresented: $isSigningInAsOC) { OCSignInView(client: client) }
@@ -81,11 +76,33 @@ struct JoinView: View {
         }
     }
 
-    private var statusText: String {
-        switch client.status {
-        case let .failed(reason): reason
-        default: "Looking for the game host…"
+    @ViewBuilder
+    private var connectionRow: some View {
+        if let error = client.lastError {
+            ErrorRow(message: error)
+        } else {
+            switch client.status {
+            case .connected:
+                StatusLabel("Connected to the game host", systemImage: "checkmark.circle.fill", tint: Theme.success)
+                    .secondaryText()
+            case let .failed(reason):
+                VStack(spacing: Spacing.sm) {
+                    StatusLabel(reason, systemImage: "wifi.exclamationmark", tint: Theme.warning)
+                    Button("Try Again", systemImage: "arrow.clockwise") { client.refresh() }
+                        .buttonStyle(.secondary)
+                }
+            case .idle, .searching, .connecting:
+                HStack(spacing: Spacing.sm) {
+                    ProgressView()
+                    Text(statusText).secondaryText()
+                }
+                .accessibilityElement(children: .combine)
+            }
         }
+    }
+
+    private var statusText: String {
+        client.status == .connecting ? "Connecting to the game host…" : "Looking for the game host. Join the event Wi-Fi."
     }
 
     private func join() {
@@ -108,8 +125,9 @@ private struct ScannerSheet: View {
                     ContentUnavailableView(
                         "Scanner unavailable",
                         systemImage: "camera.fill",
-                        description: Text("Allow camera access in Settings, or type the family code instead.")
+                        description: Text("Allow camera access in Settings, or type the game code instead.")
                     )
+                    .themedBackground()
                 }
             }
             .navigationTitle("Scan QR Code")

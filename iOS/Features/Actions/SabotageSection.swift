@@ -10,15 +10,17 @@ struct SabotageSection: View {
     var body: some View {
         Group {
             if let sabotage = game.sabotage {
-                Section("Sabotage") {
-                    LabeledContent(sabotage.kind.title) {
+                ScreenSection(title: "Sabotage") {
+                    HStack {
+                        Label(sabotage.kind.title, systemImage: sabotage.kind.symbol)
+                        Spacer()
                         CountdownView(until: sabotage.endsAt, now: serverNow)
                     }
-                    Text("A sabotage is already running.").foregroundStyle(.secondary)
+                    Text("A sabotage is already running.").secondaryText()
                 }
             } else if game.phase.isMeeting {
-                Section("Sabotage") {
-                    Label("Not during meetings", systemImage: "person.3").foregroundStyle(.secondary)
+                ScreenSection(title: "Sabotage") {
+                    Label("Not available during meetings", systemImage: "person.3").secondaryText()
                 }
             } else {
                 ForEach(SabotageKind.allCases, id: \.self) { kind in
@@ -48,22 +50,24 @@ struct SabotageSection: View {
     }
 
     private func card(for kind: SabotageKind) -> some View {
-        Section {
+        ScreenSection(
+            title: "Sabotage: \(kind.title)",
+            footer: "Villagers have \(duration(of: kind)) to fix it at the booth, or the werewolves win. Werewolves share one cooldown."
+        ) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 let now = client.serverClock.now(local: context.date)
                 if let readyAt = game.sabotageReadyAt, now < readyAt {
-                    LabeledContent("Ready in") { CountdownView(until: readyAt, now: serverNow) }
+                    HStack {
+                        StatusLabel("Cooling down", systemImage: "hourglass", tint: Theme.warning)
+                        Spacer()
+                        CountdownView(until: readyAt, now: serverNow)
+                    }
+                    .accessibilityElement(children: .combine)
                 } else {
                     Button(kind.title, systemImage: kind.symbol) { pending = kind }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.red)
-                        .frame(maxWidth: .infinity)
+                        .buttonStyle(.accentFill)
                 }
             }
-        } header: {
-            Text("Sabotage: \(kind.title)")
-        } footer: {
-            Text("Villagers get \(duration(of: kind)) to fix it at the matching booth. If they can't, the werewolves win. Werewolf families share one cooldown.")
         }
     }
 

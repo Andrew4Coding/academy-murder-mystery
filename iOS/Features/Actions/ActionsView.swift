@@ -13,7 +13,7 @@ struct ActionsView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            ThemedScreen {
                 if game.role == .werewolf, game.life == .alive {
                     killSection
                 }
@@ -24,7 +24,7 @@ struct ActionsView: View {
                     SabotageSection(game: game, client: client)
                 }
                 if let error = client.lastError {
-                    Section { StatusLabel.error(error) }
+                    ErrorRow(message: error)
                 }
             }
             .navigationTitle("Actions")
@@ -68,41 +68,59 @@ struct ActionsView: View {
     }
 
     private var reportSection: some View {
-        Section {
+        ScreenSection(
+            title: "Report a body",
+            footer: game.sabotage != nil
+                ? "Nobody can call a meeting while a sabotage is active."
+                : "Walk up to a fallen family and keep this app open. Reporting calls everyone to the Town Hall."
+        ) {
             if !proximity.bluetoothState.isUsable {
                 BluetoothOffRow()
             } else if game.nearbyBodies.isEmpty {
-                Label("No body nearby", systemImage: "figure.fall")
-                    .foregroundStyle(.secondary)
+                Label("No body nearby", systemImage: "figure.fall").secondaryText()
             }
             ForEach(game.nearbyBodies) { body in
                 HStack {
                     Text("\(body.name)'s body")
                     Spacer()
-                    Button("Report", role: .destructive) {
+                    Button("Report") {
                         client.send(.reportBody(body.id))
                         reportCount += 1
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.accentFill)
+                    .fixedSize()
                     .disabled(game.phase != .running || game.sabotage != nil)
+                    .accessibilityLabel("Report \(body.name)'s body")
                 }
             }
-        } header: {
-            Text("Report a body")
-        } footer: {
-            Text(game.sabotage != nil
-                ? "Nobody can call a meeting while a sabotage is active."
-                : "Walk up to a fallen family and keep this app open. Reporting calls everyone to the Town Hall.")
         }
     }
 
     private var killSection: some View {
-        Section {
+        ScreenSection(
+            title: "Nearby villager families",
+            footer: "Stand close to a villager family and keep this app open. Families that are close enough appear here."
+        ) {
+            if let readyAt = game.killReadyAt {
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    let remaining = readyAt.timeIntervalSince(client.serverClock.now(local: context.date))
+                    HStack {
+                        Text("Elimination").font(.body.weight(.semibold))
+                        Spacer()
+                        if remaining > 0 {
+                            StatusLabel("Ready in", systemImage: "hourglass", tint: Theme.warning)
+                            CountdownView(until: readyAt, now: serverNow)
+                        } else {
+                            StatusLabel("Ready", systemImage: "checkmark.circle.fill", tint: Theme.success)
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
             if !proximity.bluetoothState.isUsable {
                 BluetoothOffRow()
             } else if displayed.isEmpty {
-                Label("No one nearby", systemImage: "dot.radiowaves.left.and.right")
-                    .foregroundStyle(.secondary)
+                Label("No one nearby", systemImage: "dot.radiowaves.left.and.right").secondaryText()
             }
             ForEach(displayed) { family in
                 TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -110,28 +128,15 @@ struct ActionsView: View {
                     HStack {
                         Text(family.name)
                         Spacer()
-                        Button("Eliminate", role: .destructive) { target = family }
-                            .buttonStyle(.borderedProminent)
+                        Button("Eliminate") { target = family }
+                            .buttonStyle(.accentFill)
+                            .fixedSize()
                             .disabled(!ready)
+                            .accessibilityLabel("Eliminate \(family.name)")
+                            .accessibilityHint(ready ? "Asks you to confirm" : "Not ready yet, wait for the cooldown")
                     }
                 }
             }
-            if let readyAt = game.killReadyAt {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    let remaining = readyAt.timeIntervalSince(client.serverClock.now(local: context.date))
-                    LabeledContent("Kill") {
-                        if remaining > 0 {
-                            CountdownView(until: readyAt, now: serverNow)
-                        } else {
-                            StatusLabel("Ready", systemImage: "checkmark.circle.fill", tint: .green)
-                        }
-                    }
-                }
-            }
-        } header: {
-            Text("Nearby villager families")
-        } footer: {
-            Text("Stand close to a villager family and keep this app open. Families that are close enough appear here.")
         }
     }
 
@@ -148,13 +153,14 @@ struct ActionsView: View {
 
 private struct BluetoothOffRow: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            StatusLabel("Bluetooth is off", systemImage: "bolt.horizontal.circle", tint: .orange)
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            StatusLabel("Bluetooth is off", systemImage: "bolt.horizontal.circle", tint: Theme.warning)
+                .font(.headline)
             Text("Turn on Bluetooth and allow it for this app, so the game can tell who is close.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .secondaryText()
             if let url = URL(string: UIApplication.openSettingsURLString) {
                 Link("Open Settings", destination: url)
+                    .frame(minHeight: 44)
             }
         }
     }
