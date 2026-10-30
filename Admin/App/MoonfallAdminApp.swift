@@ -14,7 +14,7 @@ struct MoonfallAdminApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(controller: controller, simulation: simulation)
+            mainContent
                 .frame(minWidth: 720, minHeight: 480)
                 .tint(Theme.accent)
         }
@@ -23,5 +23,18 @@ struct MoonfallAdminApp: App {
                 .frame(minWidth: 960, minHeight: 540)
         }
         .windowResizability(.contentMinSize)
+    }
+
+    @ViewBuilder
+    private var mainContent: some View {
+        #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-DisplayGallery") {
+                PublicDisplayGalleryLaunch()
+            } else {
+                RootView(controller: controller, simulation: simulation)
+            }
+        #else
+            RootView(controller: controller, simulation: simulation)
+        #endif
     }
 }
