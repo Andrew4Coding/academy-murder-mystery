@@ -33,6 +33,13 @@ Tooling and refactors that users can't see don't go here.
 #### Fixed
 
 - App icon now shows on the home screen.
+- Meetings and body reports are refused while a sabotage is active.
+- A majority of alive families voting to skip discussion opens voting at once, with no organiser approval.
+- Game start shows a 10 second countdown on phones and the Public Display before roles appear.
+- Voted-out families no longer reveal their role until the game ends.
+- Reconnecting is faster and keeps you in the game: heartbeat, refresh button, sync on return to the app, and a kill sent while reconnecting is queued.
+- Meeting countdowns match across devices, and the Bluetooth prompt appears in the lobby instead of mid-game.
+- A bell and notification call everyone to the Town Hall when a meeting starts.
 
 #### Changed
 
