@@ -16,10 +16,7 @@ struct FamilyLobbyView: View {
                 ScreenSection(title: "Your family") {
                     HStack(spacing: Spacing.md) {
                         AvatarView(name: lobby.playerName, jpeg: client.selfies[lobby.playerID], size: 56)
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text(lobby.familyName).font(.title3.bold())
-                            Text(lobby.playerName).secondaryText()
-                        }
+                        Text(lobby.familyName).font(.title3.bold())
                     }
                     .accessibilityElement(children: .combine)
                     HStack(spacing: Spacing.sm) {

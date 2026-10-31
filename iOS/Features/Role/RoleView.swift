@@ -28,11 +28,8 @@ struct RoleView: View {
                     outSection
                 }
 
-                if let allies = game.allies, isRevealed || game.life != .alive {
+                if let allies = game.allies, !allies.isEmpty, isRevealed || game.life != .alive {
                     ScreenSection(title: "Fellow werewolf families") {
-                        if allies.isEmpty {
-                            Text("You are the only werewolf family.")
-                        }
                         ForEach(allies) { ally in
                             HStack {
                                 Text(ally.name)

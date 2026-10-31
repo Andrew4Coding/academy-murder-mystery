@@ -66,11 +66,6 @@ struct MeetingView: View {
                     + "Voting opens automatically when the time is up."
             )
             skipSection
-            BentoSection(title: "Families at the table") {
-                ForEach(game.families.filter { $0.life == .alive }) { family in
-                    FamilyTile(family: family, subtitle: nil, isSelected: false, client: client)
-                }
-            }
             DeathsSection(families: game.announcedDeaths)
         }
     }
@@ -83,8 +78,8 @@ struct MeetingView: View {
                 footer: "When more than half of the families agree, voting opens right away."
             ) {
                 BentoButton(
-                    title: game.mySkipVote ? "Withdraw skip vote" : "Vote to skip",
-                    subtitle: "\(game.skipVotes) of \(game.votersTotal) families want to skip",
+                    title: game.mySkipVote ? "Withdraw skip vote" : "Vote to skip discussion",
+                    subtitle: "",
                     systemImage: game.mySkipVote ? "checkmark.circle.fill" : "forward.end",
                     isProminent: game.mySkipVote
                 ) { client.send(.voteSkipDiscussion) }
@@ -223,9 +218,6 @@ private struct FamilyTile: View {
             Text(family.name)
                 .font(.title3.bold())
                 .foregroundStyle(isSelected ? Theme.onAccentFill : Theme.text)
-            if let player = family.playerName, player != family.name {
-                Text(player).font(.footnote).foregroundStyle(isSelected ? Theme.onAccentFill : Theme.textSecondary)
-            }
             if let subtitle {
                 Text(subtitle).font(.footnote.weight(.semibold)).foregroundStyle(isSelected ? Theme.onAccentFill : Theme.accent)
             }

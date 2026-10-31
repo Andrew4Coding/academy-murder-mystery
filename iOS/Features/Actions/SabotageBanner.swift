@@ -1,10 +1,8 @@
-import AudioToolbox
 import SwiftUI
 
 struct SabotageBanner: View {
     let sabotage: SabotageView
     let client: GameClient
-    var playsAlert = true
 
     var body: some View {
         HStack(spacing: Spacing.md) {
@@ -27,11 +25,6 @@ struct SabotageBanner: View {
         .padding(.horizontal, Spacing.md)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
-        .onAppear {
-            if playsAlert {
-                AudioServicesPlayAlertSound(SystemSoundID(1005))
-            }
-        }
     }
 
     private var serverNow: @Sendable (Date) -> Date {
