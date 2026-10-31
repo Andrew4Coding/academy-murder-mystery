@@ -1,7 +1,7 @@
 ---
 id: 0036
 title: Host switching, registry and failover
-status: approved
+status: in-progress
 owner: AND
 app: all
 created: 2026-10-31
@@ -28,9 +28,9 @@ Clients, the Mac Admin app and the iPad admin can use either host. A registry on
 - [x] **AC3**: Given the cloud is active, when I choose Self-host, then the state moves back the same way and the registry flips to `local`.
 - [x] **AC4**: Given a switch, when phones reconnect, then they resume with the same resume ID and see the same game.
 - [x] **AC5**: Given the Mac self-hosts, when it commits, then it uploads a snapshot to the cloud as a cold backup, and the cloud takes no action on it.
-- [ ] **AC6**: Given the Mac is unreachable, when the OC PIN is entered on the iPad admin or the take-over web page, then the cloud activates the latest snapshot and flips the registry to `cloud`.
+- [x] **AC6**: Given the Mac is unreachable, when the OC PIN is entered on the iPad admin or the take-over web page, then the cloud activates the latest snapshot and flips the registry to `cloud`.
 - [x] **AC7**: Given the Mac is in Cloud mode, then it signs in to the cloud as an admin, sends every `AdminCommand` and drives the Public Display from the streamed `PublicDisplayState`.
-- [ ] **AC8**: Given any registry write, then it is accepted only with the OC PIN or the Mac's pairing secret.
+- [x] **AC8**: Given any registry write, then it is accepted only with the OC PIN or the Mac's pairing secret.
 
 ## UX
 
@@ -44,7 +44,7 @@ Mac Admin: a Host mode control (Self-host / Cloud) with status (active host, las
 
 - [x] Amends the "no cloud backend" rule through [ADR 0009](../decisions/0009-switchable-cloud-host.md)
 - [x] Uses only `URLSessionWebSocketTask`, no new dependency
-- [ ] Privacy: state and selfies leave the venue while the cloud is used. Update the root privacy section.
+- [x] Privacy: state and selfies leave the venue while the cloud is used. Root privacy section updated.
 
 ## Out of scope
 
@@ -56,4 +56,6 @@ Automatic failover, selfie deltas, Keychain pairing storage.
 
 ## Implementation notes
 
-Filled by `codebase-sync`.
+- Swift: `Shared/Net/{WebSocketClientTransport,AdaptiveClientTransport}`, `Shared/Host/{CloudConfig,HostRegistryClient,HostEndpointResolver,HostSnapshot,SnapshotUploader,HostModeController,CloudTakeoverController}`, `Admin/Features/Devices/HostModeSection`, `Admin/Features/Game/CloudControlView`.
+- Server and contract: `cloud/` (see `cloud/CONTRACT.md`). Golden fixtures are written by `Tests/Shared/GoldenFixtureGenerator.swift` when `MOONFALL_WRITE_FIXTURES=<dir>` is set.
+- Not yet verified: live deployment, real-device WebSocket backgrounding. Votes cast before a switch are lost because ballots are never encoded. In Cloud mode the Mac has only the main commands plus the Public Display; full controls are on the iPad.
