@@ -221,7 +221,7 @@ struct StepperTile: View {
     let title: String
     let subtitle: String
     let systemImage: String
-    let valueText: String
+    var unit = ""
     @Binding var value: Int
     let range: ClosedRange<Int>
 
@@ -233,10 +233,15 @@ struct StepperTile: View {
                 .accessibilityHidden(true)
             Spacer(minLength: Spacing.sm)
             HStack(alignment: .firstTextBaseline) {
-                Text(valueText)
+                TextField(title, value: clamped, format: .number)
                     .font(.largeTitle.bold())
                     .monospacedDigit()
+                    .textFieldStyle(.plain)
                     .foregroundStyle(Theme.text)
+                    .fixedSize()
+                if !unit.isEmpty {
+                    Text(unit).font(.title3).foregroundStyle(Theme.textSecondary)
+                }
                 Spacer()
                 Stepper(title, value: $value, in: range).labelsHidden()
             }
@@ -246,15 +251,10 @@ struct StepperTile: View {
         .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
         .padding(Spacing.md)
         .background(Theme.surface, in: .rect(cornerRadius: Radius.lg))
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(valueText)
-        .accessibilityAdjustableAction { direction in
-            switch direction {
-            case .increment: value = min(value + 1, range.upperBound)
-            case .decrement: value = max(value - 1, range.lowerBound)
-            @unknown default: break
-            }
-        }
+    }
+
+    private var clamped: Binding<Int> {
+        Binding(get: { value }, set: { value = min(max($0, range.lowerBound), range.upperBound) })
     }
 }
 
