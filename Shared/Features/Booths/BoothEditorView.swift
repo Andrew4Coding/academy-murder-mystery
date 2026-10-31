@@ -85,7 +85,7 @@ struct BoothEditorView: View {
             Button("OK", role: .cancel) {}
         }
         .task(id: booth.image?.hash) {
-            image = booth.image.flatMap { BoothMapImporter.decode($0.jpeg, maxPixelSize: 800) }
+            image = booth.image.flatMap { BoothMapImporter.decode($0.jpeg, maxPixelSize: 1600) }
         }
         .onChange(of: pickedPhoto) { _, item in
             guard let item else { return }
@@ -103,7 +103,7 @@ struct BoothEditorView: View {
     private var pictureRow: some View {
         if booth.image != nil {
             BoothMapThumbnail(image: image)
-                .frame(maxWidth: 360)
+                .frame(maxWidth: .infinity)
                 .aspectRatio(aspectRatio, contentMode: .fit)
                 .clipShape(.rect(cornerRadius: Radius.md))
                 .accessibilityLabel("Booth picture")
@@ -122,7 +122,7 @@ struct BoothEditorView: View {
     }
 
     private var aspectRatio: CGFloat {
-        guard let image else { return 4.0 / 3.0 }
+        guard let image else { return 16.0 / 9.0 }
         return CGFloat(image.width) / CGFloat(max(image.height, 1))
     }
 
