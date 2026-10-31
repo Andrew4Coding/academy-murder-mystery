@@ -8,6 +8,7 @@ enum DisplayPalette {
     static let redText = Color(red: 255 / 255, green: 107 / 255, blue: 107 / 255)
     static let redFill = Color(red: 179 / 255, green: 16 / 255, blue: 28 / 255)
     static let redBright = Color(red: 229 / 255, green: 56 / 255, blue: 59 / 255)
+    static let fixedFill = Color(red: 27 / 255, green: 122 / 255, blue: 58 / 255)
     static let grey = Color(red: 158 / 255, green: 150 / 255, blue: 164 / 255)
 
     static let alarmBase = Color(red: 38 / 255, green: 10 / 255, blue: 16 / 255)

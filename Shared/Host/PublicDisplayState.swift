@@ -26,6 +26,8 @@ struct PublicDisplayState: Codable, Equatable, Sendable {
     var joinCode: String?
     var lobbyFamilies: [LobbyFamily] = []
     var reveal: [RevealedFamily] = []
+    var pausedAt: Date?
+    var alarmPausedAt: Date?
 }
 
 struct RevealedFamily: Codable, Equatable, Sendable, Identifiable {
@@ -71,12 +73,20 @@ extension GameHost {
                 .playing(gameEndsAt: game.finalVoteAt)
             }
         }
+        let paused = game.timerPausedAt ?? [:]
+        let screenTimer: TimerTarget? = switch game.phase {
+        case .discussion, .voting: .meeting
+        case .running: .finalVote
+        case .ended: nil
+        }
         return PublicDisplayState(
             screen: screen,
             familiesRemaining: game.aliveFamilies().count,
             alarm: alarm,
             announcedDeaths: names,
-            reveal: game.outcome?.winner == .werewolves ? endReveal(game) : []
+            reveal: game.outcome?.winner == .werewolves ? endReveal(game) : [],
+            pausedAt: screenTimer.flatMap { paused[$0] },
+            alarmPausedAt: paused[.sabotage]
         )
     }
 
