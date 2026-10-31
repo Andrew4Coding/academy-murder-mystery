@@ -66,13 +66,13 @@ struct GameHostResilienceTests {
         #expect(harness.host.state.players.count == 1)
     }
 
-    @Test func unknownResumeIdentitiesKeepTheClientIdentity() async throws {
+    @Test func unknownResumeIdentitiesSignTheClientOut() async throws {
         let harness = try HostHarness()
         let store = InMemoryIdentityStore()
         store.resumeID = UUID()
         let client = harness.makeClient(store: store)
-        #expect(await eventually { client.lastError == HostError.unknownDevice.message })
-        #expect(store.resumeID != nil)
+        #expect(await eventually { store.resumeID == nil })
+        #expect(!client.isSignedIn)
     }
 
     @Test func connectivityCheckFlagsUnreachableAndOfflineDevices() async throws {

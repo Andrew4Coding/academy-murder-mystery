@@ -203,8 +203,10 @@ final class GameClient {
             view = newView
             serverClock.sync(serverTime: newView.serverTime, receivedAt: Date())
         case let .rejected(reason):
-            lastError = reason
-            if reason != HostError.unknownDevice.message {
+            if reason == HostError.unknownDevice.message {
+                signOut()
+            } else {
+                lastError = reason
                 pendingHello = nil
             }
         case let .probe(nonce):
