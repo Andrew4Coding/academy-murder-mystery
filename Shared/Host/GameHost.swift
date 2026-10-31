@@ -39,6 +39,7 @@ final class GameHost {
     private(set) var revision = 0
     private(set) var bellRings = 0
     var boothMap: BoothMap?
+    var boothCatalog: BoothCatalog
 
     @ObservationIgnored var selfies: [PlayerID: Data] = [:]
     @ObservationIgnored var testingToolsEnabled = TestingTools.isEnabled
@@ -48,6 +49,7 @@ final class GameHost {
     @ObservationIgnored let clock: any HostClock
     @ObservationIgnored private let repository: any GameRepository
     @ObservationIgnored let boothMapStore: any BoothMapStore
+    @ObservationIgnored let boothStore: any BoothStore
     @ObservationIgnored var onCommit: (@MainActor () -> Void)?
     @ObservationIgnored private var transport: (any HostTransport)?
     @ObservationIgnored private var pump: Task<Void, Never>?
@@ -56,12 +58,19 @@ final class GameHost {
         repository: any GameRepository,
         clock: any HostClock = SystemHostClock(),
         initialState: HostState? = nil,
-        boothMapStore: any BoothMapStore = InMemoryBoothMapStore()
+        boothMapStore: any BoothMapStore = InMemoryBoothMapStore(),
+        boothStore: any BoothStore = InMemoryBoothStore()
     ) throws {
         self.repository = repository
         self.clock = clock
         self.boothMapStore = boothMapStore
         boothMap = boothMapStore.load()
+        self.boothStore = boothStore
+        let catalog = boothStore.load() ?? BoothCatalog(booths: BoothDefaults.booths)
+        if boothStore.load() == nil {
+            try? boothStore.save(catalog)
+        }
+        boothCatalog = catalog
         if let stored = try repository.latest() {
             gameID = stored.id
             state = stored.state
@@ -253,6 +262,10 @@ final class GameHost {
     func importSnapshot(_ snapshot: HostSnapshot) throws {
         guard !hasSignedInClients else { throw HostError.snapshotBusy }
         try boothMapStore.save(snapshot.boothMap)
+        if let booths = snapshot.booths {
+            try boothStore.save(booths)
+            boothCatalog = booths
+        }
         try repository.save(StoredGame(id: gameID, state: snapshot.state, updatedAt: clock.now))
         state = snapshot.state
         boothMap = snapshot.boothMap
@@ -303,6 +316,9 @@ final class GameHost {
         send(.selfies(selfieList), to: id)
         if hello.mapHash != boothMap?.hash {
             send(.map(boothMap), to: id)
+        }
+        if hello.boothsRevision != boothCatalog.revision {
+            send(.booths(catalog(for: identity)), to: id)
         }
         commit()
     }
@@ -366,34 +382,6 @@ extension OCStation {
         case let .sabotage(kind): kind.title
         case .townHall: "Town Hall"
         case .admin: "iPad dashboard"
-        }
-    }
-}
-
-extension Booth {
-    var title: String {
-        switch self {
-        case .morseCode: "Booth 1: Decipher Morse Code"
-        case .painting: "Booth 2: Recreate the Painting"
-        case .message: "Booth 3: Message Passenger"
-        case .rightPlace: "Booth 4: The Right Place"
-        case .pattern: "Booth 5: Follow the Pattern"
-        case .tower: "Booth 6: Tower Danger"
-        case .locks: "Booth 7: Separate Metal Locks"
-        }
-    }
-}
-
-extension Booth {
-    var instructions: String {
-        switch self {
-        case .morseCode: "Decipher the Morse code message to reveal the hidden word."
-        case .painting: "Recreate the painting from the reference as closely as you can."
-        case .message: "Pass the message to the passenger without breaking the rules at the booth."
-        case .rightPlace: "Put each item in its right place."
-        case .pattern: "Follow the pattern and repeat it correctly."
-        case .tower: "Handle the tower danger challenge safely."
-        case .locks: "Separate the metal locks."
         }
     }
 }

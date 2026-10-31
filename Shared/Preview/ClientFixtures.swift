@@ -93,7 +93,6 @@
                 family: selfFamily,
                 familyName: "The Hendersons",
                 life: life,
-                tasks: Booth.allCases,
                 allies: role == .werewolf ? [family(3, "Tanaka Family")] : nil,
                 families: families,
                 phase: phase,
@@ -172,6 +171,7 @@
             let client = GameClient(transport: transport, store: InMemoryIdentityStore())
             client.start()
             transport.push(.status(status))
+            transport.push(.message(.booths(BoothCatalog(revision: "preview", booths: BoothDefaults.booths))))
             if let map {
                 transport.push(.message(.map(map)))
             }

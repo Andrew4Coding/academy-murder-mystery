@@ -69,14 +69,13 @@ struct GameHostLobbyTests {
         #expect(throws: HostError.setup("Family 1 has no player.")) { try harness.host.startGame() }
     }
 
-    @Test func startAssignsRolesAndPrivatelyShowsEachFamilyItsRoleAndEveryBooth() async throws {
+    @Test func startAssignsRolesAndPrivatelyShowsEachFamilyItsRole() async throws {
         let (harness, heads) = try await HostHarness.seated()
         try harness.host.startGame()
         #expect(await eventually { heads.values.allSatisfy { $0.view?.game != nil } })
         var werewolves = 0
         for client in heads.values {
             let game = try #require(client.view?.game)
-            #expect(game.tasks.count == Booth.allCases.count)
             #expect(game.life == .alive)
             if game.role == .werewolf {
                 werewolves += 1

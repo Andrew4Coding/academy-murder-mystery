@@ -65,7 +65,6 @@ struct AdminFamilyRow: Codable, Equatable, Sendable, Identifiable {
     let playerName: String?
     let life: LifeState
     var role: Role?
-    var tasks: [Booth] = []
     var voted = false
 }
 
@@ -110,7 +109,6 @@ struct GameView: Codable, Equatable, Sendable {
     let family: FamilyID
     let familyName: String
     let life: LifeState
-    let tasks: [Booth]
     let allies: [FamilySummary]?
     let families: [FamilySummary]
     let phase: PhaseView

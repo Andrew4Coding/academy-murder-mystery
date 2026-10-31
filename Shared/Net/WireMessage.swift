@@ -25,6 +25,7 @@ enum ServerMessage: Codable, Equatable, Sendable {
     case reset
     case selfies([Selfie])
     case map(BoothMap?)
+    case booths(BoothCatalog)
     case display(PublicDisplayState)
 }
 
@@ -47,6 +48,12 @@ enum AdminCommand: Codable, Equatable, Sendable {
     case regenerateOCPIN
     case setBoothMap(Data)
     case removeBoothMap
+    case saveBooth(Booth)
+    case deleteBooth(UUID)
+    case reorderBooths([UUID])
+    case setBoothImage(UUID, Data)
+    case removeBoothImage(UUID)
+    case restoreBoothDefaults
     case eliminate([FamilyID])
     case revive([FamilyID])
     case proxyVote(family: FamilyID, choice: VoteChoice)
