@@ -97,47 +97,75 @@ struct ActionsView: View {
     }
 
     private var killSection: some View {
-        ScreenSection(
-            title: "Nearby villager families",
-            footer: "Stand close to a villager family and keep this app open. Families that are close enough appear here."
-        ) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text("Eliminate")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             if let readyAt = game.killReadyAt {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    let remaining = readyAt.timeIntervalSince(client.serverClock.now(local: context.date))
-                    HStack {
-                        Text("Elimination").font(.body.weight(.semibold))
-                        Spacer()
-                        if remaining > 0 {
-                            StatusLabel("Ready in", systemImage: "hourglass", tint: Theme.warning)
-                            CountdownView(until: readyAt, now: serverNow)
-                        } else {
-                            StatusLabel("Ready", systemImage: "checkmark.circle.fill", tint: Theme.success)
-                        }
-                    }
-                    .accessibilityElement(children: .combine)
+                cooldownRow(readyAt: readyAt)
+            }
+            BentoGrid(minimum: 150) {
+                killTiles
+            }
+            Text("Stand close to a villager family and keep this app open. Families that are close enough appear here.")
+                .font(.footnote)
+                .foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private func cooldownRow(readyAt: Date) -> some View {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            let remaining = readyAt.timeIntervalSince(client.serverClock.now(local: context.date))
+            HStack {
+                Text("Elimination").font(.subheadline.weight(.semibold))
+                Spacer()
+                if remaining > 0 {
+                    StatusLabel("Ready in \(Duration.clock(remaining))", systemImage: "hourglass", tint: Theme.warning)
+                } else {
+                    StatusLabel("Ready", systemImage: "checkmark.circle.fill", tint: Theme.success)
                 }
             }
+            .font(.subheadline)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+            .background(Theme.surface, in: .rect(cornerRadius: Radius.md))
+            .accessibilityElement(children: .combine)
+        }
+    }
+
+    @ViewBuilder
+    private var killTiles: some View {
             if !proximity.bluetoothState.isUsable {
                 BluetoothOffRow()
+                    .padding(Spacing.md)
+                    .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
+                    .background(Theme.surface, in: .rect(cornerRadius: Radius.lg))
             } else if displayed.isEmpty {
-                Label("No one nearby", systemImage: "dot.radiowaves.left.and.right").secondaryText()
+                BentoTile(
+                    title: "No one nearby",
+                    subtitle: "Villager families appear when close",
+                    systemImage: "dot.radiowaves.left.and.right",
+                    tint: Theme.textSecondary
+                )
+                .opacity(0.7)
             }
             ForEach(displayed) { family in
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     let ready = isReady(at: client.serverClock.now(local: context.date))
-                    HStack {
-                        Text(family.name)
-                        Spacer()
-                        Button("Eliminate") { target = family }
-                            .buttonStyle(.accentFill)
-                            .fixedSize()
-                            .disabled(!ready)
-                            .accessibilityLabel("Eliminate \(family.name)")
-                            .accessibilityHint(ready ? "Asks you to confirm" : "Not ready yet, wait for the cooldown")
+                    Button { target = family } label: {
+                        BentoTile(
+                            title: family.name,
+                            subtitle: ready ? "Tap to eliminate" : "Cooling down",
+                            systemImage: "person.fill.xmark",
+                            isProminent: ready
+                        )
                     }
+                    .buttonStyle(.plain)
+                    .disabled(!ready)
+                    .accessibilityLabel("Eliminate \(family.name)")
+                    .accessibilityHint(ready ? "Asks you to confirm" : "Not ready yet, wait for the cooldown")
                 }
             }
-        }
     }
 
     private func isReady(at now: Date) -> Bool {

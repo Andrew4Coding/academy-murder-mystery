@@ -43,6 +43,33 @@ struct ScreenSection<Content: View>: View {
     }
 }
 
+struct BentoSection<Content: View>: View {
+    var title: LocalizedStringKey
+    var footer: LocalizedStringKey?
+
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(title)
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            BentoGrid(minimum: 150) { content }
+            if let footer {
+                Text(footer)
+                    .font(.footnote)
+                    .foregroundStyle(Theme.textSecondary)
+            }
+        }
+    }
+}
+
+extension Duration {
+    static func clock(_ seconds: TimeInterval) -> String {
+        Duration.seconds(max(0, seconds.rounded(.up))).formatted(.time(pattern: .minuteSecond))
+    }
+}
+
 struct ErrorRow: View {
     let message: String
 
