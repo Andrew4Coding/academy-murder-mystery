@@ -806,9 +806,7 @@ export class GameHost implements ViewContext {
   }
 
   restoreBoothDefaults(): void {
-    const images = new Map<string, BoothImage>();
-    for (const b of this.boothCatalog.booths) if (b.image && !images.has(b.id)) images.set(b.id, b.image);
-    this.applyBooths(defaultBooths().map((b) => ({ ...b, image: images.get(b.id) })));
+    this.applyBooths(defaultBooths());
   }
 
   private updateBooth(id: string, change: (booth: Booth) => Booth): void {

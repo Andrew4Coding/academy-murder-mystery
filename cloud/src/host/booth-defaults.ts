@@ -1,4 +1,13 @@
-import type { Booth } from "../codec/schemas.js";
+import { createHash } from "node:crypto";
+import type { Booth, BoothImage } from "../codec/schemas.js";
+import { boothArt } from "./booth-art.js";
+
+function art(name: string): BoothImage | undefined {
+  const encoded = boothArt[name];
+  if (!encoded) return undefined;
+  const jpeg = Buffer.from(encoded, "base64");
+  return { hash: createHash("sha256").update(jpeg).digest("hex"), jpeg };
+}
 
 export function defaultBooths(): Booth[] {
   return [
@@ -18,7 +27,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "Your answer is correct.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-1")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000002",
@@ -36,7 +45,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "The OC approves your tower and the cups are tidied up.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-2")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000003",
@@ -54,7 +63,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "Your painting matches.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-3")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000004",
@@ -73,7 +82,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "All 5 items are in the right order.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-4")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000005",
@@ -92,7 +101,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "You completed 8 rounds.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-5")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000006",
@@ -110,7 +119,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "The OC confirms your signed sticky note.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-6")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000007",
@@ -126,7 +135,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "The metal locks are separated.",
       staffNotes: [],
-      image: undefined
+      image: art("booth-7")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000008",
@@ -144,7 +153,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "You signalled the OC at Town Hall to stop the sabotage.",
       staffNotes: [],
-      image: undefined
+      image: art("sabotage-6")
     },
     {
       id: "5A3E0002-0000-4000-8000-000000000009",
@@ -162,7 +171,7 @@ export function defaultBooths(): Booth[] {
       ],
       stampRequirement: "You signalled the OC at Town Hall to stop the sabotage.",
       staffNotes: [],
-      image: undefined
+      image: art("sabotage-7a")
     }
   ];
 }

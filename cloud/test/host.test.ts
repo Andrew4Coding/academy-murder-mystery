@@ -427,6 +427,7 @@ describe("booth catalog", () => {
   it("seeds a fresh host with the guide booths", () => {
     const { host } = makeHost();
     expect(host.boothCatalog.booths).toHaveLength(9);
+    expect(host.boothCatalog.booths.every((b) => b.image !== undefined)).toBe(true);
     expect(titles(host)[0]).toBe("Booth 1 – Decipher Clue");
     expect(titles(host)[8]).toBe("Sabotage Booth 7A – Heist Plan");
     expect(host.boothCatalog.booths.every((b) => b.steps.length > 0 && b.task !== "")).toBe(true);
@@ -496,7 +497,7 @@ describe("booth catalog", () => {
     expect(host.boothCatalog.booths.map((x) => x.id)).toEqual([c, a, ...ids.filter((x) => x !== a && x !== c)]);
   });
 
-  it("restores the defaults and keeps images of booths with the same id", () => {
+  it("restores the defaults, including their default pictures", () => {
     const { host, admin } = lobbyWithPlayers(3);
     const id = host.boothCatalog.booths[0]!.id;
     admin.admin({ case: "setBoothImage", _0: id, _1: PNG });
@@ -504,8 +505,7 @@ describe("booth catalog", () => {
     admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, title: "Changed" } });
     admin.admin({ case: "restoreBoothDefaults" });
     expect(titles(host)).toEqual(defaultBooths().map((b) => b.title));
-    expect(host.boothCatalog.booths[0]!.image).toBeDefined();
-    expect(host.boothCatalog.booths[1]!.image).toBeUndefined();
+    expect(host.boothCatalog.booths[0]!.image?.hash).toBe(defaultBooths()[0]!.image!.hash);
   });
 
   it("gives players no staff notes and the admin station full notes, on sign-in and on change", () => {
