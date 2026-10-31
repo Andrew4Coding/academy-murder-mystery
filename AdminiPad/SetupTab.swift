@@ -28,6 +28,16 @@ struct SetupTab: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!admin.isLobby || !admin.setupIssues.isEmpty)
+                ToggleTile(
+                    title: "Debug Mode",
+                    subtitle: "Two families, no cooldowns",
+                    systemImage: "ladybug.fill",
+                    isOn: setting(\.isDebug) { $0.debugMode = $1 }
+                )
+                .disabled(!admin.isLobby)
+            }
+
+            SetupBento(title: "Family count") {
                 StatTile(
                     title: "Families",
                     value: "\(admin.families.count)",
@@ -44,13 +54,6 @@ struct SetupTab: View {
                         set: { send(werewolfCount: $0, settings: admin.settings) }
                     ),
                     range: 1 ... 10
-                )
-                .disabled(!admin.isLobby)
-                ToggleTile(
-                    title: "Debug Mode",
-                    subtitle: "Two families, no cooldowns",
-                    systemImage: "ladybug.fill",
-                    isOn: setting(\.isDebug) { $0.debugMode = $1 }
                 )
                 .disabled(!admin.isLobby)
             }
