@@ -29,7 +29,7 @@ Tooling and refactors that users can't see don't go here.
 - Report a body: stand near a fallen family and tap Report to call a discussion ([0019](specs/features/0019-report-body.md)).
 - Kill, sabotage and voting App Intents (vote for a family, vote skip, skip discussion), usable from Siri and Shortcuts, including on Apple Watch, and they work when the app is in the background ([0018](specs/apps/ios/features/0018-watch-intents.md)).
 - Booth map: a card in the lobby and on the Family tab opens the map the OC uploaded, full screen, with pinch, pan and double-tap zoom ([0030](specs/features/0030-booth-map.md)).
-- Booth details: tap a booth in your tasks or the lobby to see its picture, capacity, duration, task, steps and when it counts as done ([0037](specs/features/0037-booth-details.md)).
+- Booth details: tap a booth in your tasks or the lobby to see its picture (each booth ships with default art), capacity, duration, task, steps and when it counts as done ([0037](specs/features/0037-booth-details.md)).
 - Live Activity on the Lock Screen and Dynamic Island: meeting, voting and sabotage countdowns, booth progress, your own killed status and the winner, with no role information ([0029](specs/apps/ios/features/0029-live-activities.md)).
 
 #### Fixed
@@ -105,7 +105,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
-- Booths section: edit every booth (text, steps, staff notes, picture), add, delete and reorder them, or restore the booth guide defaults ([0037](specs/features/0037-booth-details.md)).
+- Booths section: edit every booth (text, steps, staff notes, picture), add, delete and reorder them, or restore the booth guide defaults (default pictures included) ([0037](specs/features/0037-booth-details.md)).
 - Host mode control in Devices: switch between self-host and the cloud host with the game state carried across, upload a cold-backup snapshot after every commit, and run the main game commands and the Public Display from the cloud ([0035](specs/features/0035-cloud-host-server.md), [0036](specs/features/0036-host-switching.md)).
 - Pause, resume, add or shorten time under the game clock, meeting and sabotage timers, and a bento Setup screen with native time steppers.
 - Booth map upload in Setup (PNG, JPEG or HEIC, shrunk to 3000 px) with preview, replace and remove; it stays across games and reaches every device ([0030](specs/features/0030-booth-map.md)).

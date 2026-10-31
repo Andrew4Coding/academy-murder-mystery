@@ -23,11 +23,11 @@ The booths from the participant booth guide (Booth 1 Decipher Clue to Booth 7 Ga
 
 ## Acceptance criteria
 
-- [x] **AC1 Seed**: Given a fresh host, then the nine booths from the participant guide exist, in English, with capacity, duration, task, steps and a done-when line. The guide has no locations or staff notes, so those start empty.
+- [x] **AC1 Seed**: Given a fresh host, then the nine booths from the participant guide exist, in English, with capacity, duration, task, steps and a done-when line. Each has a default picture (flat abstract art in the logo palette, 16:9, no text; the two sabotage booths use a red alarm variant). The guide has no locations or staff notes, so those start empty.
 - [x] **AC2 Detail sheet**: Given a booth row on the phone, when the player taps it, then a sheet shows the picture (if any), the title, location, capacity and duration (when set), task, numbered steps and "Done when".
 - [x] **AC3 Where**: The booth list is on the Role tab ("Your tasks", every family, alive or not) and in the family lobby.
 - [x] **AC4 Edit**: Given the Booths view (Mac sidebar, iPad tab), when the OC changes any text field, steps or notes and saves, then every connected device updates.
-- [x] **AC5 CRUD and order**: The OC can add, delete and reorder booths, and restore the guide defaults (this keeps pictures of the default booths).
+- [x] **AC5 CRUD and order**: The OC can add, delete and reorder booths, and restore the guide defaults (this also resets every picture to the default one).
 - [x] **AC6 Picture**: The OC can set, replace and remove one picture per booth (any image, stored as JPEG, long side at most 1600 px).
 - [x] **AC7 Staff notes**: Staff notes are sent only to the admin OC station. Phones and other OC stations receive them empty.
 - [x] **AC8 Admin only**: Only the Mac and the admin iPad station can edit. Editing works at any time, including during a game, and open sheets follow the edit.
@@ -71,5 +71,6 @@ The Mac keeps the catalog as `booths.json` in Application Support (`FileBoothSto
 
 - Model, defaults and store: `Shared/Booths/`. Host: `GameHost+Booths.swift` (`catalog(for:)` strips staff notes). Wire: `ServerMessage.booths`, `AdminCommand.saveBooth/deleteBooth/reorderBooths/setBoothImage/removeBoothImage/restoreBoothDefaults`.
 - UI: `Shared/Features/Booths/` (`BoothDetailView`, `BoothsView`, `BoothEditorView`), `iOS/Features/Booths/BoothListSection.swift`, `Admin/Features/Booths/BoothsAdminView.swift`, `AdminiPad/BoothsTab.swift`. The iPad downsizes a picked image before sending.
+- Default pictures: `scripts/booth-art/` (`generate.py` writes the SVGs in `svg/`, `render.sh` renders them to `Shared/Resources/BoothArt/*.jpg` and to `cloud/src/host/booth-art.ts`). Swift loads the JPEGs from the app bundle, the cloud embeds them as base64, so both hosts seed byte-identical pictures. A host that already stored its catalog keeps it until Restore Defaults.
 - Saving a booth ignores the `image` it carries: pictures change only through the image commands.
 - Tests: `Tests/Shared/BoothCatalogTests.swift`; wire fixtures regenerated for the cloud port.
