@@ -277,7 +277,7 @@
                     client: ctx.connected
                 )
             case .sabotageBanner:
-                SabotageBanner(sabotage: ClientFixtures.sabotage(.oxygen, now: now), client: ctx.connected, playsAlert: false)
+                SabotageBanner(sabotage: ClientFixtures.sabotage(.oxygen, now: now), client: ctx.connected)
             case .ocStationIdle:
                 SabotageStationView(kind: .reactor, oc: OCView(sabotage: nil), client: ctx.connected)
             case .ocStationActive:

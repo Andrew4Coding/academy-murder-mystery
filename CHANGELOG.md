@@ -34,6 +34,8 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- Families show one name only, the "Fellow werewolf families" section is hidden for a lone werewolf, the discussion screen no longer lists the families or the skip count, and the skip button reads "Vote to skip discussion".
+- Sabotage no longer plays a sound on phones, so nobody can tell who the werewolves are.
 - Bluetooth kills and body reports keep working while the phone is locked or the app is in the background (not after force-quitting the app).
 - App icon now shows on the home screen.
 - Meetings and body reports are refused while a sabotage is active.
@@ -100,6 +102,9 @@ Tooling and refactors that users can't see don't go here.
 #### Fixed
 
 - A refused pairing secret or PIN, or a "too many attempts" lockout, pauses cloud backups instead of retrying on every game change and extending the lockout. Saving the secret resumes them.
+- The Public Display freezes paused timers and shows "Paused", animates the sabotage banner in and out with a green "Sabotage fixed" banner, and lists families by name only.
+- The sabotage alarm plays from the main window (`sabotage.mp3`, else `alarm.mp3`) even when the Public Display window is closed, and stops while the sabotage timer is paused.
+
 - Devices keeps the sidebar and shows the Self-host / Cloud host mode control, which had collapsed to nothing ([0036](specs/features/0036-host-switching.md)).
 - Setup now picks up changes made from the iPad instead of overwriting them with stale values.
 - App icon is shared with the iOS apps, from one Icon Composer bundle.

@@ -34,7 +34,6 @@ struct PublicDisplayView: View {
             PublicDisplayScreen(
                 display: inCloud ? cloudDisplay : controller.host.publicDisplayState(hostRunning: isRunning),
                 now: inCloud ? (mode.adminClient?.serverNow ?? Date()) : controller.host.clock.now,
-                playsSound: playsSound,
                 joinedCount: inCloud ? nil : controller.host.state.players.count
             )
         }
@@ -62,10 +61,15 @@ struct PublicDisplayView: View {
 struct PublicDisplayScreen: View {
     let display: PublicDisplayState
     let now: Date
-    var playsSound = true
     var joinedCount: Int?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showsFixed = false
+    @State private var fixedToken = 0
+
+    private var bannerAnimation: Animation? {
+        reduceMotion ? nil : .smooth(duration: 0.5)
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -78,12 +82,39 @@ struct PublicDisplayScreen: View {
         .background(DisplayPalette.base)
         .environment(\.colorScheme, .dark)
         .preferredColorScheme(.dark)
+        .onChange(of: display.alarm) { old, new in
+            guard old != nil, new == nil, !isEnded else { return }
+            showsFixed = true
+            fixedToken += 1
+        }
+        .task(id: fixedToken) {
+            guard showsFixed else { return }
+            try? await Task.sleep(for: .seconds(3))
+            showsFixed = false
+        }
+    }
+
+    private var isEnded: Bool {
+        if case .ended = display.screen {
+            true
+        } else {
+            false
+        }
     }
 
     private var stage: some View {
         VStack(spacing: 32) {
             if let alarm = display.alarm {
-                AlarmBanner(alarm: alarm, now: now, animate: !reduceMotion, playsSound: playsSound)
+                AlarmBanner(
+                    alarm: alarm,
+                    now: display.alarmPausedAt ?? now,
+                    animate: !reduceMotion,
+                    isPaused: display.alarmPausedAt != nil
+                )
+                .transition(banner)
+            } else if showsFixed {
+                SabotageFixedBanner()
+                    .transition(banner)
             }
             FitToStage { content }
             if let remaining = display.familiesRemaining {
@@ -97,6 +128,16 @@ struct PublicDisplayScreen: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(DisplayPalette.primary)
         .background { StageBackground(alarmActive: display.alarm != nil) }
+        .animation(bannerAnimation, value: display.alarm != nil)
+        .animation(bannerAnimation, value: showsFixed)
+    }
+
+    private var banner: AnyTransition {
+        reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)
+    }
+
+    private var screenNow: Date {
+        display.pausedAt ?? now
     }
 
     private var compact: Bool {
@@ -117,15 +158,15 @@ struct PublicDisplayScreen: View {
         case let .starting(at):
             TimerBlock(title: "Game starts in", until: at, now: now, compact: compact)
         case let .playing(gameEndsAt):
-            TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: now, compact: compact)
+            TimerBlock(title: "Time until the final vote", until: gameEndsAt, now: screenNow, compact: compact, isPaused: display.pausedAt != nil)
         case let .discussion(until):
             HStack(spacing: 64) {
-                TimerBlock(title: "Discussion", until: until, now: now, compact: true)
+                TimerBlock(title: "Discussion", until: until, now: screenNow, compact: true, isPaused: display.pausedAt != nil)
                 DeathList(names: display.announcedDeaths)
             }
         case let .voting(until, isFinal, cast, total):
             VStack(spacing: 32) {
-                TimerBlock(title: isFinal ? "Final vote" : "Voting", until: until, now: now, compact: true)
+                TimerBlock(title: isFinal ? "Final vote" : "Voting", until: until, now: screenNow, compact: true, isPaused: display.pausedAt != nil)
                 VotesCast(cast: cast, total: total)
             }
         case let .result(result):

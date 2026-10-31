@@ -83,10 +83,12 @@ struct JoinBlock: View {
                         .font(.stage(40))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
-                    Text(family.player ?? "Waiting…")
-                        .font(.stageRounded(28, weight: .medium))
-                        .foregroundStyle(DisplayPalette.secondary)
-                        .lineLimit(1)
+                    if family.player == nil {
+                        Text("Waiting…")
+                            .font(.stageRounded(28, weight: .medium))
+                            .foregroundStyle(DisplayPalette.secondary)
+                            .lineLimit(1)
+                    }
                 }
                 Spacer(minLength: 0)
             }
@@ -190,12 +192,6 @@ struct RevealBlock: View {
                     .font(.stage(38))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-                if let player = family.player {
-                    Text(player)
-                        .font(.stageRounded(26, weight: .medium))
-                        .foregroundStyle(DisplayPalette.secondary)
-                        .lineLimit(1)
-                }
                 if family.isWerewolf {
                     Label("Werewolf", systemImage: Role.werewolf.symbol)
                         .font(.stageRounded(28, weight: .bold))

@@ -315,7 +315,9 @@ export const publicDisplayState = struct({
   announcedDeaths: array(str),
   joinCode: optional(str),
   lobbyFamilies: array(lobbyFamily),
-  reveal: array(revealedFamily)
+  reveal: array(revealedFamily),
+  pausedAt: optional(num),
+  alarmPausedAt: optional(num)
 });
 
 export const adminCommand = union({

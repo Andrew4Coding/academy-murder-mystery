@@ -244,7 +244,7 @@ function endReveal(ctx: ViewContext, game: GameState) {
 
 export function publicDisplayState(ctx: ViewContext): PublicDisplayState {
   const { state } = ctx;
-  const base = { familiesRemaining: undefined, alarm: undefined, announcedDeaths: [], joinCode: undefined, lobbyFamilies: [], reveal: [] };
+  const base = { familiesRemaining: undefined, alarm: undefined, announcedDeaths: [], joinCode: undefined, lobbyFamilies: [], reveal: [], pausedAt: undefined, alarmPausedAt: undefined };
   const engine = state.engine;
   if (!engine) {
     return { ...base, screen: { case: "waiting" }, joinCode: state.gameCode, lobbyFamilies: lobbyFamilies(ctx) };
@@ -266,12 +266,16 @@ export function publicDisplayState(ctx: ViewContext): PublicDisplayState {
   } else {
     screen = { case: "playing", gameEndsAt: finalVoteAt(game) };
   }
+  const paused = game.timerPausedAt;
+  const screenTimer = phase.case === "ended" ? undefined : phase.case === "running" ? "finalVote" : "meeting";
   return {
     ...base,
     screen,
     familiesRemaining: aliveFamilies(game).length,
     alarm,
     announcedDeaths: names,
-    reveal: outcomeOf(game)?.winner === "werewolves" ? endReveal(ctx, game) : []
+    reveal: outcomeOf(game)?.winner === "werewolves" ? endReveal(ctx, game) : [],
+    pausedAt: screenTimer ? paused?.get(screenTimer) : undefined,
+    alarmPausedAt: paused?.get("sabotage")
   };
 }
