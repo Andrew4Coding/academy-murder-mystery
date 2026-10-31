@@ -41,118 +41,136 @@ struct SetupView: View {
     var body: some View {
         let issues = host.state.setupIssues(testing: testing)
         Form {
-            Section {
-                if !isLobby {
-                    StatusLabel("Game in progress", systemImage: "play.circle.fill", tint: Theme.success)
-                } else if issues.isEmpty {
-                    StatusLabel("Ready to start", systemImage: "checkmark.circle.fill", tint: Theme.success)
-                } else {
-                    ForEach(issues, id: \.self) { issue in
-                        StatusLabel(issue, systemImage: "exclamationmark.circle.fill", tint: Theme.warning)
-                    }
+            SetupBento {
+                Button(action: startFromForm) {
+                    BentoTile(
+                        title: isLobby ? "Start Game" : "Game in progress",
+                        subtitle: !isLobby ? "Use the Game screen" : issues.first ?? "Assign roles and start",
+                        systemImage: isLobby ? "play.fill" : "play.circle.fill",
+                        tint: issues.isEmpty ? Theme.success : Theme.warning,
+                        isProminent: isLobby && issues.isEmpty
+                    )
                 }
-                Button("Start Game", systemImage: "play.fill", action: startFromForm)
-                    .buttonStyle(.accentFill)
-                    .disabled(!isLobby || !issues.isEmpty)
-                    .accessibilityHint(issues.first ?? "Assigns roles and starts the game")
-            } header: {
-                Text("Start the game")
-            } footer: {
-                if isLobby {
-                    Text("Players join with the code below. Start when every family has a player.")
-                }
-            }
-            .themedRows()
-
-            if !testing, let code = host.state.gameCode {
-                Section {
-                    HStack(spacing: Spacing.lg) {
-                        QRCodeView(text: code)
-                            .frame(width: 160, height: 160)
-                            .accessibilityLabel("QR code to join with code \(code)")
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(code).font(.title.monospaced()).textSelection(.enabled)
-                            Text("\(host.state.players.count) players joined")
-                                .foregroundStyle(Theme.textSecondary)
-                        }
-                    }
-                } header: {
-                    Text("Players join")
-                } footer: {
-                    Text("The same QR is on the Public Display. Each player who scans becomes their own family.")
-                }
-                .themedRows()
-            }
-
-            Section("OC PIN") {
-                LabeledContent("PIN for booth organisers") {
-                    HStack {
-                        Text(isPinVisible ? host.state.ocPin : "••••")
-                            .font(.title3.monospaced())
-                            .textSelection(.enabled)
-                        Button(isPinVisible ? "Hide PIN" : "Show PIN", systemImage: isPinVisible ? "eye.slash" : "eye") {
-                            isPinVisible.toggle()
-                        }
-                        .labelStyle(.iconOnly)
-                        Button("New PIN", systemImage: "arrow.triangle.2.circlepath") { host.regenerateOCPIN() }
-                            .labelStyle(.iconOnly)
-                            .help("Generate a new random PIN")
-                    }
-                }
-            }
-            .themedRows()
-
-            Section("Game") {
+                .buttonStyle(.plain)
+                .disabled(!isLobby || !issues.isEmpty)
+                StatTile(
+                    title: "Families",
+                    value: "\(host.state.families.count)",
+                    subtitle: "\(host.state.players.count) players joined",
+                    systemImage: "person.3.fill"
+                )
                 if testing {
-                    Stepper("Families: \(familyCount)", value: $familyCount, in: 1 ... 40)
+                    StepperTile(
+                        title: "Families",
+                        subtitle: "Rehearsal size",
+                        systemImage: "person.crop.rectangle.stack.fill",
+                        valueText: "\(familyCount)",
+                        value: $familyCount,
+                        range: 1 ... 40
+                    )
+                    .disabled(!isLobby)
                 } else {
-                    Stepper("Werewolf families: \(werewolfCount)", value: $werewolfCount, in: 1 ... 10)
+                    StepperTile(
+                        title: "Werewolf families",
+                        subtitle: "Fewer than half of all families",
+                        systemImage: "moon.stars.fill",
+                        valueText: "\(werewolfCount)",
+                        value: $werewolfCount,
+                        range: 1 ... 10
+                    )
+                    .disabled(!isLobby)
                 }
-                Toggle("Debug Mode", isOn: $debugMode)
-                Stepper("Discussion: \(discussionMinutes) min", value: $discussionMinutes, in: 1 ... 5)
-                Stepper("Voting: \(votingMinutes) min", value: $votingMinutes, in: 1 ... 5)
-            }
-            .disabled(!isLobby)
-            .themedRows()
-
-            Section {
-                Stepper("Reactor fix time: \(Self.clock(sabotageDuration))", value: $sabotageDuration, in: 15 ... 600, step: 15)
-                Stepper("Reactor cooldown: \(Self.clock(sabotageCooldown))", value: $sabotageCooldown, in: 0 ... 600, step: 15)
-                Stepper("Oxygen fix time: \(Self.clock(oxygenDuration))", value: $oxygenDuration, in: 15 ... 600, step: 15)
-                Stepper("Oxygen cooldown: \(Self.clock(oxygenCooldown))", value: $oxygenCooldown, in: 0 ... 600, step: 15)
-            } header: {
-                Text("Sabotage")
-            } footer: {
-                Text(
-                    "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family."
+                if !testing, let code = host.state.gameCode {
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        QRCodeView(text: code)
+                            .frame(width: 96, height: 96)
+                            .accessibilityLabel("QR code to join with code \(code)")
+                        Text(code).font(.title2.monospaced().bold()).textSelection(.enabled)
+                        Text("Join code").font(.footnote).foregroundStyle(Theme.textSecondary)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
+                    .padding(Spacing.md)
+                    .background(Theme.surface, in: .rect(cornerRadius: Radius.lg))
+                }
+                Menu {
+                    Button(isPinVisible ? "Hide PIN" : "Show PIN", systemImage: isPinVisible ? "eye.slash" : "eye") {
+                        isPinVisible.toggle()
+                    }
+                    Button("New PIN", systemImage: "arrow.triangle.2.circlepath") { host.regenerateOCPIN() }
+                } label: {
+                    BentoTile(
+                        title: "OC PIN",
+                        subtitle: isPinVisible ? host.state.ocPin : "Tap to show or change",
+                        systemImage: "key.fill"
+                    )
+                }
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                ToggleTile(title: "Debug Mode", subtitle: "Two families, no cooldowns", systemImage: "ladybug.fill", isOn: $debugMode)
+                    .disabled(!isLobby)
+                DurationTile(
+                    title: "Discussion",
+                    subtitle: "Per meeting",
+                    systemImage: "bubble.left.and.bubble.right.fill",
+                    seconds: Binding(get: { TimeInterval(discussionMinutes * 60) }, set: { discussionMinutes = Int($0 / 60) }),
+                    range: 60 ... 300,
+                    secondsStep: 60
+                )
+                .disabled(!isLobby)
+                DurationTile(
+                    title: "Voting",
+                    subtitle: "Per meeting",
+                    systemImage: "hand.raised.fill",
+                    seconds: Binding(get: { TimeInterval(votingMinutes * 60) }, set: { votingMinutes = Int($0 / 60) }),
+                    range: 60 ... 300,
+                    secondsStep: 60
+                )
+                .disabled(!isLobby)
+                DurationTile(title: "Reactor fix time", subtitle: "Villagers' window", systemImage: "bolt.fill", seconds: $sabotageDuration)
+                    .disabled(!isLobby)
+                DurationTile(
+                    title: "Reactor cooldown",
+                    subtitle: "Before the next sabotage",
+                    systemImage: "bolt.slash.fill",
+                    seconds: $sabotageCooldown,
+                    range: 0 ... 600
+                )
+                .disabled(!isLobby)
+                DurationTile(title: "Oxygen fix time", subtitle: "Villagers' window", systemImage: "wind", seconds: $oxygenDuration)
+                    .disabled(!isLobby)
+                DurationTile(
+                    title: "Oxygen cooldown",
+                    subtitle: "Before the next sabotage",
+                    systemImage: "wind.snow",
+                    seconds: $oxygenCooldown,
+                    range: 0 ... 600
+                )
+                .disabled(!isLobby)
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Image(systemName: "dot.radiowaves.left.and.right").font(.title2).foregroundStyle(Theme.accent)
+                        .accessibilityHidden(true)
+                    Spacer(minLength: Spacing.sm)
+                    Text("\(Int(rssiThreshold)) dBm").font(.largeTitle.bold()).monospacedDigit()
+                    Text("Kill range").font(.headline)
+                    Slider(value: $rssiThreshold, in: -90 ... -40, step: 1) { Text("Signal threshold") }
+                        .labelsHidden()
+                }
+                .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
+                .padding(Spacing.md)
+                .background(Theme.surface, in: .rect(cornerRadius: Radius.lg))
+                StepperTile(
+                    title: "Sighting valid for",
+                    subtitle: "Seconds a Bluetooth sighting counts",
+                    systemImage: "eye.fill",
+                    valueText: "\(sightingFreshness) s",
+                    value: $sightingFreshness,
+                    range: 1 ... 10
                 )
             }
-            .disabled(!isLobby)
-            .themedRows()
 
             if testing {
                 testingSection
             }
-
-            Section {
-                LabeledContent("Kill range") {
-                    Slider(value: $rssiThreshold, in: -90 ... -40, step: 1) {
-                        Text("Signal threshold")
-                    } minimumValueLabel: {
-                        Text("Far")
-                    } maximumValueLabel: {
-                        Text("Close")
-                    }
-                    .frame(maxWidth: 280)
-                    Text("\(Int(rssiThreshold)) dBm").monospacedDigit().frame(minWidth: 70, alignment: .trailing)
-                }
-                Stepper("Sighting stays valid for \(sightingFreshness) s", value: $sightingFreshness, in: 1 ... 10)
-            } header: {
-                Text("Bluetooth")
-            } footer: {
-                Text("Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.")
-            }
-            .themedRows()
 
             BoothMapSection(
                 map: host.boothMap,
