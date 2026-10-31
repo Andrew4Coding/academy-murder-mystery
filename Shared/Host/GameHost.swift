@@ -47,6 +47,7 @@ final class GameHost {
     @ObservationIgnored let clock: any HostClock
     @ObservationIgnored private let repository: any GameRepository
     @ObservationIgnored let boothMapStore: any BoothMapStore
+    @ObservationIgnored var onCommit: (@MainActor () -> Void)?
     @ObservationIgnored private var transport: (any HostTransport)?
     @ObservationIgnored private var pump: Task<Void, Never>?
 
@@ -241,6 +242,22 @@ final class GameHost {
             assertionFailure("Failed to persist game: \(error)")
         }
         broadcast()
+        onCommit?()
+    }
+
+    func importSnapshot(_ snapshot: HostSnapshot) throws {
+        guard !hasSignedInClients else { throw HostError.snapshotBusy }
+        try boothMapStore.save(snapshot.boothMap)
+        try repository.save(StoredGame(id: gameID, state: snapshot.state, updatedAt: clock.now))
+        state = snapshot.state
+        boothMap = snapshot.boothMap
+        selfies = Dictionary(snapshot.selfies.map { ($0.player, $0.jpeg) }, uniquingKeysWith: { _, last in last })
+        sightings = [:]
+        lastNearby = [:]
+        lastBodies = [:]
+        sessions = [:]
+        recentEvents = []
+        revision += 1
     }
 
     func send(_ message: ServerMessage, to id: ClientID) {
