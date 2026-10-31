@@ -96,6 +96,7 @@ struct RootView: View {
 }
 
 #Preview {
+    // swiftlint:disable:next force_try
     let controller = HostController(host: try! GameHost(repository: InMemoryGameRepository()))
     return RootView(
         controller: controller,
