@@ -51,4 +51,4 @@ Simulation, rehearsal tools and Gallery stay Mac-only. No selfie delta protocol.
 ## Implementation notes
 
 - Server in `cloud/` (Node 22, `ws`, `better-sqlite3`, vitest); wire and routes in `cloud/CONTRACT.md`. 192 tests pass. Differences from Swift: selfies and the booth map persist, booth maps are stored as received (no resize), and a name is validated before a family is assigned.
-- Not yet verified: Docker build and a live deployment on `moonfall.andrewaryo.com`.
+- Deployed 2026-10-31 on `myoracle` (Docker, localhost port 8091, behind nginx with a Let's Encrypt cert). Checked live: `/health`, `/registry`, an unauthorised registry write (401), the take-over page, and a `wss://` hello answered `rejected` while the registry is `local`. Not yet checked live: a full switch from the Mac, and phones over cellular.
