@@ -79,7 +79,7 @@ struct RootView: View {
             switch selection ?? .setup {
             case .setup where mode.phase == .cloud, .game where mode.phase == .cloud, .families where mode.phase == .cloud,
                  .booths where mode.phase == .cloud:
-                CloudControlView(mode: mode, title: (selection ?? .setup).title)
+                CloudAdminScreen(mode: mode, section: selection ?? .setup)
             case .setup:
                 SetupView(controller: controller)
             case .game:

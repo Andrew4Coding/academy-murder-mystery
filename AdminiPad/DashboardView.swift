@@ -57,7 +57,7 @@ struct DashboardView: View {
                 switch selection ?? .setup {
                 case .setup: SetupTab(admin: admin, client: client)
                 case .game: GameTab(admin: admin, client: client)
-                case .families: FamiliesTab(admin: admin, client: client)
+                case .families: FamiliesTab(admin: admin, client: client) { EditButton() }
                 case .booths: BoothsTab(client: client)
                 case .devices: DevicesTab(admin: admin, client: client)
                 }

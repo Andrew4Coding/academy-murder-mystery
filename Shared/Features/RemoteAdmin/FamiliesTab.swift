@@ -1,12 +1,19 @@
 import SwiftUI
 
-struct FamiliesTab: View {
+struct FamiliesTab<Extras: View>: View {
     let admin: AdminView
     let client: GameClient
+    let extras: Extras
 
     @State private var showRoles = false
     @State private var selection: Set<FamilyID> = []
     @State private var deleting: AdminFamilyRow?
+
+    init(admin: AdminView, client: GameClient, @ViewBuilder extras: () -> Extras) {
+        self.admin = admin
+        self.client = client
+        self.extras = extras()
+    }
 
     var body: some View {
         Group {
@@ -61,7 +68,7 @@ struct FamiliesTab: View {
                     .disabled(selection.isEmpty || admin.isLobby)
             }
             ToolbarItem {
-                EditButton()
+                extras
             }
         }
         .confirmationDialog(
@@ -90,6 +97,12 @@ struct FamiliesTab: View {
         } else {
             false
         }
+    }
+}
+
+extension FamiliesTab where Extras == EmptyView {
+    init(admin: AdminView, client: GameClient) {
+        self.init(admin: admin, client: client) { EmptyView() }
     }
 }
 
