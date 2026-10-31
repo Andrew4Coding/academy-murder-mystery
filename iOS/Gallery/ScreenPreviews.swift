@@ -83,7 +83,7 @@
 
     #Preview("Sabotage banner") { GalleryPreview(.sabotageBanner) }
 
-    #Preview("Booth details") { BoothDetailView(booth: BoothDefaults.booths[1], number: 2) }
+    #Preview("Booth details") { BoothDetailView(booth: BoothDefaults.booths[1]) }
 
     #Preview("Booth station, idle") { GalleryPreview(.ocStationIdle) }
 

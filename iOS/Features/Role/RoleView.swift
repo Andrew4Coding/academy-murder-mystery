@@ -49,7 +49,7 @@ struct RoleView: View {
                     title: "Your tasks",
                     footer: game.role == .werewolf
                         ? "Pretend to do these so nobody suspects you."
-                        : "Visit every booth and complete its challenge."
+                        : "Tap a booth to see what to do there."
                 )
 
                 if let boothMap {

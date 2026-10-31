@@ -5,29 +5,21 @@ struct BoothListSection: View {
     var title: LocalizedStringKey = "Booths"
     var footer: LocalizedStringKey?
 
-    @State private var selected: Selection?
-
-    private struct Selection: Identifiable {
-        let booth: Booth
-        let number: Int
-        var id: UUID {
-            booth.id
-        }
-    }
+    @State private var selected: Booth?
 
     var body: some View {
         if !booths.isEmpty {
             ScreenSection(title: title, footer: footer) {
-                ForEach(Array(booths.enumerated()), id: \.element.id) { index, booth in
-                    if index > 0 {
+                ForEach(booths) { booth in
+                    if booth.id != booths.first?.id {
                         Divider().overlay(Theme.separator)
                     }
                     Button {
-                        selected = Selection(booth: booth, number: index + 1)
+                        selected = booth
                     } label: {
                         HStack(spacing: Spacing.md) {
                             VStack(alignment: .leading, spacing: Spacing.xs) {
-                                Text("Booth \(index + 1): \(booth.title)")
+                                Text(booth.title)
                                     .font(.body.weight(.semibold))
                                     .foregroundStyle(Theme.text)
                                     .multilineTextAlignment(.leading)
@@ -45,17 +37,13 @@ struct BoothListSection: View {
                     .accessibilityHint("Opens the booth details")
                 }
             }
-            .sheet(item: $selected) { selection in
-                BoothDetailView(booth: selection.booth, number: selection.number) { selected = nil }
+            .sheet(item: $selected) { booth in
+                BoothDetailView(booth: booth) { selected = nil }
                     .presentationDetents([.large])
             }
             .onChange(of: booths) { _, updated in
                 guard let current = selected else { return }
-                if let index = updated.firstIndex(where: { $0.id == current.booth.id }) {
-                    selected = Selection(booth: updated[index], number: index + 1)
-                } else {
-                    selected = nil
-                }
+                selected = updated.first { $0.id == current.id }
             }
         }
     }
