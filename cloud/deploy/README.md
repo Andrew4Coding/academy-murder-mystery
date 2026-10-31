@@ -16,10 +16,10 @@ MOONFALL_PAIRING_SECRET=<long random string, also entered in the Mac Admin app>
 MOONFALL_BOOTSTRAP_PIN=<4 digit OC PIN used until the first snapshot arrives>
 ENV
 docker compose up -d --build
-curl -s http://127.0.0.1:8080/health
+curl -s http://127.0.0.1:8091/health
 ```
 
-The container listens on 8080, bound to localhost only, and keeps SQLite under the `moonfall-data` volume (`/data/moonfall.sqlite`). `TRUST_PROXY=1` is set in compose so the client IP comes from nginx's `X-Forwarded-For`; never expose port 8080 directly while it is set.
+The container listens on 8080 inside, published on localhost port 8091 only (8080 is taken on the shared server), and keeps SQLite under the `moonfall-data` volume (`/data/moonfall.sqlite`). `TRUST_PROXY=1` is set in compose so the client IP comes from nginx's `X-Forwarded-For`; never expose the published port directly while it is set.
 
 ## 3. nginx
 
