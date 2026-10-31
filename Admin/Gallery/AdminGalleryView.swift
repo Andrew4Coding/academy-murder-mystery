@@ -33,7 +33,6 @@
                                 .frame(width: 960, height: 640)
                                 .background(Theme.background)
                                 .clipShape(.rect(cornerRadius: Radius.lg))
-                                .overlay(RoundedRectangle(cornerRadius: Radius.lg).stroke(Theme.separator, lineWidth: 1))
                         }
                     }
                 }

@@ -3,72 +3,35 @@ import SwiftUI
 
 struct StageBackground: View {
     let alarmActive: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var breathing = false
 
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                DisplayPalette.base
-                RadialGradient(
-                    colors: [DisplayPalette.redFill.opacity(alarmActive ? 0.55 : 0.38), .clear],
-                    center: .init(x: 0.5, y: 1.05),
-                    startRadius: 0,
-                    endRadius: proxy.size.width * 0.6
-                )
-                .opacity(breathing ? 1 : 0.8)
-                moon(size: proxy.size)
+                (alarmActive ? DisplayPalette.alarmBase : DisplayPalette.base)
+                Circle()
+                    .fill(.white.opacity(0.1))
+                    .frame(width: proxy.size.height * 0.24, height: proxy.size.height * 0.24)
+                    .position(x: proxy.size.width * 0.86, y: proxy.size.height * 0.2)
                 Image(systemName: Role.werewolf.symbol)
                     .font(.system(size: proxy.size.height * 0.62))
-                    .foregroundStyle(.white.opacity(0.04))
+                    .foregroundStyle(.white.opacity(0.05))
                     .rotationEffect(.degrees(-12))
                     .position(x: proxy.size.width * 0.12, y: proxy.size.height * 0.88)
-                RadialGradient(
-                    colors: [.clear, .black.opacity(0.65)],
-                    center: .center,
-                    startRadius: proxy.size.height * 0.45,
-                    endRadius: proxy.size.width * 0.75
-                )
             }
         }
         .ignoresSafeArea()
         .accessibilityHidden(true)
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) { breathing = true }
-        }
-    }
-
-    private func moon(size: CGSize) -> some View {
-        let diameter = size.height * 0.24
-        return ZStack {
-            Circle()
-                .fill(DisplayPalette.redBright.opacity(0.16))
-                .frame(width: diameter * 2.2, height: diameter * 2.2)
-                .blur(radius: diameter * 0.35)
-            Circle()
-                .fill(LinearGradient(
-                    colors: [Color(white: 0.96), Color(red: 0.78, green: 0.72, blue: 0.82)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .frame(width: diameter, height: diameter)
-                .opacity(0.16)
-        }
-        .position(x: size.width * 0.86, y: size.height * 0.2)
     }
 }
 
 struct DisplayCard<Content: View>: View {
     var tint: Color?
     @ViewBuilder var content: Content
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         content
             .padding(28)
-            .background(tint ?? DisplayPalette.cardFill(reduceTransparency: reduceTransparency), in: .rect(cornerRadius: 28))
-            .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.14), lineWidth: 2))
+            .background(tint ?? DisplayPalette.card, in: .rect(cornerRadius: 28))
     }
 }
 
@@ -107,14 +70,12 @@ struct FaceView: View {
                 .scaledToFill()
                 .frame(width: size, height: size)
                 .clipShape(.circle)
-                .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 3))
         } else {
             Text(initial.uppercased())
                 .font(.stageRounded(size * 0.46, weight: .bold))
                 .foregroundStyle(DisplayPalette.primary)
                 .frame(width: size, height: size)
                 .background(DisplayPalette.redFill.opacity(0.65), in: .circle)
-                .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 3))
         }
     }
 }
@@ -283,7 +244,6 @@ struct AlarmBanner: View {
         .padding(.horizontal, 36)
         .padding(.vertical, 20)
         .background(DisplayPalette.redFill, in: .rect(cornerRadius: 28))
-        .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.6), lineWidth: 3))
         .onAppear {
             if playsSound {
                 sound.play()

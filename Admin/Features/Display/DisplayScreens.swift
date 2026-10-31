@@ -21,7 +21,6 @@ struct JoinBlock: View {
                     .frame(width: 400, height: 400)
                     .padding(24)
                     .background(.white, in: .rect(cornerRadius: 36))
-                    .shadow(color: DisplayPalette.redBright.opacity(0.7), radius: 48)
                 Text("Open Moonfall on your phone and scan, or type the code")
                     .font(.stageRounded(30, weight: .medium))
                     .foregroundStyle(DisplayPalette.secondary)
@@ -30,7 +29,7 @@ struct JoinBlock: View {
                 HStack(spacing: 20) {
                     ForEach(Array(groups(of: code).enumerated()), id: \.offset) { _, group in
                         Text(group)
-                            .font(.system(size: 76, weight: .bold, design: .monospaced))
+                            .font(.system(size: 76, weight: .bold, design: .default).monospacedDigit())
                             .foregroundStyle(DisplayPalette.primary)
                     }
                 }
@@ -208,10 +207,6 @@ struct RevealBlock: View {
         .foregroundStyle(DisplayPalette.primary)
         .padding(14)
         .background(family.isWerewolf ? DisplayPalette.redFill : DisplayPalette.card, in: .rect(cornerRadius: 24))
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(.white.opacity(family.isWerewolf ? 0.7 : 0.14), lineWidth: family.isWerewolf ? 4 : 2)
-        )
         .accessibilityElement(children: .combine)
     }
 }
