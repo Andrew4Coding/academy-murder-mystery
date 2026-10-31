@@ -3,14 +3,16 @@ import SwiftUI
 struct CountdownView: View {
     let until: Date
     let now: @Sendable (Date) -> Date
+    var pausedAt: Date?
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.25)) { context in
-            let remaining = max(0, until.timeIntervalSince(now(context.date)).rounded(.up))
+            let reference = pausedAt ?? now(context.date)
+            let remaining = max(0, until.timeIntervalSince(reference).rounded(.up))
             Text(Duration.seconds(remaining), format: .time(pattern: .minuteSecond))
                 .monospacedDigit()
                 .accessibilityLabel("Time left")
-                .accessibilityValue(Self.spoken(remaining))
+                .accessibilityValue(Self.spoken(remaining) + (pausedAt == nil ? "" : ", paused"))
         }
     }
 
