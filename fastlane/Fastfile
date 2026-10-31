@@ -89,6 +89,8 @@ def build_signed(platform, target, key, **extra)
     skip_profile_detection: true,
     xcargs: provisioning_args,
     output_directory: File.join(ROOT, "build", target[:scheme]),
+    # One DerivedData per scheme: parallel archives sharing one build.db fail with "disk I/O error".
+    derived_data_path: File.join(ROOT, "build", "DerivedData", target[:scheme]),
     clean: true
   }.merge(extra)
   with_build_number(target[:xcconfig], build_number) do
