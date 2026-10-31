@@ -74,14 +74,14 @@ struct GameTab: View {
             switch admin.phase {
             case .running:
                 if let end = admin.gameEndsAt {
-                    labeled("Game clock") { CountdownView(until: end, now: serverNow) }
+                    timer("Game clock", target: .finalVote, until: end)
                 }
             case let .discussion(until):
                 Text("Skip votes: \(admin.skipVotes) of \(admin.votersTotal) families").foregroundStyle(Theme.textSecondary)
-                labeled("Time left") { CountdownView(until: until, now: serverNow) }
+                timer("Time left", target: .meeting, until: until)
             case let .voting(until, _):
                 Text("Votes: \(admin.votesCast) of \(admin.votersTotal) families").foregroundStyle(Theme.textSecondary)
-                labeled("Time left") { CountdownView(until: until, now: serverNow) }
+                timer("Time left", target: .meeting, until: until)
             case let .ended(outcome):
                 Text(outcome.reason.explanation).foregroundStyle(Theme.textSecondary)
             }
@@ -89,7 +89,7 @@ struct GameTab: View {
                 Divider().overlay(Theme.separator)
                 StatusLabel("Sabotage: \(sabotage.kind.title)", systemImage: "exclamationmark.triangle.fill", tint: Theme.accent)
                     .font(.headline)
-                labeled("Fix time left") { CountdownView(until: sabotage.endsAt, now: serverNow) }
+                timer("Fix time left", target: .sabotage, until: sabotage.endsAt)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -106,10 +106,19 @@ struct GameTab: View {
         }
     }
 
-    private func labeled(_ label: String, @ViewBuilder value: () -> some View) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(label).foregroundStyle(Theme.textSecondary)
-            value().countdownDisplay()
+    private func timer(_ label: String, target: TimerTarget, until: Date) -> some View {
+        let pausedAt = admin.timerPausedAt[target]
+        return VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(label).foregroundStyle(Theme.textSecondary)
+                CountdownView(until: until, now: serverNow, pausedAt: pausedAt).countdownDisplay()
+                if pausedAt != nil {
+                    StatusLabel("Paused", systemImage: "pause.circle.fill", tint: Theme.warning)
+                }
+            }
+            TimerControls(title: label, isPaused: pausedAt != nil) {
+                client.send(.admin(AdminCommand($0, on: target)))
+            }
         }
     }
 
@@ -155,13 +164,6 @@ struct GameTab: View {
             .buttonStyle(.plain)
             .menuIndicator(.hidden)
             .disabled(!isVoting)
-            TimerAdjustMenu(
-                meeting: admin.phase.isMeeting,
-                gameClock: !isEnded,
-                sabotage: admin.sabotage != nil
-            ) { target, seconds in
-                client.send(.admin(.adjustTimer(target, seconds: seconds)))
-            }
             BentoButton(
                 title: "Resolve Sabotage",
                 subtitle: "Mark the active sabotage as fixed",
