@@ -66,9 +66,9 @@ struct MeetingView: View {
                     + "Voting opens automatically when the time is up."
             )
             skipSection
-            ScreenSection(title: "Families at the table") {
+            BentoSection(title: "Families at the table") {
                 ForEach(game.families.filter { $0.life == .alive }) { family in
-                    FamilyRow(family: family, client: client)
+                    FamilyTile(family: family, subtitle: nil, isSelected: false, client: client)
                 }
             }
             DeathsSection(families: game.announcedDeaths)
@@ -78,20 +78,16 @@ struct MeetingView: View {
     @ViewBuilder
     private var skipSection: some View {
         if game.life == .alive {
-            ScreenSection(
+            BentoSection(
                 title: "Skip the discussion",
                 footer: "When more than half of the families agree, voting opens right away."
             ) {
-                Button(
-                    game.mySkipVote ? "Withdraw skip vote" : "Vote to skip discussion",
-                    systemImage: game.mySkipVote ? "checkmark.circle.fill" : "forward.end"
+                BentoButton(
+                    title: game.mySkipVote ? "Withdraw skip vote" : "Vote to skip",
+                    subtitle: "\(game.skipVotes) of \(game.votersTotal) families want to skip",
+                    systemImage: game.mySkipVote ? "checkmark.circle.fill" : "forward.end",
+                    isProminent: game.mySkipVote
                 ) { client.send(.voteSkipDiscussion) }
-                    .buttonStyle(.accentFill)
-                ProgressView(value: Double(game.skipVotes), total: Double(max(game.votersTotal, 1)))
-                    .tint(Theme.accent)
-                    .accessibilityHidden(true)
-                Text("\(game.skipVotes) of \(game.votersTotal) families want to skip.")
-                    .secondaryText()
             }
         }
     }
@@ -114,12 +110,27 @@ struct MeetingView: View {
                     Label("Your family can't vote any more.", systemImage: "xmark.circle")
                 }
             } else {
-                ScreenSection(title: "Vote for a family", footer: "Tap a family to vote. You can change your vote until time is up.") {
+                BentoSection(title: "Vote for a family", footer: "Tap a family to vote. You can change your vote until time is up.") {
                     ForEach(game.families.filter { $0.life == .alive }) { family in
-                        ballot(title: family.name, choice: .family(family.id), family: family)
-                        Divider().overlay(Theme.separator)
+                        Button { client.send(.vote(.family(family.id))) } label: {
+                            FamilyTile(
+                                family: family,
+                                subtitle: game.myVote == .family(family.id) ? "Your vote" : "Tap to vote",
+                                isSelected: game.myVote == .family(family.id),
+                                client: client
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(family.name)
+                        .accessibilityHint("Votes for \(family.name)")
+                        .accessibilityAddTraits(game.myVote == .family(family.id) ? .isSelected : [])
                     }
-                    ballot(title: "Skip", choice: .skip)
+                    BentoButton(
+                        title: "Skip",
+                        subtitle: game.myVote == .skip ? "Your vote" : "Vote for nobody",
+                        systemImage: "forward.end.fill",
+                        isProminent: game.myVote == .skip
+                    ) { client.send(.vote(.skip)) }
                 }
             }
 
@@ -128,38 +139,6 @@ struct MeetingView: View {
             }
         }
         .sensoryFeedback(.selection, trigger: game.myVote)
-    }
-
-    private func ballot(title: String, choice: VoteChoice, family: FamilySummary? = nil) -> some View {
-        Button {
-            client.send(.vote(choice))
-        } label: {
-            HStack(spacing: Spacing.sm) {
-                if let family {
-                    AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] })
-                    VStack(alignment: .leading) {
-                        Text(title)
-                        if let player = family.playerName, player != family.name {
-                            Text(player).font(.caption).foregroundStyle(Theme.textSecondary)
-                        }
-                    }
-                } else {
-                    Text(title)
-                }
-                Spacer()
-                if game.myVote == choice {
-                    Label("Your vote", systemImage: "checkmark.circle.fill")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Theme.accent)
-                }
-            }
-            .frame(minHeight: 44)
-            .contentShape(.rect)
-        }
-        .foregroundStyle(Theme.text)
-        .accessibilityLabel(title)
-        .accessibilityHint("Votes for \(title)")
-        .accessibilityAddTraits(game.myVote == choice ? .isSelected : [])
     }
 
     private func ended(_ outcome: Outcome) -> some View {
@@ -230,21 +209,30 @@ struct VoteChart: View {
     }
 }
 
-private struct FamilyRow: View {
+private struct FamilyTile: View {
     let family: FamilySummary
+    let subtitle: String?
+    let isSelected: Bool
     let client: GameClient
 
     var body: some View {
-        HStack(spacing: Spacing.sm) {
-            AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] })
-            VStack(alignment: .leading) {
-                Text(family.name)
-                if let player = family.playerName, player != family.name {
-                    Text(player).font(.caption).foregroundStyle(Theme.textSecondary)
-                }
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            AvatarView(name: family.playerName ?? family.name, jpeg: family.playerID.flatMap { client.selfies[$0] }, size: 44)
+                .accessibilityHidden(true)
+            Spacer(minLength: Spacing.sm)
+            Text(family.name)
+                .font(.title3.bold())
+                .foregroundStyle(isSelected ? Theme.onAccentFill : Theme.text)
+            if let player = family.playerName, player != family.name {
+                Text(player).font(.footnote).foregroundStyle(isSelected ? Theme.onAccentFill : Theme.textSecondary)
+            }
+            if let subtitle {
+                Text(subtitle).font(.footnote.weight(.semibold)).foregroundStyle(isSelected ? Theme.onAccentFill : Theme.accent)
             }
         }
-        .frame(minHeight: 44)
-        .accessibilityElement(children: .combine)
+        .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
+        .padding(Spacing.md)
+        .background(isSelected ? Theme.accentFill : Theme.surface, in: .rect(cornerRadius: Radius.lg))
+        .contentShape(.rect(cornerRadius: Radius.lg))
     }
 }
