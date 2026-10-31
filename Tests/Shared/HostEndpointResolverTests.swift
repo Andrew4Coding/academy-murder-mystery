@@ -5,8 +5,7 @@ import Testing
 @MainActor
 struct HostEndpointResolverTests {
     private func makeDefaults() -> UserDefaults {
-        let defaults = UserDefaults(suiteName: "resolver-\(UUID().uuidString)")!
-        return defaults
+        UserDefaults(suiteName: "resolver-\(UUID().uuidString)")!
     }
 
     @Test func cloudRegistryResolvesToCloudAndIsRemembered() async {
@@ -86,5 +85,5 @@ final class StalledTransport: ClientTransport {
         continuation.finish()
     }
 
-    func send(_ message: ClientMessage) {}
+    func send(_: ClientMessage) {}
 }

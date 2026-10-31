@@ -16,7 +16,9 @@ final class FakeRegistry: HostRegistry {
 
     private func gate(_ name: String) throws {
         calls.append(name)
-        if !reachable { throw RegistryError.unreachable("offline") }
+        if !reachable {
+            throw RegistryError.unreachable("offline")
+        }
     }
 
     func fetch() async throws -> RegistryRecord {
@@ -26,13 +28,17 @@ final class FakeRegistry: HostRegistry {
 
     func setMode(_ mode: HostMode) async throws {
         try gate("setMode:\(mode.rawValue)")
-        if failSetMode { throw RegistryError.server(500) }
+        if failSetMode {
+            throw RegistryError.server(500)
+        }
         self.mode = mode
     }
 
     func putSnapshot(_ snapshot: HostSnapshot) async throws {
         try gate("putSnapshot")
-        if putDelay > .zero { try? await Task.sleep(for: putDelay) }
+        if putDelay > .zero {
+            try? await Task.sleep(for: putDelay)
+        }
         stored = snapshot
     }
 
@@ -44,7 +50,9 @@ final class FakeRegistry: HostRegistry {
 
     func importState(_ snapshot: HostSnapshot) async throws {
         try gate("import")
-        if failImport { throw RegistryError.server(500) }
+        if failImport {
+            throw RegistryError.server(500)
+        }
         live = snapshot
         mode = .cloud
         onImport?(snapshot)

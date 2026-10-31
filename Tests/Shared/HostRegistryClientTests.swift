@@ -22,7 +22,9 @@ final class FakeHTTP: HTTPClient {
 
     func send(_ request: URLRequest) async throws -> (Data, Int) {
         recorded.withLock { $0.append(request) }
-        if let error = failure.withLock({ $0 }) { throw error }
+        if let error = failure.withLock({ $0 }) {
+            throw error
+        }
         return reply.withLock { $0 }
     }
 }
@@ -75,7 +77,7 @@ struct HostRegistryClientTests {
         let registry = client(http)
         try await registry.putSnapshot(snapshot)
         try await registry.importState(snapshot)
-        http.respond(String(decoding: try WireCodec.encode(snapshot), as: UTF8.self))
+        try http.respond(String(decoding: WireCodec.encode(snapshot), as: UTF8.self))
         #expect(try await registry.getSnapshot() == snapshot)
         #expect(try await registry.exportState() == snapshot)
         let routes = http.requests.map { "\($0.httpMethod ?? "") \($0.url?.path ?? "")" }

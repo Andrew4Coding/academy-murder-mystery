@@ -24,7 +24,9 @@ final class FakeSocket: WebSocketConnection {
     }
 
     func waitUntilOpen() async throws {
-        if failOpen { throw URLError(.cannotConnectToHost) }
+        if failOpen {
+            throw URLError(.cannotConnectToHost)
+        }
     }
 
     func send(_ data: Data) async throws {
@@ -66,7 +68,7 @@ final class FakeConnector: WebSocketConnecting {
         opened.withLock { $0 }
     }
 
-    func open(_ url: URL) -> any WebSocketConnection {
+    func open(_: URL) -> any WebSocketConnection {
         let socket = queue.withLock { $0.isEmpty ? FakeSocket() : $0.removeFirst() }
         opened.withLock { $0.append(socket) }
         return socket
@@ -88,14 +90,26 @@ struct WebSocketClientTransportTests {
         }
         defer { reader.cancel() }
         transport.start()
-        #expect(await eventually { received.contains { if case .status(.connected) = $0 { true } else { false } } })
+        #expect(await eventually { received.contains {
+            if case .status(.connected) = $0 {
+                true
+            } else {
+                false
+            }
+        } })
 
         transport.send(.sync)
         #expect(await eventually { socket.sent.count == 1 })
         #expect(try WireCodec.decode(ClientMessage.self, from: socket.sent[0]) == .sync)
 
         socket.deliver(.rejected("nope"))
-        #expect(await eventually { received.contains { if case .message(.rejected("nope")) = $0 { true } else { false } } })
+        #expect(await eventually { received.contains {
+            if case .message(.rejected("nope")) = $0 {
+                true
+            } else {
+                false
+            }
+        } })
         transport.stop()
     }
 
@@ -117,7 +131,13 @@ struct WebSocketClientTransportTests {
         #expect(await eventually { statuses.last == .connected })
         first.drop()
         #expect(await eventually { connector.sockets.count == 2 && statuses.last == .connected })
-        #expect(statuses.contains { if case .failed = $0 { true } else { false } })
+        #expect(statuses.contains {
+            if case .failed = $0 {
+                true
+            } else {
+                false
+            }
+        })
         #expect(first.isClosed)
         transport.stop()
     }
@@ -134,7 +154,13 @@ struct WebSocketClientTransportTests {
         }
         defer { reader.cancel() }
         transport.start()
-        #expect(await eventually { statuses.contains { if case .failed = $0 { true } else { false } } })
+        #expect(await eventually { statuses.contains {
+            if case .failed = $0 {
+                true
+            } else {
+                false
+            }
+        } })
         transport.stop()
     }
 }

@@ -52,7 +52,9 @@ struct SnapshotUploaderTests {
         uploader.isEnabled = true
         harness.host.commit()
         await uploader.waitUntilIdle()
-        if case .failed = uploader.status {} else { Issue.record("expected failed, got \(uploader.status)") }
+        if case .failed = uploader.status {} else {
+            Issue.record("expected failed, got \(uploader.status)")
+        }
 
         registry.reachable = true
         harness.host.commit()
@@ -97,7 +99,7 @@ final class ScriptedTransport: ClientTransport {
 
     func stop() {}
 
-    func send(_ message: ClientMessage) {}
+    func send(_: ClientMessage) {}
 
     func deliver(_ message: ServerMessage) {
         continuation.yield(.message(message))
