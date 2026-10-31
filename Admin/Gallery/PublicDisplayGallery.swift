@@ -59,7 +59,7 @@
             let folder = URL(fileURLWithPath: directory)
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             for (index, entry) in PublicDisplayGallery.entries.enumerated() {
-                let view = PublicDisplayScreen(display: entry.display, now: DisplayFixtures.now, playsSound: false)
+                let view = PublicDisplayScreen(display: entry.display, now: DisplayFixtures.now)
                     .frame(width: 1920, height: 1080)
                     .environment(\.colorScheme, .dark)
                 let renderer = ImageRenderer(content: view)
@@ -103,8 +103,7 @@
             {
                 PublicDisplayScreen(
                     display: PublicDisplayGallery.entries[raw].display,
-                    now: DisplayFixtures.now,
-                    playsSound: false
+                    now: DisplayFixtures.now
                 )
             } else {
                 PublicDisplayGalleryView()
@@ -119,7 +118,7 @@
                     ForEach(PublicDisplayGallery.entries) { entry in
                         VStack(alignment: .leading, spacing: 8) {
                             Text(entry.title).font(.headline)
-                            PublicDisplayScreen(display: entry.display, now: DisplayFixtures.now, playsSound: false)
+                            PublicDisplayScreen(display: entry.display, now: DisplayFixtures.now)
                                 .aspectRatio(16 / 9, contentMode: .fit)
                                 .clipShape(.rect(cornerRadius: 12))
                         }
@@ -135,7 +134,7 @@
         var size = CGSize(width: 1920, height: 1080)
 
         var body: some View {
-            PublicDisplayScreen(display: display, now: DisplayFixtures.now, playsSound: false)
+            PublicDisplayScreen(display: display, now: DisplayFixtures.now)
                 .frame(width: size.width, height: size.height)
         }
     }

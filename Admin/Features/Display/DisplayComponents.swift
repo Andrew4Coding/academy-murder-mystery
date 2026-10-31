@@ -114,6 +114,7 @@ struct TimerBlock: View {
     let until: Date
     let now: Date
     var compact = false
+    var isPaused = false
 
     private var remaining: TimeInterval {
         max(0, until.timeIntervalSince(now))
@@ -145,7 +146,11 @@ struct TimerBlock: View {
                         .foregroundStyle(isUrgent ? DisplayPalette.redText : DisplayPalette.primary)
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
-                    if isUrgent {
+                    if isPaused {
+                        Label("Paused", systemImage: "pause.circle.fill")
+                            .font(.stageRounded(40, weight: .bold))
+                            .foregroundStyle(DisplayPalette.secondary)
+                    } else if isUrgent {
                         Label("Final seconds", systemImage: "exclamationmark.triangle.fill")
                             .font(.stageRounded(40, weight: .bold))
                             .foregroundStyle(DisplayPalette.redText)
@@ -157,7 +162,7 @@ struct TimerBlock: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
-        .accessibilityValue(Duration.seconds(remaining).spoken)
+        .accessibilityValue(Duration.seconds(remaining).spoken + (isPaused ? ", paused" : ""))
     }
 }
 
@@ -218,9 +223,7 @@ struct AlarmBanner: View {
     let alarm: PublicDisplayState.Alarm
     let now: Date
     let animate: Bool
-    let playsSound: Bool
-
-    @State private var sound = AdminSound("alarm", loops: true)
+    var isPaused = false
 
     var body: some View {
         HStack(spacing: 28) {
@@ -237,22 +240,37 @@ struct AlarmBanner: View {
                 Text(Duration.seconds(max(0, alarm.endsAt.timeIntervalSince(now))), format: .time(pattern: .minuteSecond))
                     .font(.stageDigits(64))
             } icon: {
-                Image(systemName: "timer").font(.system(size: 48, weight: .bold))
+                Image(systemName: isPaused ? "pause.circle.fill" : "timer").font(.system(size: 48, weight: .bold))
             }
         }
         .foregroundStyle(.white)
         .padding(.horizontal, 36)
         .padding(.vertical, 20)
         .background(DisplayPalette.redFill, in: .rect(cornerRadius: 28))
-        .onAppear {
-            if playsSound {
-                sound.play()
-            }
-        }
-        .onDisappear { sound.stop() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Sabotage alarm: \(alarm.kind.title)")
-        .accessibilityValue(Duration.seconds(max(0, alarm.endsAt.timeIntervalSince(now))).spoken)
+        .accessibilityValue(Duration.seconds(max(0, alarm.endsAt.timeIntervalSince(now))).spoken + (isPaused ? ", paused" : ""))
+    }
+}
+
+struct SabotageFixedBanner: View {
+    var body: some View {
+        HStack(spacing: 28) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 64, weight: .bold))
+            Text("SABOTAGE FIXED")
+                .font(.stage(64))
+                .tracking(2)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Spacer(minLength: 16)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 36)
+        .padding(.vertical, 20)
+        .background(DisplayPalette.fixedFill, in: .rect(cornerRadius: 28))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Sabotage fixed")
     }
 }
 

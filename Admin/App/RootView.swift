@@ -46,6 +46,16 @@ struct RootView: View {
     @State private var selection: AdminSection? = RootView.initialSection
     @Environment(\.openWindow) private var openWindow
     @State private var bell = AdminSound("bell")
+    @State private var alarm = AdminSound("sabotage", fallback: "alarm", loops: true)
+
+    private var alarmSounding: Bool {
+        if mode.phase == .cloud {
+            guard let display = mode.adminClient?.display else { return false }
+            return display.alarm != nil && display.alarmPausedAt == nil
+        }
+        guard let game = controller.host.state.engine?.state else { return false }
+        return game.sabotage != nil && game.timerPausedAt?[.sabotage] == nil
+    }
 
     private static var initialSection: AdminSection {
         #if DEBUG
@@ -98,6 +108,13 @@ struct RootView: View {
         }
         .task { await mode.bootstrap() }
         .onChange(of: controller.host.bellRings) { _, _ in bell.play() }
+        .onChange(of: alarmSounding) { _, sounding in
+            if sounding {
+                alarm.play()
+            } else {
+                alarm.stop()
+            }
+        }
     }
 }
 
