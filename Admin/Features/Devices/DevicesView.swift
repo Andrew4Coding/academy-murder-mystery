@@ -7,7 +7,6 @@ struct DevicesView: View {
     var body: some View {
         VStack(spacing: 0) {
             HostModeSection(mode: mode)
-                .fixedSize(horizontal: false, vertical: true)
             if mode.phase == .cloud {
                 DevicesContent(devices: mode.adminClient?.view?.admin?.devices ?? [])
             } else {

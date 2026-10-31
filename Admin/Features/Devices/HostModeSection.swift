@@ -14,43 +14,51 @@ struct HostModeSection: View {
     }
 
     var body: some View {
-        Form {
-            Section("Host mode") {
-                Picker("Active host", selection: Binding(get: { current }, set: request)) {
-                    ForEach(HostMode.allCases, id: \.self) { Text($0.title).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                .disabled(mode.phase.isSwitching)
-                .accessibilityHint("Moves the game between this Mac and the cloud host")
-                .themedRows()
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text("Host mode")
+                .font(.headline)
+            Picker("Active host", selection: Binding(get: { current }, set: request)) {
+                ForEach(HostMode.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .disabled(mode.phase.isSwitching)
+            .accessibilityLabel("Active host")
+            .accessibilityHint("Moves the game between this Mac and the cloud host")
 
-                hostStatus.themedRows()
-                connectionStatus.themedRows()
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                hostStatus
+                connectionStatus
                 if let record = mode.registryRecord {
-                    LabeledContent("Registry says", value: record.mode.title).themedRows()
-                    if let at = record.snapshotAt {
-                        LabeledContent("Cloud snapshot") { Text(at, style: .relative) }.themedRows()
+                    HStack {
+                        Text("Registry says").foregroundStyle(Theme.textSecondary)
+                        Text(record.mode.title)
+                        if let at = record.snapshotAt {
+                            Text("Cloud snapshot").foregroundStyle(Theme.textSecondary)
+                            Text(at, style: .relative)
+                        }
                     }
                 }
                 if let error = mode.lastError {
-                    StatusLabel.error(error).themedRows()
+                    StatusLabel.error(error)
                 }
             }
-            Section {
-                SecureField("Pairing secret", text: $secret)
+
+            Divider()
+            HStack(spacing: Spacing.sm) {
+                SecureField("Cloud pairing secret", text: $secret)
                     .onSubmit { mode.pairingSecret = secret }
-                    .themedRows()
+                    .frame(maxWidth: 320)
                 Button("Save Secret") { mode.pairingSecret = secret }
                     .disabled(secret == mode.pairingSecret)
-                    .themedRows()
-            } header: {
-                Text("Cloud pairing")
-            } footer: {
-                Text("Registry writes use this secret, or the OC PIN when it is empty.")
             }
+            Text("Registry writes use this secret, or the OC PIN when it is empty.")
+                .font(.footnote)
+                .foregroundStyle(Theme.textSecondary)
         }
-        .formStyle(.grouped)
-        .scrollContentBackground(.hidden)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .themedCard()
+        .padding(Spacing.md)
         .task {
             secret = mode.pairingSecret
             await mode.refresh()
