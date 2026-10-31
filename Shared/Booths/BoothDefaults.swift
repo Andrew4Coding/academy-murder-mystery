@@ -1,6 +1,12 @@
 import Foundation
 
 enum BoothDefaults {
+    private static func art(_ name: String) -> BoothImage? {
+        Bundle.main.url(forResource: name, withExtension: "jpg")
+            .flatMap { try? Data(contentsOf: $0) }
+            .map { BoothImage(jpeg: $0) }
+    }
+
     static var booths: [Booth] {
         [decipherClue, towerDanger, recreatePainting, rightPlace, followPattern, messagePassenger, gateUnlock, scaryMemory, heistPlan]
     }
@@ -18,7 +24,8 @@ enum BoothDefaults {
             "Hand your answer to the OC to be checked.",
             "If it is correct, your family gets a stamp."
         ],
-        stampRequirement: "Your answer is correct."
+        stampRequirement: "Your answer is correct.",
+        image: art("booth-1")
     )
 
     private static let towerDanger = Booth(
@@ -36,7 +43,8 @@ enum BoothDefaults {
             "Once it is approved, stack the cups back like they were. The "
                 + "stamp is given after the cups are tidied."
         ],
-        stampRequirement: "The OC approves your tower and the cups are tidied up."
+        stampRequirement: "The OC approves your tower and the cups are tidied up.",
+        image: art("booth-2")
     )
 
     private static let recreatePainting = Booth(
@@ -53,7 +61,8 @@ enum BoothDefaults {
             "When you are done, ask the OC to check your result.",
             "If it matches, your family gets a stamp."
         ],
-        stampRequirement: "Your painting matches."
+        stampRequirement: "Your painting matches.",
+        image: art("booth-3")
     )
 
     private static let rightPlace = Booth(
@@ -73,7 +82,8 @@ enum BoothDefaults {
                 + "name of an item, or point to where an item must go.",
             "When all 5 items are in the right order, your family gets a stamp."
         ],
-        stampRequirement: "All 5 items are in the right order."
+        stampRequirement: "All 5 items are in the right order.",
+        image: art("booth-4")
     )
 
     private static let followPattern = Booth(
@@ -91,7 +101,8 @@ enum BoothDefaults {
             "If you make a mistake, you have to start again from round 1.",
             "If you complete all 8 rounds, your family gets a stamp."
         ],
-        stampRequirement: "You completed 8 rounds."
+        stampRequirement: "You completed 8 rounds.",
+        image: art("booth-5")
     )
 
     private static let messagePassenger = Booth(
@@ -107,7 +118,8 @@ enum BoothDefaults {
             "Return to the booth with the signed sticky note.",
             "The OC checks the result. If it is correct, your family gets a stamp."
         ],
-        stampRequirement: "The OC confirms your signed sticky note."
+        stampRequirement: "The OC confirms your signed sticky note.",
+        image: art("booth-6")
     )
 
     private static let gateUnlock = Booth(
@@ -121,7 +133,8 @@ enum BoothDefaults {
             "Separate the pieces without damaging them.",
             "If you get them apart, your family gets a stamp."
         ],
-        stampRequirement: "The metal locks are separated."
+        stampRequirement: "The metal locks are separated.",
+        image: art("booth-7")
     )
 
     private static let scaryMemory = Booth(
@@ -139,7 +152,8 @@ enum BoothDefaults {
             "Once the pose matches, the documentation team takes a photo. You may take a photo of the result too.",
             "Give a signal to the OC at Town Hall to stop the sabotage."
         ],
-        stampRequirement: "You signalled the OC at Town Hall to stop the sabotage."
+        stampRequirement: "You signalled the OC at Town Hall to stop the sabotage.",
+        image: art("sabotage-6")
     )
 
     private static let heistPlan = Booth(
@@ -157,6 +171,7 @@ enum BoothDefaults {
             "Once your family name is on the whiteboard and the participants are back, "
                 + "give a signal to the OC at Town Hall to stop the sabotage."
         ],
-        stampRequirement: "You signalled the OC at Town Hall to stop the sabotage."
+        stampRequirement: "You signalled the OC at Town Hall to stop the sabotage.",
+        image: art("sabotage-7a")
     )
 }

@@ -45,17 +45,7 @@ extension GameHost {
     }
 
     func restoreBoothDefaults() throws {
-        let defaults = BoothDefaults.booths
-        let images = Dictionary(
-            boothCatalog.booths.compactMap { booth in booth.image.map { (booth.id, $0) } },
-            uniquingKeysWith: { first, _ in first }
-        )
-        let restored = defaults.map { booth -> Booth in
-            var copy = booth
-            copy.image = images[booth.id]
-            return copy
-        }
-        try applyBooths(restored)
+        try applyBooths(BoothDefaults.booths)
     }
 
     private func updateBooth(_ id: UUID, _ change: (inout Booth) -> Void) throws {

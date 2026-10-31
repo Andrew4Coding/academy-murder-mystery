@@ -7,6 +7,7 @@ struct BoothCatalogTests {
     @Test func aFreshHostIsSeededWithTheGuideBooths() throws {
         let host = try GameHost(repository: InMemoryGameRepository())
         #expect(host.boothCatalog.booths.count == 9)
+        #expect(host.boothCatalog.booths.allSatisfy { booth in booth.image != nil })
         #expect(host.boothCatalog.booths.first?.title == "Booth 1 – Decipher Clue")
         #expect(host.boothCatalog.booths.last?.title == "Sabotage Booth 7A – Heist Plan")
         #expect(host.boothCatalog.booths.allSatisfy { !$0.steps.isEmpty && !$0.task.isEmpty })
@@ -59,7 +60,7 @@ struct BoothCatalogTests {
         #expect(throws: HostError.unknownBooth) { try host.removeBoothImage(UUID()) }
     }
 
-    @Test func restoreDefaultsBringsBackTheGuideBoothsAndKeepsTheirImages() throws {
+    @Test func restoreDefaultsBringsBackTheGuideBoothsWithTheirDefaultPictures() throws {
         let host = try GameHost(repository: InMemoryGameRepository())
         let id = try #require(host.boothCatalog.booths.first?.id)
         try host.setBoothImage(id, imageData: BoothMapTests.pngData(width: 100, height: 100))
@@ -70,7 +71,7 @@ struct BoothCatalogTests {
 
         try host.restoreBoothDefaults()
         #expect(host.boothCatalog.booths.map(\.title) == BoothDefaults.booths.map(\.title))
-        #expect(host.boothCatalog.booths.first?.image != nil)
+        #expect(host.boothCatalog.booths.first?.image == BoothDefaults.booths.first?.image)
     }
 
     @Test func playersNeverReceiveStaffNotes() async throws {
