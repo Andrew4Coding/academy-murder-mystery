@@ -8,6 +8,9 @@ final class FakeRegistry: HostRegistry {
     var stored: HostSnapshot?
     var live: HostSnapshot?
     var failImport = false
+    var failSetMode = false
+    var putDelay: Duration = .zero
+    var onImport: ((HostSnapshot) -> Void)?
     private(set) var calls: [String] = []
     private(set) var takeOverPins: [String] = []
 
@@ -23,11 +26,13 @@ final class FakeRegistry: HostRegistry {
 
     func setMode(_ mode: HostMode) async throws {
         try gate("setMode:\(mode.rawValue)")
+        if failSetMode { throw RegistryError.server(500) }
         self.mode = mode
     }
 
     func putSnapshot(_ snapshot: HostSnapshot) async throws {
         try gate("putSnapshot")
+        if putDelay > .zero { try? await Task.sleep(for: putDelay) }
         stored = snapshot
     }
 
@@ -42,6 +47,7 @@ final class FakeRegistry: HostRegistry {
         if failImport { throw RegistryError.server(500) }
         live = snapshot
         mode = .cloud
+        onImport?(snapshot)
     }
 
     func exportState() async throws -> HostSnapshot {
