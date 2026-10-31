@@ -84,7 +84,11 @@ final class HostRegistryClient: HostRegistry {
     private let http: any HTTPClient
     private let credential: @MainActor () -> RegistryCredential?
 
-    init(baseURL: URL = CloudConfig.baseURL, http: any HTTPClient = URLSession.shared, credential: @escaping @MainActor () -> RegistryCredential? = { nil }) {
+    init(
+        baseURL: URL = CloudConfig.baseURL,
+        http: any HTTPClient = URLSession.shared,
+        credential: @escaping @MainActor () -> RegistryCredential? = { nil }
+    ) {
         self.baseURL = baseURL
         self.http = http
         self.credential = credential
@@ -98,7 +102,7 @@ final class HostRegistryClient: HostRegistry {
     }
 
     func fetch() async throws -> RegistryRecord {
-        try decode(RegistryRecord.self, from: await call("GET", "registry", authorized: false, timeout: CloudConfig.registryTimeout))
+        try await decode(RegistryRecord.self, from: call("GET", "registry", authorized: false, timeout: CloudConfig.registryTimeout))
     }
 
     func setMode(_ mode: HostMode) async throws {
@@ -110,7 +114,7 @@ final class HostRegistryClient: HostRegistry {
     }
 
     func getSnapshot() async throws -> HostSnapshot {
-        try decode(HostSnapshot.self, from: await call("GET", "snapshot", authorized: true))
+        try await decode(HostSnapshot.self, from: call("GET", "snapshot", authorized: true))
     }
 
     func importState(_ snapshot: HostSnapshot) async throws {
@@ -118,7 +122,7 @@ final class HostRegistryClient: HostRegistry {
     }
 
     func exportState() async throws -> HostSnapshot {
-        try decode(HostSnapshot.self, from: await call("GET", "export", authorized: true))
+        try await decode(HostSnapshot.self, from: call("GET", "export", authorized: true))
     }
 
     func takeOver(pin: String) async throws {
@@ -133,7 +137,13 @@ final class HostRegistryClient: HostRegistry {
         }
     }
 
-    private func call(_ method: String, _ path: String, body: Data? = nil, authorized: Bool, timeout: TimeInterval? = nil) async throws -> Data {
+    private func call(
+        _ method: String,
+        _ path: String,
+        body: Data? = nil,
+        authorized: Bool,
+        timeout: TimeInterval? = nil
+    ) async throws -> Data {
         var request = URLRequest(url: baseURL.appending(path: path))
         request.httpMethod = method
         if let timeout {

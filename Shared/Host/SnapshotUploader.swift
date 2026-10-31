@@ -13,7 +13,9 @@ final class SnapshotUploader {
     private(set) var status: Status = .idle
     var isEnabled = false {
         didSet {
-            if isEnabled, !oldValue { schedule() }
+            if isEnabled, !oldValue {
+                schedule()
+            }
         }
     }
 
@@ -29,7 +31,11 @@ final class SnapshotUploader {
     }
 
     var lastUploadedAt: Date? {
-        if case let .uploaded(date) = status { date } else { nil }
+        if case let .uploaded(date) = status {
+            date
+        } else {
+            nil
+        }
     }
 
     func schedule() {

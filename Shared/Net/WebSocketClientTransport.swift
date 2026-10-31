@@ -27,7 +27,7 @@ final class URLSessionWebSocketConnection: WebSocketConnection {
         task.resume()
     }
 
-    // A ping only completes once the handshake is done, so it doubles as the "connected" signal without a delegate.
+    /// A ping only completes once the handshake is done, so it doubles as the "connected" signal without a delegate.
     func waitUntilOpen() async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
             task.sendPing { error in

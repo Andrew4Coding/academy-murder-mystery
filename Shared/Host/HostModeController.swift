@@ -66,8 +66,14 @@ final class HostModeController {
         Self.credential(secret: pairingSecret, pin: local.host.state.ocPin)
     }
 
+    static func credential(host: GameHost, defaults: UserDefaults = .standard) -> RegistryCredential? {
+        credential(secret: defaults.string(forKey: CloudConfig.pairingSecretKey) ?? "", pin: host.state.ocPin)
+    }
+
     static func credential(secret: String, pin: String) -> RegistryCredential? {
-        if !secret.isEmpty { return .secret(secret) }
+        if !secret.isEmpty {
+            return .secret(secret)
+        }
         return pin.isEmpty ? nil : .pin(pin)
     }
 
@@ -158,8 +164,12 @@ final class HostModeController {
     }
 
     private static func describe(_ error: any Error) -> String {
-        if let error = error as? RegistryError { return error.message }
-        if let error = error as? HostError { return error.message }
+        if let error = error as? RegistryError {
+            return error.message
+        }
+        if let error = error as? HostError {
+            return error.message
+        }
         return error.localizedDescription
     }
 }
