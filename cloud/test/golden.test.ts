@@ -21,6 +21,9 @@ interface Trace {
   steps: Step[];
 }
 
+// Swift never encodes ballots (anonymous votes), so fixtures lack them
+const withoutBallots = (state: object) => ({ ...state, votes: undefined, skipVotes: undefined });
+
 describe.skipIf(traces.length === 0)("golden traces from the Swift engine", () => {
   it.each(traces)("%s replays to identical state and events", (file) => {
     const trace = JSON.parse(readFileSync(new URL(file, dir), "utf8")) as Trace;
@@ -37,7 +40,7 @@ describe.skipIf(traces.length === 0)("golden traces from the Swift engine", () =
             expect(error, label).toBeInstanceOf(RuleError);
             expect((error as RuleError).kind, label).toBe(step.error);
           }
-          expect(engine.state, label).toEqual(codec.gameEngine.dec(step.state).state);
+          expect(withoutBallots(engine.state), label).toEqual(withoutBallots(codec.gameEngine.dec(step.state).state));
           return;
         }
         events = engine.apply(command, step.at);
@@ -45,7 +48,7 @@ describe.skipIf(traces.length === 0)("golden traces from the Swift engine", () =
         events = engine.advance(step.advanceTo);
       }
       expect(events.map((e) => codec.gameEvent.enc(e)), label).toEqual(step.events);
-      expect(engine.state, label).toEqual(codec.gameEngine.dec(step.state).state);
+      expect(withoutBallots(engine.state), label).toEqual(withoutBallots(codec.gameEngine.dec(step.state).state));
     });
   });
 });
