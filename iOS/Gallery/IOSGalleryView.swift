@@ -1,7 +1,7 @@
 #if DEBUG
     import SwiftUI
 
-    struct IOSGalleryView: View {
+    struct IOSGalleryCanvasView: View {
         @State private var context = GalleryContext()
 
         var body: some View {
@@ -33,6 +33,28 @@
         }
     }
 
+    struct IOSGalleryView: View {
+        @State private var context = GalleryContext()
+
+        var body: some View {
+            NavigationStack {
+                List {
+                    ForEach(GalleryState.Section.allCases, id: \.self) { section in
+                        Section(section.rawValue) {
+                            ForEach(GalleryState.allCases.filter { $0.section == section }) { state in
+                                NavigationLink(state.title) {
+                                    state.view(context)
+                                        .navigationBarTitleDisplayMode(.inline)
+                                }
+                            }
+                        }
+                    }
+                }
+                .navigationTitle("Gallery")
+            }
+        }
+    }
+
     struct GalleryFrame<Content: View>: View {
         let title: String
         @ViewBuilder let content: Content
@@ -49,14 +71,14 @@
     }
 
     #Preview("Gallery, dark") {
-        IOSGalleryView().preferredColorScheme(.dark)
+        IOSGalleryCanvasView().preferredColorScheme(.dark)
     }
 
     #Preview("Gallery, light") {
-        IOSGalleryView().preferredColorScheme(.light)
+        IOSGalleryCanvasView().preferredColorScheme(.light)
     }
 
     #Preview("Gallery, large text") {
-        IOSGalleryView().dynamicTypeSize(.accessibility3)
+        IOSGalleryCanvasView().dynamicTypeSize(.accessibility3)
     }
 #endif
