@@ -138,6 +138,8 @@ struct SetupTab: View {
                         .accessibilityHidden(true)
                     Spacer(minLength: Spacing.sm)
                     Text("\(admin.rssiThreshold) dBm").font(.largeTitle.bold()).monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                     Text("Kill range").font(.headline)
                     Slider(value: Binding(
                         get: { Double(admin.rssiThreshold) },

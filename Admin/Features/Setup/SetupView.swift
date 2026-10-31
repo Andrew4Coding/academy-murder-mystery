@@ -156,6 +156,8 @@ struct SetupView: View {
                         .accessibilityHidden(true)
                     Spacer(minLength: Spacing.sm)
                     Text("\(Int(rssiThreshold)) dBm").font(.largeTitle.bold()).monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                     Text("Kill range").font(.headline)
                     Slider(value: $rssiThreshold, in: -90 ... -40, step: 1) { Text("Signal threshold") }
                         .labelsHidden()
