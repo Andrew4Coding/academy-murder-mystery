@@ -1,0 +1,120 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "state": {
+   "_0": {
+    "serverTime": 1234.5,
+    "identity": {
+     "oc": {
+      "id": "A0B1C2D3-E4F5-4A6B-8C7D-9E0F1A2B3C4D",
+      "station": {
+       "admin": {}
+      }
+     }
+    },
+    "admin": {
+     "joinCode": "ABC234",
+     "playersJoined": 2,
+     "isLobby": false,
+     "phase": {
+      "discussion": {
+       "until": 812345.5
+      }
+     },
+     "gameEndsAt": 3500.25,
+     "families": [
+      {
+       "id": {
+        "rawValue": 1
+       },
+       "name": "Family 1",
+       "playerName": "Sam",
+       "life": "alive",
+       "role": "werewolf",
+       "tasks": [
+        1,
+        2,
+        3
+       ],
+       "voted": true
+      },
+      {
+       "id": {
+        "rawValue": 2
+       },
+       "name": "Family 2",
+       "life": "killed",
+       "tasks": [],
+       "voted": false
+      }
+     ],
+     "sabotage": {
+      "kind": "reactor",
+      "startedAt": 100,
+      "endsAt": 190
+     },
+     "skipVotes": 1,
+     "votersTotal": 4,
+     "skipRequested": false,
+     "settings": {
+      "discussionDuration": 120,
+      "votingDuration": 120,
+      "killCooldown": 60,
+      "sabotageCooldown": 120,
+      "sabotageDuration": 90,
+      "gameDuration": 2700
+     },
+     "werewolfCount": 1,
+     "rssiThreshold": -75,
+     "sightingFreshness": 10,
+     "ocPin": "4242",
+     "setupIssues": [
+      "Create at least 3 families."
+     ],
+     "lastResult": {
+      "rows": [
+       {
+        "name": "Family 2",
+        "count": 3,
+        "isSkip": false
+       },
+       {
+        "name": "Skip",
+        "count": 1,
+        "isSkip": true
+       }
+      ],
+      "expelled": [
+       {
+        "name": "Family 2"
+       }
+      ],
+      "isFinal": false
+     },
+     "votesCast": 1,
+     "devices": [
+      {
+       "id": "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10",
+       "label": "Sam",
+       "detail": "Family 1",
+       "connection": "online",
+       "lastSeen": 5,
+       "isOC": false
+      },
+      {
+       "id": "A0B1C2D3-E4F5-4A6B-8C7D-9E0F1A2B3C4D",
+       "label": "OC",
+       "detail": "iPad dashboard",
+       "connection": "offline",
+       "isOC": true
+      }
+     ],
+     "timerPausedAt": [
+      "meeting",
+      120.5
+     ]
+    }
+   }
+  }
+ }
+}

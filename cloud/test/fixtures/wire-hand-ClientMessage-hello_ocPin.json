@@ -1,0 +1,21 @@
+{
+ "type": "ClientMessage",
+ "json": {
+  "hello": {
+   "_0": {
+    "version": 2,
+    "credential": {
+     "ocPin": {
+      "_0": "4242"
+     }
+    },
+    "station": {
+     "sabotage": {
+      "_0": "reactor"
+     }
+    },
+    "mapHash": "ab12"
+   }
+  }
+ }
+}

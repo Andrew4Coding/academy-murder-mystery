@@ -1,0 +1,6 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "startGame": {}
+ }
+}

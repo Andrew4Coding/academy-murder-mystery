@@ -1,0 +1,14 @@
+{
+ "type": "ClientMessage",
+ "json": {
+  "vote": {
+   "_0": {
+    "family": {
+     "_0": {
+      "rawValue": 3
+     }
+    }
+   }
+  }
+ }
+}

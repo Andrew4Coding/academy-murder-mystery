@@ -1,0 +1,17 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "proxyVote": {
+   "family": {
+    "rawValue": 2
+   },
+   "choice": {
+    "family": {
+     "_0": {
+      "rawValue": 1
+     }
+    }
+   }
+  }
+ }
+}

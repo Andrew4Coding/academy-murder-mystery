@@ -1,0 +1,13 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "selfies": {
+   "_0": [
+    {
+     "player": "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10",
+     "jpeg": "/9j/4AECAw=="
+    }
+   ]
+  }
+ }
+}

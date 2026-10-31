@@ -1,0 +1,10 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "removeFamily": {
+   "_0": {
+    "rawValue": 3
+   }
+  }
+ }
+}

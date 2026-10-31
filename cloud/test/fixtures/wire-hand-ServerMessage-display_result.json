@@ -1,0 +1,37 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "display": {
+   "_0": {
+    "screen": {
+     "result": {
+      "_0": {
+       "rows": [
+        {
+         "name": "Family 2",
+         "count": 3,
+         "isSkip": false
+        },
+        {
+         "name": "Skip",
+         "count": 1,
+         "isSkip": true
+        }
+       ],
+       "expelled": [
+        {
+         "name": "Family 2"
+        }
+       ],
+       "isFinal": false
+      }
+     }
+    },
+    "familiesRemaining": 4,
+    "announcedDeaths": [],
+    "lobbyFamilies": [],
+    "reveal": []
+   }
+  }
+ }
+}

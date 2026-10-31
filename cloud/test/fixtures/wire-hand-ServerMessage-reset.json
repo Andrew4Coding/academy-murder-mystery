@@ -1,0 +1,6 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "reset": {}
+ }
+}

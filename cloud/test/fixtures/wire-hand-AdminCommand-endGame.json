@@ -1,0 +1,8 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "endGame": {
+   "_0": "villagers"
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "map": {
+   "_0": {
+    "hash": "deadbeef",
+    "jpeg": "/9j/4AECAw=="
+   }
+  }
+ }
+}

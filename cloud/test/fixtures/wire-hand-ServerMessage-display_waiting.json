@@ -1,0 +1,31 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "display": {
+   "_0": {
+    "screen": {
+     "waiting": {}
+    },
+    "announcedDeaths": [],
+    "joinCode": "ABC234",
+    "lobbyFamilies": [
+     {
+      "id": {
+       "rawValue": 1
+      },
+      "name": "Family 1",
+      "player": "Sam",
+      "selfie": "/9j/4AECAw=="
+     },
+     {
+      "id": {
+       "rawValue": 2
+      },
+      "name": "Family 2"
+     }
+    ],
+    "reveal": []
+   }
+  }
+ }
+}

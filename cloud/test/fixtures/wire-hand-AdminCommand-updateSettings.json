@@ -1,0 +1,19 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "updateSettings": {
+   "werewolfCount": 2,
+   "settings": {
+    "discussionDuration": 120,
+    "votingDuration": 120,
+    "killCooldown": 60,
+    "sabotageCooldown": 120,
+    "sabotageDuration": 90,
+    "gameDuration": 2700,
+    "oxygenDuration": 45,
+    "oxygenCooldown": 100.5,
+    "debugMode": true
+   }
+  }
+ }
+}
