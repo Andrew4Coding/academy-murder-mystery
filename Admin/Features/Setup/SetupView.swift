@@ -7,8 +7,8 @@ struct SetupView: View {
     @State private var isPinVisible = false
     @State private var familyCount = TestingTools.isEnabled ? 4 : 12
     @State private var werewolfCount = 2
-    @State private var discussionMinutes = 2
-    @State private var votingMinutes = 2
+    @State private var discussionSeconds = GameSettings.standard.discussionDuration
+    @State private var votingSeconds = GameSettings.standard.votingDuration
     @State private var rssiThreshold = -75.0
     @State private var sightingFreshness = 10
     @State private var testRoles: [FamilyID: Role] = [:]
@@ -121,18 +121,16 @@ struct SetupView: View {
                     title: "Discussion",
                     subtitle: "Per meeting",
                     systemImage: "bubble.left.and.bubble.right.fill",
-                    seconds: Binding(get: { TimeInterval(discussionMinutes * 60) }, set: { discussionMinutes = Int($0 / 60) }),
-                    range: 60 ... 300,
-                    secondsStep: 60
+                    seconds: $discussionSeconds,
+                    range: 30 ... 600
                 )
                 .disabled(!isLobby)
                 DurationTile(
                     title: "Voting",
                     subtitle: "Per meeting",
                     systemImage: "hand.raised.fill",
-                    seconds: Binding(get: { TimeInterval(votingMinutes * 60) }, set: { votingMinutes = Int($0 / 60) }),
-                    range: 60 ... 300,
-                    secondsStep: 60
+                    seconds: $votingSeconds,
+                    range: 30 ... 600
                 )
                 .disabled(!isLobby)
             }
@@ -211,8 +209,8 @@ struct SetupView: View {
         .onChange(of: host.state.sightingFreshness) { _, _ in loadDraft() }
         .onChange(of: familyCount) { _, _ in apply() }
         .onChange(of: werewolfCount) { _, _ in apply() }
-        .onChange(of: discussionMinutes) { _, _ in apply() }
-        .onChange(of: votingMinutes) { _, _ in apply() }
+        .onChange(of: discussionSeconds) { _, _ in apply() }
+        .onChange(of: votingSeconds) { _, _ in apply() }
         .onChange(of: debugMode) { _, _ in apply() }
         .onChange(of: killCooldown) { _, _ in apply() }
         .onChange(of: sabotageCooldown) { _, _ in apply() }
@@ -357,8 +355,8 @@ struct SetupView: View {
             familyCount = state.families.count
         }
         werewolfCount = max(1, state.werewolfCount)
-        discussionMinutes = max(1, Int(state.settings.discussionDuration / 60))
-        votingMinutes = max(1, Int(state.settings.votingDuration / 60))
+        discussionSeconds = state.settings.discussionDuration
+        votingSeconds = state.settings.votingDuration
         rssiThreshold = Double(state.rssiThreshold)
         sightingFreshness = Int(state.sightingFreshness)
         debugMode = state.settings.isDebug
@@ -380,8 +378,8 @@ struct SetupView: View {
     private func apply() {
         guard isLobby else { return }
         var settings = host.state.settings
-        settings.discussionDuration = TimeInterval(discussionMinutes * 60)
-        settings.votingDuration = TimeInterval(votingMinutes * 60)
+        settings.discussionDuration = discussionSeconds
+        settings.votingDuration = votingSeconds
         settings.debugMode = debugMode
         settings.sabotageCooldown = sabotageCooldown
         settings.sabotageDuration = sabotageDuration

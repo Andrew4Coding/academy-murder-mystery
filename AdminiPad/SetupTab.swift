@@ -93,8 +93,7 @@ struct SetupTab: View {
                     subtitle: "Per meeting",
                     systemImage: "bubble.left.and.bubble.right.fill",
                     seconds: setting(\.discussionDuration) { $0.discussionDuration = $1 },
-                    range: 60 ... 300,
-                    secondsStep: 60
+                    range: 30 ... 600
                 )
                 .disabled(!admin.isLobby)
                 DurationTile(
@@ -102,8 +101,7 @@ struct SetupTab: View {
                     subtitle: "Per meeting",
                     systemImage: "hand.raised.fill",
                     seconds: setting(\.votingDuration) { $0.votingDuration = $1 },
-                    range: 60 ... 300,
-                    secondsStep: 60
+                    range: 30 ... 600
                 )
                 .disabled(!admin.isLobby)
             }
