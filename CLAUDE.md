@@ -108,7 +108,7 @@ Shared/Game                  pure game engine: GameEngine, GameState, GameComman
 Shared/Host                  GameHost (authority, sessions, persistence), GameClient, HostController, HostState, ClientView, HostClock, TestingTools; cloud switching: CloudConfig, HostRegistryClient, HostEndpointResolver, HostSnapshot, SnapshotUploader, HostModeController, CloudTakeoverController
 Shared/Net                   wire messages, length-prefixed Network.framework transports, loopback transport
 Shared/Data                  ModelContainerFactory, GameRepository (SwiftData + in-memory), Schema/ (SchemaV1: GameRecord, GameEventRecord)
-Shared/Features              feature views shared by targets (Booths/BoothDetailView, BoothsView, BoothEditorView, Timers/TimerControls, Setup/SetupTiles, Connection, Meeting/CountdownView, Map/BoothMapCard and BoothMapViewer)
+Shared/Features              feature views shared by targets (RemoteAdmin/ Setup, Game, Families and Booths tabs driven by a GameClient: the iPad admin, and the Mac in Cloud mode; Booths/BoothDetailView, BoothsView, BoothEditorView, Timers/TimerControls, Setup/SetupTiles, Connection, Meeting/CountdownView, Map/BoothMapCard and BoothMapViewer)
 Shared/LiveActivity           GameActivityState (role-neutral Live Activity content) and its mapping from GameView; no ActivityKit, so it compiles into every target
 Shared/Booths                Booth, BoothCatalog, BoothDefaults (the nine participant-guide booths), BoothStore (file and in-memory)
 Shared/Map                   BoothMap, BoothMapImporter (downscale to JPEG), BoothMapStore (file and in-memory)
