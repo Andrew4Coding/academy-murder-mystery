@@ -8,23 +8,29 @@ struct SabotageSection: View {
     @State private var requestCount = 0
 
     var body: some View {
-        Group {
+        BentoSection(title: "Sabotage", footer: footer) {
             if let sabotage = game.sabotage {
-                ScreenSection(title: "Sabotage") {
-                    HStack {
-                        Label(sabotage.kind.title, systemImage: sabotage.kind.symbol)
-                        Spacer()
-                        CountdownView(until: sabotage.endsAt, now: serverNow)
-                    }
-                    Text("A sabotage is already running.").secondaryText()
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    let remaining = sabotage.endsAt.timeIntervalSince(client.serverClock.now(local: context.date))
+                    BentoTile(
+                        title: sabotage.kind.title,
+                        subtitle: "Fix time left \(Duration.clock(remaining))",
+                        systemImage: sabotage.kind.symbol,
+                        isProminent: true
+                    )
+                    .accessibilityElement(children: .combine)
                 }
             } else if game.phase.isMeeting {
-                ScreenSection(title: "Sabotage") {
-                    Label("Not available during meetings", systemImage: "person.3").secondaryText()
-                }
+                BentoTile(
+                    title: "Unavailable",
+                    subtitle: "Not available during meetings",
+                    systemImage: "person.3",
+                    tint: Theme.textSecondary
+                )
+                .opacity(0.7)
             } else {
                 ForEach(SabotageKind.allCases, id: \.self) { kind in
-                    card(for: kind)
+                    tile(for: kind)
                 }
             }
         }
@@ -49,24 +55,34 @@ struct SabotageSection: View {
         .sensoryFeedback(.impact, trigger: requestCount)
     }
 
-    private func card(for kind: SabotageKind) -> some View {
-        ScreenSection(
-            title: "Sabotage: \(kind.title)",
-            footer: "Villagers have \(duration(of: kind)) to fix it at the booth, or the werewolves win. Werewolves share one cooldown."
-        ) {
-            TimelineView(.periodic(from: .now, by: 1)) { context in
-                let now = client.serverClock.now(local: context.date)
-                if let readyAt = game.sabotageReadyAt, now < readyAt {
-                    HStack {
-                        StatusLabel("Cooling down", systemImage: "hourglass", tint: Theme.warning)
-                        Spacer()
-                        CountdownView(until: readyAt, now: serverNow)
-                    }
-                    .accessibilityElement(children: .combine)
-                } else {
-                    Button(kind.title, systemImage: kind.symbol) { pending = kind }
-                        .buttonStyle(.accentFill)
+    private var footer: LocalizedStringKey? {
+        game.sabotage == nil && !game.phase.isMeeting
+            ? "Villagers must fix it at the booth in time, or the werewolves win. Werewolves share one cooldown."
+            : nil
+    }
+
+    private func tile(for kind: SabotageKind) -> some View {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            let now = client.serverClock.now(local: context.date)
+            if let readyAt = game.sabotageReadyAt, now < readyAt {
+                BentoTile(
+                    title: kind.title,
+                    subtitle: "Cooling down \(Duration.clock(readyAt.timeIntervalSince(now)))",
+                    systemImage: kind.symbol,
+                    tint: Theme.warning
+                )
+                .opacity(0.7)
+                .accessibilityElement(children: .combine)
+            } else {
+                Button { pending = kind } label: {
+                    BentoTile(
+                        title: kind.title,
+                        subtitle: "Villagers get \(duration(of: kind)) to fix it",
+                        systemImage: kind.symbol,
+                        isProminent: true
+                    )
                 }
+                .buttonStyle(.plain)
             }
         }
     }

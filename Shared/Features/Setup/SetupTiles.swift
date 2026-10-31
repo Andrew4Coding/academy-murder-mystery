@@ -1,5 +1,49 @@
 import SwiftUI
 
+struct TileFlow: Layout {
+    var minimumWidth: CGFloat = 190
+    var spacing: CGFloat = Spacing.md
+
+    private func columns(for width: CGFloat) -> Int {
+        max(1, Int((width + spacing) / (minimumWidth + spacing)))
+    }
+
+    private func rows(_ subviews: Subviews, width: CGFloat) -> (heights: [CGFloat], columns: Int, columnWidth: CGFloat) {
+        let count = columns(for: width)
+        let columnWidth = (width - CGFloat(count - 1) * spacing) / CGFloat(count)
+        var heights: [CGFloat] = []
+        for start in stride(from: 0, to: subviews.count, by: count) {
+            let row = subviews[start ..< min(start + count, subviews.count)]
+            heights.append(row.map { $0.sizeThatFits(ProposedViewSize(width: columnWidth, height: nil)).height }.max() ?? 0)
+        }
+        return (heights, count, columnWidth)
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
+        let width = proposal.width ?? 600
+        let layout = rows(subviews, width: width)
+        let height = layout.heights.reduce(0, +) + CGFloat(max(0, layout.heights.count - 1)) * spacing
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        let layout = rows(subviews, width: bounds.width)
+        var y = bounds.minY
+        for (rowIndex, height) in layout.heights.enumerated() {
+            for column in 0 ..< layout.columns {
+                let index = rowIndex * layout.columns + column
+                guard index < subviews.count else { break }
+                let x = bounds.minX + CGFloat(column) * (layout.columnWidth + spacing)
+                subviews[index].place(
+                    at: CGPoint(x: x, y: y),
+                    proposal: ProposedViewSize(width: layout.columnWidth, height: height)
+                )
+            }
+            y += height + spacing
+        }
+    }
+}
+
 struct SetupBento<Content: View>: View {
     let title: String
     var footer: String?
@@ -7,7 +51,7 @@ struct SetupBento<Content: View>: View {
 
     var body: some View {
         Section {
-            BentoGrid { content }
+            TileFlow { content }
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
         } header: {

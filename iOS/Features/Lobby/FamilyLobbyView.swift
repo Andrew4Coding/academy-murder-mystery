@@ -63,7 +63,8 @@ struct FamilyLobbyView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Leave", role: .destructive) { confirmingLeave = true }
+                    Button("Leave", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) { confirmingLeave = true }
+                        .labelStyle(.iconOnly)
                 }
             }
             .fullScreenCover(isPresented: $isTakingSelfie) {
