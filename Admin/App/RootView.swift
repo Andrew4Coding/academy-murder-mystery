@@ -39,9 +39,17 @@ struct RootView: View {
     let controller: HostController
     let simulation: SimulationController
 
-    @State private var selection: AdminSection? = .setup
+    @State private var selection: AdminSection? = RootView.initialSection
     @Environment(\.openWindow) private var openWindow
     @State private var bell = AdminSound("bell")
+
+    private static var initialSection: AdminSection {
+        #if DEBUG
+            AdminSection(rawValue: UserDefaults.standard.string(forKey: "AdminSection") ?? "") ?? .setup
+        #else
+            .setup
+        #endif
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -50,6 +58,8 @@ struct RootView: View {
                     .tag(section)
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 220)
+            .scrollContentBackground(.hidden)
+            .background(Theme.background)
             .accessibilityLabel("Sections")
         } detail: {
             switch selection ?? .setup {
@@ -67,6 +77,7 @@ struct RootView: View {
                 DevicesView(controller: controller)
             }
         }
+        .toolbarBackground(Theme.background, for: .windowToolbar)
         .toolbar {
             ToolbarItem(placement: .navigation) {
                 Button("Open Display", systemImage: "play.rectangle.fill") {

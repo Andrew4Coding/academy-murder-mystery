@@ -34,6 +34,7 @@ struct MoonfallAdminApp: App {
                 AdminGalleryLaunch()
             } else {
                 RootView(controller: controller, simulation: simulation)
+                    .task { await PublicDisplayWindowCapture.captureIfRequested() }
             }
         #else
             RootView(controller: controller, simulation: simulation)

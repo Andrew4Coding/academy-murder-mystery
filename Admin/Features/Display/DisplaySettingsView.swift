@@ -14,6 +14,7 @@ struct DisplaySettingsView: View {
                     openWindow(id: PublicDisplayWindow.id)
                 }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
+                .themedRows()
             } footer: {
                 Text("The Public Display shows timers, vote results and reveals for the lab screens. It never shows roles, tasks or votes.")
             }
@@ -31,9 +32,11 @@ struct DisplaySettingsView: View {
                     .clipShape(.rect(cornerRadius: 12))
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
+                    .themedRows()
             }
         }
         .formStyle(.grouped)
+        .themedBackground()
         .navigationTitle("Display")
     }
 }
