@@ -36,7 +36,8 @@ extension GameHost {
     }
 
     func setBoothImage(_ id: UUID, imageData: Data) throws {
-        let image = try BoothMapImporter.makeBoothImage(from: imageData)
+        let image = try BoothDefaults.booths.compactMap(\.image).first { $0.jpeg == imageData }
+            ?? BoothMapImporter.makeBoothImage(from: imageData)
         try updateBooth(id) { $0.image = image }
     }
 

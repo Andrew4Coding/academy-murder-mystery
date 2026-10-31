@@ -111,6 +111,11 @@ struct BoothEditorView: View {
         PhotosPicker(selection: $pickedPhoto, matching: .images) {
             Label(booth.image == nil ? "Choose Picture" : "Replace Picture", systemImage: "photo")
         }
+        if let defaultImage = BoothDefaults.image(for: booth.id), booth.image?.hash != defaultImage.hash {
+            Button("Use Default Picture", systemImage: "photo.badge.arrow.down") {
+                actions.setImage(booth.id, defaultImage.jpeg)
+            }
+        }
         if booth.image != nil {
             Button("Remove Picture", systemImage: "trash", role: .destructive) { actions.removeImage(booth.id) }
         }

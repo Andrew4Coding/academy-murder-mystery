@@ -7,6 +7,10 @@ enum BoothDefaults {
             .map { BoothImage(jpeg: $0) }
     }
 
+    static func image(for id: UUID) -> BoothImage? {
+        booths.first { $0.id == id }?.image
+    }
+
     static var booths: [Booth] {
         [decipherClue, towerDanger, recreatePainting, rightPlace, followPattern, messagePassenger, gateUnlock, scaryMemory, heistPlan]
     }

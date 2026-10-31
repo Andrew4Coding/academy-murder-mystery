@@ -27,7 +27,7 @@ The booths from the participant booth guide (Booth 1 Decipher Clue to Booth 7 Ga
 - [x] **AC2 Detail sheet**: Given a booth row on the phone, when the player taps it, then a sheet shows the picture (if any), the title, location, capacity and duration (when set), task, numbered steps and "Done when".
 - [x] **AC3 Where**: The booth list is on the Role tab ("Your tasks", every family, alive or not) and in the family lobby.
 - [x] **AC4 Edit**: Given the Booths view (Mac sidebar, iPad tab), when the OC changes any text field, steps or notes and saves, then every connected device updates.
-- [x] **AC5 CRUD and order**: The OC can add, delete and reorder booths, and restore the guide defaults (this also resets every picture to the default one).
+- [x] **AC5 CRUD and order**: The OC can add, delete and reorder booths, and restore the guide defaults (this also resets every picture to the default one). A default booth with a different or no picture also offers "Use Default Picture" in the editor..
 - [x] **AC6 Picture**: The OC can set, replace and remove one picture per booth (any image, stored as JPEG, long side at most 1600 px).
 - [x] **AC7 Staff notes**: Staff notes are sent only to the admin OC station. Phones and other OC stations receive them empty.
 - [x] **AC8 Admin only**: Only the Mac and the admin iPad station can edit. Editing works at any time, including during a game, and open sheets follow the edit.

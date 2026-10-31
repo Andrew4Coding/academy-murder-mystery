@@ -74,6 +74,17 @@ struct BoothCatalogTests {
         #expect(host.boothCatalog.booths.first?.image == BoothDefaults.booths.first?.image)
     }
 
+    @Test func settingTheDefaultPictureKeepsItByteForByte() throws {
+        let host = try GameHost(repository: InMemoryGameRepository())
+        let first = try #require(host.boothCatalog.booths.first)
+        let defaultImage = try #require(first.image)
+        try host.removeBoothImage(first.id)
+        #expect(host.boothCatalog.booths.first?.image == nil)
+
+        try host.setBoothImage(first.id, imageData: defaultImage.jpeg)
+        #expect(host.boothCatalog.booths.first?.image == defaultImage)
+    }
+
     @Test func playersNeverReceiveStaffNotes() async throws {
         let harness = try HostHarness()
         try harness.host.saveBooth(Booth(title: "With notes", staffNotes: ["MC only"]))

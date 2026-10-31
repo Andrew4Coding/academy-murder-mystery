@@ -105,7 +105,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
-- Booths section: edit every booth (text, steps, staff notes, picture), add, delete and reorder them, or restore the booth guide defaults (default pictures included) ([0037](specs/features/0037-booth-details.md)).
+- Booths section: edit every booth (text, steps, staff notes, picture), add, delete and reorder them, or restore the booth guide defaults (default pictures included), or bring back one booth's default picture ([0037](specs/features/0037-booth-details.md)).
 - Host mode control in Devices: switch between self-host and the cloud host with the game state carried across, upload a cold-backup snapshot after every commit, and run the main game commands and the Public Display from the cloud ([0035](specs/features/0035-cloud-host-server.md), [0036](specs/features/0036-host-switching.md)).
 - Pause, resume, add or shorten time under the game clock, meeting and sabotage timers, and a bento Setup screen with native time steppers.
 - Booth map upload in Setup (PNG, JPEG or HEIC, shrunk to 3000 px) with preview, replace and remove; it stays across games and reaches every device ([0030](specs/features/0030-booth-map.md)).
