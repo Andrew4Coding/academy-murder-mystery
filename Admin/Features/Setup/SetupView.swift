@@ -41,7 +41,7 @@ struct SetupView: View {
     var body: some View {
         let issues = host.state.setupIssues(testing: testing)
         Form {
-            SetupBento {
+            SetupBento(title: "Game") {
                 Button(action: startFromForm) {
                     BentoTile(
                         title: isLobby ? "Start Game" : "Game in progress",
@@ -80,6 +80,11 @@ struct SetupView: View {
                     )
                     .disabled(!isLobby)
                 }
+                ToggleTile(title: "Debug Mode", subtitle: "Two families, no cooldowns", systemImage: "ladybug.fill", isOn: $debugMode)
+                    .disabled(!isLobby)
+            }
+
+            SetupBento(title: "Players") {
                 if !testing, let code = host.state.gameCode {
                     VStack(alignment: .leading, spacing: Spacing.sm) {
                         QRCodeView(text: code)
@@ -106,8 +111,9 @@ struct SetupView: View {
                 }
                 .buttonStyle(.plain)
                 .menuIndicator(.hidden)
-                ToggleTile(title: "Debug Mode", subtitle: "Two families, no cooldowns", systemImage: "ladybug.fill", isOn: $debugMode)
-                    .disabled(!isLobby)
+            }
+
+            SetupBento(title: "Meetings") {
                 DurationTile(
                     title: "Discussion",
                     subtitle: "Per meeting",
@@ -126,6 +132,9 @@ struct SetupView: View {
                     secondsStep: 60
                 )
                 .disabled(!isLobby)
+            }
+
+            SetupBento(title: "Sabotage", footer: "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.") {
                 DurationTile(title: "Reactor fix time", subtitle: "Villagers' window", systemImage: "bolt.fill", seconds: $sabotageDuration)
                     .disabled(!isLobby)
                 DurationTile(
@@ -146,6 +155,9 @@ struct SetupView: View {
                     range: 0 ... 600
                 )
                 .disabled(!isLobby)
+            }
+
+            SetupBento(title: "Bluetooth", footer: "Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.") {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Image(systemName: "dot.radiowaves.left.and.right").font(.title2).foregroundStyle(Theme.accent)
                         .accessibilityHidden(true)
