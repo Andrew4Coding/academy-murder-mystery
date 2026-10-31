@@ -78,7 +78,8 @@ scripts/check-branch-name.sh           # validate the current branch name
 - `GameClient.send` is a no-op until the host confirms the identity; sending earlier produced a stray "Join a family or enter the OC PIN first" error after reconnects.
 - The iPad admin is an OC device with `OCStation.admin` (signs in with the OC PIN): it gets `ClientView.admin` and may send `ClientMessage.admin`, checked in `GameHost.adminCommand`. It mirrors the Mac Game and Setup screens (every `AdminCommand`), and its `AdminFamilyRow.role` is only shown behind the Show Roles toggle. Other OC stations never receive roles. The iPad has no Simulation or Display.
 - Never encode ballots: `GameState.votes` is excluded from `Codable` on purpose (anonymous votes). Shared display strings for roles, life states and outcomes live in `Shared/Game/GameLabels.swift`; do not redefine them per target.
-- The Mac Admin app is the only authority: `GameHost` validates every client message through `GameEngine`, persists, then broadcasts a per-identity `ClientView`. Clients never run authoritative timers: use `ServerClock` / `GameClient.serverNow`.
+- The cloud host (spec 0035/0036, ADR 0009) is a TypeScript port in `cloud/` of `GameEngine` and `GameHost`. It speaks the same Codable JSON over `wss://`, and only one host is authoritative at a time: the registry (`GET /registry` on the cloud) says which. Phones pick it through `AdaptiveClientTransport`, falling back to Bonjour. Keep the two engines equal: after any rule or wire change, regenerate the golden fixtures with `MOONFALL_WRITE_FIXTURES=<dir>/cloud/test/fixtures` (see `Tests/Shared/GoldenFixtureGenerator.swift`) and run `npm test` in `cloud/`. Swift never encodes ballots, so the golden comparison ignores `votes` and `skipVotes`. Snapshots are cold backups only; a switch carries `HostState`, selfies and the booth map, and votes in flight are lost.
+- The Mac Admin app is the only authority on the LAN: `GameHost` validates every client message through `GameEngine`, persists, then broadcasts a per-identity `ClientView`. Clients never run authoritative timers: use `ServerClock` / `GameClient.serverNow`.
 - Network code uses closures that hop to the main actor via `MainActor.assumeIsolated`; keep logic in methods, not inside the closures (SwiftFormat strips the `self.` that the compiler wants there).
 - Smoke-test UI by building both apps with `-derivedDataPath`, opening the Mac app (unsigned builds run unsandboxed and store `~/Library/Application Support/default.store`), then launching the iOS app in a simulator: Bonjour works between them on one machine.
 - Debug Mode (`GameSettings.debugMode`, optional so stored games decode; read it via `isDebug`) allows 2 families, zeroes kill and sabotage cooldowns, and makes kills and parity never end the game. Rules live in `GameEngine` and `setupIssues`, not in views.
@@ -102,7 +103,7 @@ scripts/check-branch-name.sh           # validate the current branch name
 project.yml                  XcodeGen: one app target + one test bundle per platform
 Shared/App                   AppEnvironment (composition root)
 Shared/Game                  pure game engine: GameEngine, GameState, GameCommand, GameEvent, GameTypes, SeededGenerator
-Shared/Host                  GameHost (authority, sessions, persistence), GameClient, HostController, HostState, ClientView, HostClock, TestingTools
+Shared/Host                  GameHost (authority, sessions, persistence), GameClient, HostController, HostState, ClientView, HostClock, TestingTools; cloud switching: CloudConfig, HostRegistryClient, HostEndpointResolver, HostSnapshot, SnapshotUploader, HostModeController, CloudTakeoverController
 Shared/Net                   wire messages, length-prefixed Network.framework transports, loopback transport
 Shared/Data                  ModelContainerFactory, GameRepository (SwiftData + in-memory), Schema/ (SchemaV1: GameRecord, GameEventRecord)
 Shared/Features              feature views shared by targets (Timers/TimerControls, Setup/SetupTiles, Connection, Meeting/CountdownView, Map/BoothMapCard and BoothMapViewer)
@@ -118,6 +119,7 @@ iOS/                 MoonfalliOSApp, LiveActivity/ (GameActivityAttributes, Live
 Admin/                 MoonfallAdminApp (min window 720×480), RootView (sidebar: Setup, Game, Display, Simulation, Devices), a separate Public Display window, Features/ (Setup, Game, Display, Simulation, Devices), assets, entitlements, MoonfallAdmin.xcconfig
 LiveActivity/          widget extension: MoonfallLiveActivityBundle, GameLiveActivity (Lock Screen and Dynamic Island), display strings
 AdminiPad/             MoonfallAdminiPadApp, RootView (OC PIN sign-in), DashboardView (status, controls, family table); a client of the Mac host, never a host
+cloud/                       TypeScript cloud host (Node, Docker, SQLite) that can replace the Mac; CONTRACT.md is the API; own tests with `npm test`
 Tests/Shared                 compiled into every test bundle
 Tests/<TargetDir>            target-only tests (bundle-identifier smoke test)
 fastlane/                    Fastfile (shared lanes + one platform block per target), Appfile, Matchfile, metadata/<slug>
