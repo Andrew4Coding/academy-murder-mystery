@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BoothDetailView: View {
     let booth: Booth
-    let number: Int
     var showsStaffNotes = false
     var onClose: (() -> Void)?
 
@@ -23,12 +22,9 @@ struct BoothDetailView: View {
                             }
                     }
 
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        Text("Booth \(number)").font(.subheadline).foregroundStyle(Theme.textSecondary)
-                        Text(booth.title).font(.title.bold())
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityAddTraits(.isHeader)
+                    Text(booth.title)
+                        .font(.title.bold())
+                        .accessibilityAddTraits(.isHeader)
 
                     facts
 
@@ -48,7 +44,7 @@ struct BoothDetailView: View {
                         }
                     }
                     if !booth.stampRequirement.isEmpty {
-                        section("Stamp") { Text(booth.stampRequirement) }
+                        section("Done when") { Text(booth.stampRequirement) }
                     }
                     if showsStaffNotes, !booth.staffNotes.isEmpty {
                         section("Staff notes") {

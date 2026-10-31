@@ -33,7 +33,7 @@ struct BoothsView: View {
             }
             ToolbarItem {
                 Button("Restore Defaults", systemImage: "arrow.counterclockwise") { confirmingRestore = true }
-                    .help("Replace every booth with the four from the carnival guide")
+                    .help("Replace every booth with the defaults from the booth guide")
             }
         }
         .confirmationDialog("Restore the default booths?", isPresented: $confirmingRestore, titleVisibility: .visible) {
@@ -42,7 +42,7 @@ struct BoothsView: View {
                 actions.restoreDefaults()
             }
         } message: {
-            Text("This replaces every booth and edit with the four from the carnival guide. Pictures of those booths are kept.")
+            Text("This replaces every booth and edit with the defaults from the booth guide. Pictures of those booths are kept.")
         }
         .onChange(of: booths.map(\.id)) { _, ids in
             if let selection, !ids.contains(selection) {
@@ -53,20 +53,17 @@ struct BoothsView: View {
 
     private var list: some View {
         List(selection: $selection) {
-            ForEach(Array(booths.enumerated()), id: \.element.id) { index, booth in
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Booth \(index + 1)").font(.footnote).foregroundStyle(Theme.textSecondary)
-                    Text(booth.title.isEmpty ? "Untitled booth" : booth.title).font(.body.weight(.semibold))
-                }
-                .tag(booth.id)
-                .listRowBackground(Theme.surface)
-                .accessibilityElement(children: .combine)
-                .contextMenu {
-                    Button("Delete", systemImage: "trash", role: .destructive) { actions.delete(booth.id) }
-                }
-                .swipeActions(edge: .trailing) {
-                    Button("Delete", systemImage: "trash", role: .destructive) { actions.delete(booth.id) }
-                }
+            ForEach(booths) { booth in
+                Text(booth.title.isEmpty ? "Untitled booth" : booth.title)
+                    .font(.body.weight(.semibold))
+                    .tag(booth.id)
+                    .listRowBackground(Theme.surface)
+                    .contextMenu {
+                        Button("Delete", systemImage: "trash", role: .destructive) { actions.delete(booth.id) }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button("Delete", systemImage: "trash", role: .destructive) { actions.delete(booth.id) }
+                    }
             }
             .onMove { source, destination in
                 var ids = booths.map(\.id)
@@ -87,8 +84,8 @@ struct BoothsView: View {
 
     @ViewBuilder
     private var detail: some View {
-        if let selection, let index = booths.firstIndex(where: { $0.id == selection }) {
-            BoothEditorView(booth: booths[index], number: index + 1, actions: actions)
+        if let selection, let booth = booths.first(where: { $0.id == selection }) {
+            BoothEditorView(booth: booth, actions: actions)
                 .id(selection)
         } else {
             ContentUnavailableView(

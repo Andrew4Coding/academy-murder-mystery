@@ -3,7 +3,6 @@ import SwiftUI
 
 struct BoothEditorView: View {
     let booth: Booth
-    let number: Int
     let actions: BoothActions
 
     @State private var draft: Booth
@@ -13,9 +12,8 @@ struct BoothEditorView: View {
     @State private var isPreviewing = false
     @State private var confirmingDelete = false
 
-    init(booth: Booth, number: Int, actions: BoothActions) {
+    init(booth: Booth, actions: BoothActions) {
         self.booth = booth
-        self.number = number
         self.actions = actions
         _draft = State(initialValue: booth)
     }
@@ -35,7 +33,7 @@ struct BoothEditorView: View {
                 TextField("Location", text: $draft.location, axis: .vertical)
                 TextField("Capacity", text: $draft.capacity, axis: .vertical)
                 TextField("Duration", text: $draft.duration, axis: .vertical)
-                TextField("Stamp requirement", text: $draft.stampRequirement, axis: .vertical)
+                TextField("Done when", text: $draft.stampRequirement, axis: .vertical)
             }
 
             Section("Task") {
@@ -59,7 +57,7 @@ struct BoothEditorView: View {
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
-        .navigationTitle(booth.title.isEmpty ? "Booth \(number)" : booth.title)
+        .navigationTitle(booth.title.isEmpty ? "Untitled booth" : booth.title)
         .toolbar {
             ToolbarItem {
                 Button("Preview", systemImage: "eye") { isPreviewing = true }
@@ -75,7 +73,7 @@ struct BoothEditorView: View {
             }
         }
         .sheet(isPresented: $isPreviewing) {
-            BoothDetailView(booth: previewBooth, number: number, showsStaffNotes: true) { isPreviewing = false }
+            BoothDetailView(booth: previewBooth, showsStaffNotes: true) { isPreviewing = false }
                 .frame(minWidth: 380, minHeight: 520)
         }
         .confirmationDialog("Delete this booth?", isPresented: $confirmingDelete, titleVisibility: .visible) {
