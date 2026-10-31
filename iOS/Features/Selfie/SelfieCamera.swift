@@ -67,7 +67,7 @@ struct AvatarView: View {
                 Image(uiImage: image).resizable().scaledToFill()
             } else {
                 Text(name.prefix(1).uppercased())
-                    .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
+                    .font(.system(size: size * 0.45, weight: .semibold))
                     .foregroundStyle(Theme.text)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Theme.surfaceRaised)

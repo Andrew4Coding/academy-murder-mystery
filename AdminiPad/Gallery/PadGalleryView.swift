@@ -16,7 +16,6 @@
                                 .frame(height: 720)
                                 .background(Theme.background)
                                 .clipShape(.rect(cornerRadius: Radius.lg))
-                                .overlay(RoundedRectangle(cornerRadius: Radius.lg).stroke(Theme.separator, lineWidth: 1))
                         }
                     }
                 }

@@ -138,10 +138,6 @@ private struct RoleCard: View {
             .frame(maxWidth: .infinity, minHeight: 180)
             .padding(Spacing.md)
             .background(isRevealed ? Theme.surfaceRaised : Theme.surface, in: .rect(cornerRadius: Radius.lg))
-            .overlay(
-                RoundedRectangle(cornerRadius: Radius.lg)
-                    .stroke(isRevealed ? role.tint : Theme.separator, lineWidth: isRevealed ? 2 : 1)
-            )
             .contentShape(.rect(cornerRadius: Radius.lg))
         }
         .buttonStyle(.plain)

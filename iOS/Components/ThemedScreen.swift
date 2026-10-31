@@ -87,7 +87,6 @@ struct SecondaryButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, Spacing.md)
             .background(Theme.surfaceRaised, in: .rect(cornerRadius: Radius.md))
-            .overlay(RoundedRectangle(cornerRadius: Radius.md).stroke(Theme.separator, lineWidth: 1))
             .opacity(isEnabled ? (configuration.isPressed ? 0.7 : 1) : 0.45)
             .contentShape(.rect(cornerRadius: Radius.md))
     }
