@@ -34,6 +34,9 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- A phone the host no longer knows goes back to the join screen on its own instead of showing "not registered".
+- Families you walk past stay in the elimination list for 5 seconds, so it no longer flickers.
+- After the game ends, the Meeting and Actions tabs and the task and venue sections are removed.
 - Families show one name only, the "Fellow werewolf families" section is hidden for a lone werewolf, the discussion screen no longer lists the families or the skip count, and the skip button reads "Vote to skip discussion".
 - Sabotage no longer plays a sound on phones, so nobody can tell who the werewolves are.
 - Bluetooth kills and body reports keep working while the phone is locked or the app is in the background (not after force-quitting the app).
@@ -98,6 +101,10 @@ Tooling and refactors that users can't see don't go here.
 - iPad dashboard: connect to the Mac host with the OC PIN, see game status and families, start a discussion, add time, approve a skip and resolve a sabotage ([0017](specs/apps/admin/features/0017-ipad-admin.md)).
 
 ### MoonfallAdmin
+
+#### Added
+
+- Setup has its own Werewolf kill tile to set the kill cooldown (the iPad Setup has it too).
 
 #### Fixed
 
