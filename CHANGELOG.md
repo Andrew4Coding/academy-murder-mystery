@@ -10,6 +10,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Follows the active host: reads the registry and connects to the cloud host over `wss://`, or the Mac over the local network when the registry says local or cannot be reached ([0036](specs/features/0036-host-switching.md)).
 - Finds the game host on the local network and shows connection status ([0003](specs/features/0003-lan-host-transport.md)).
 - Join with a code or QR and see your role and tasks ([0004](specs/features/0004-lobby-and-roles.md)).
 - Meeting tab with discussion and voting timers, announced deaths, head-only anonymous voting and results ([0005](specs/features/0005-meetings-and-voting.md)).
@@ -81,6 +82,8 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- "Take over in cloud" with the OC PIN when the Mac is down, with the registry status shown ([0036](specs/features/0036-host-switching.md)).
+- Follows the active host: reads the registry and connects to the cloud host over `wss://`, or the Mac over the local network when the registry says local or cannot be reached ([0036](specs/features/0036-host-switching.md)).
 - Pause, resume, add or shorten time under the game clock, meeting and sabotage timers, and a bento Setup screen with native time steppers.
 - Setup, Game and Devices tabs with everything the Mac has except Simulation and Display: settings, Bluetooth range, join QR, OC PIN, booth map, families, stamps, eliminate and revive, proxy votes, timers, end game, new game and a connection check.
 - Booth map card on the dashboard opens the uploaded map in a zoomable viewer ([0030](specs/features/0030-booth-map.md)).
@@ -99,6 +102,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Host mode control in Devices: switch between self-host and the cloud host with the game state carried across, upload a cold-backup snapshot after every commit, and run the main game commands and the Public Display from the cloud ([0035](specs/features/0035-cloud-host-server.md), [0036](specs/features/0036-host-switching.md)).
 - Pause, resume, add or shorten time under the game clock, meeting and sabotage timers, and a bento Setup screen with native time steppers.
 - Booth map upload in Setup (PNG, JPEG or HEIC, shrunk to 3000 px) with preview, replace and remove; it stays across games and reaches every device ([0030](specs/features/0030-booth-map.md)).
 - Ring Bell button, separate from Start Discussion, plus a live Public Display preview in Display; the bell and the looped sabotage alarm are bundled sounds.
