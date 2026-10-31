@@ -39,6 +39,7 @@ struct DevicesTab: View {
             }
         }
         .themedBackground()
+        .safeAreaInset(edge: .top, spacing: 0) { TakeoverBar() }
         .navigationTitle("Devices")
         .toolbar {
             ToolbarItem {
