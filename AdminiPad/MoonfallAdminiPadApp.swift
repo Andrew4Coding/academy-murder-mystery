@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct MoonfallAdminiPadApp: App {
-    @State private var client = GameClient(transport: NetworkClientTransport(), store: UserDefaultsIdentityStore())
+    @State private var client = GameClient(transport: AdaptiveClientTransport.live(), store: UserDefaultsIdentityStore())
 
     var body: some Scene {
         WindowGroup {
