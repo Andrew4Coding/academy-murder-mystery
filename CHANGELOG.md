@@ -101,6 +101,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- In Cloud mode, Setup, Game, Families and Booths each show their own screen with the same controls as the iPad admin, instead of one shared summary page.
 - A refused pairing secret or PIN, or a "too many attempts" lockout, pauses cloud backups instead of retrying on every game change and extending the lockout. Saving the secret resumes them.
 - The Public Display freezes paused timers and shows "Paused", animates the sabotage banner in and out with a green "Sabotage fixed" banner, and lists families by name only.
 - The sabotage alarm plays from the main window (`sabotage.mp3`, else `alarm.mp3`) even when the Public Display window is closed, and stops while the sabotage timer is paused.
