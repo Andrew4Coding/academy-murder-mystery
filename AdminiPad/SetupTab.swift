@@ -38,18 +38,11 @@ struct SetupTab: View {
             }
 
             SetupBento(title: "Family count") {
-                StatTile(
-                    title: "Families",
-                    value: "\(admin.families.count)",
-                    subtitle: "\(admin.playersJoined) players joined",
-                    systemImage: "person.3.fill"
-                )
                 StepperTile(
                     title: "Werewolf families",
                     subtitle: "Fewer than half of all families",
                     systemImage: "moon.stars.fill",
-                    valueText: "\(admin.werewolfCount)",
-                    value: Binding(
+                                        value: Binding(
                         get: { admin.werewolfCount },
                         set: { send(werewolfCount: $0, settings: admin.settings) }
                     ),
@@ -159,7 +152,7 @@ struct SetupTab: View {
                     title: "Sighting valid for",
                     subtitle: "Seconds a Bluetooth sighting counts",
                     systemImage: "eye.fill",
-                    valueText: "\(Int(admin.sightingFreshness)) s",
+                    unit: "s",
                     value: Binding(
                         get: { Int(admin.sightingFreshness) },
                         set: { client.send(.admin(.setProximity(rssiThreshold: admin.rssiThreshold, sightingFreshness: TimeInterval($0)))) }

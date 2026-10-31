@@ -58,19 +58,12 @@ struct SetupView: View {
             }
 
             SetupBento(title: "Family count") {
-                StatTile(
-                    title: "Families",
-                    value: "\(host.state.families.count)",
-                    subtitle: "\(host.state.players.count) players joined",
-                    systemImage: "person.3.fill"
-                )
                 if testing {
                     StepperTile(
                         title: "Families",
                         subtitle: "Rehearsal size",
                         systemImage: "person.crop.rectangle.stack.fill",
-                        valueText: "\(familyCount)",
-                        value: $familyCount,
+                                                value: $familyCount,
                         range: 1 ... 40
                     )
                     .disabled(!isLobby)
@@ -79,8 +72,7 @@ struct SetupView: View {
                         title: "Werewolf families",
                         subtitle: "Fewer than half of all families",
                         systemImage: "moon.stars.fill",
-                        valueText: "\(werewolfCount)",
-                        value: $werewolfCount,
+                                                value: $werewolfCount,
                         range: 1 ... 10
                     )
                     .disabled(!isLobby)
@@ -175,7 +167,7 @@ struct SetupView: View {
                     title: "Sighting valid for",
                     subtitle: "Seconds a Bluetooth sighting counts",
                     systemImage: "eye.fill",
-                    valueText: "\(sightingFreshness) s",
+                    unit: "s",
                     value: $sightingFreshness,
                     range: 1 ... 10
                 )
