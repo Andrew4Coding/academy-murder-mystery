@@ -53,6 +53,11 @@ struct SetupView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!isLobby || !issues.isEmpty)
+                ToggleTile(title: "Debug Mode", subtitle: "Two families, no cooldowns", systemImage: "ladybug.fill", isOn: $debugMode)
+                    .disabled(!isLobby)
+            }
+
+            SetupBento(title: "Family count") {
                 StatTile(
                     title: "Families",
                     value: "\(host.state.families.count)",
@@ -80,8 +85,6 @@ struct SetupView: View {
                     )
                     .disabled(!isLobby)
                 }
-                ToggleTile(title: "Debug Mode", subtitle: "Two families, no cooldowns", systemImage: "ladybug.fill", isOn: $debugMode)
-                    .disabled(!isLobby)
             }
 
             SetupBento(title: "Players") {
