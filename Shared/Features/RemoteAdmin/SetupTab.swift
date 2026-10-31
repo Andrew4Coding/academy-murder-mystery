@@ -42,7 +42,7 @@ struct SetupTab: View {
                     title: "Werewolf families",
                     subtitle: "Fewer than half of all families",
                     systemImage: "moon.stars.fill",
-                                        value: Binding(
+                    value: Binding(
                         get: { admin.werewolfCount },
                         set: { send(werewolfCount: $0, settings: admin.settings) }
                     ),
@@ -110,7 +110,11 @@ struct SetupTab: View {
                 .disabled(!admin.isLobby)
             }
 
-            SetupBento(title: "Sabotage", footer: "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.") {
+            SetupBento(
+                title: "Sabotage",
+                footer: "Fix time is how long villagers have at the booth. "
+                    + "After a sabotage, the cooldown of the booth that was used applies to every werewolf family."
+            ) {
                 DurationTile(
                     title: "Reactor fix time",
                     subtitle: "Villagers' window",
@@ -143,7 +147,10 @@ struct SetupTab: View {
                 .disabled(!admin.isLobby)
             }
 
-            SetupBento(title: "Bluetooth", footer: "Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue.") {
+            SetupBento(
+                title: "Bluetooth",
+                footer: "Higher (closer to zero) means players must stand closer for a kill. Calibrate with real phones at the venue."
+            ) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Image(systemName: "dot.radiowaves.left.and.right").font(.title2).foregroundStyle(Theme.accent)
                         .accessibilityHidden(true)
@@ -174,51 +181,9 @@ struct SetupTab: View {
                 )
             }
 
+            boothMapSection
 
-            Section {
-                if let map = client.boothMap {
-                    BoothMapCard(map: map) { isShowingMap = true }
-                    HStack {
-                        Button("Replace…") { isChoosingMap = true }
-                        Button("Remove", role: .destructive) { client.send(.admin(.removeBoothMap)) }
-                    }
-                    .buttonStyle(.bordered)
-                } else {
-                    Button("Choose Image…", systemImage: "map") { isChoosingMap = true }
-                }
-                if let mapError {
-                    StatusLabel.error(mapError)
-                }
-            } header: {
-                Text("Booth map")
-            } footer: {
-                Text("Optional. Players and OC devices can open it. Large images are shrunk to 3000 px.")
-            }
-            .themedRows()
-
-            Section("Families") {
-                ForEach(admin.families) { family in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(family.name)
-                            Text(family.playerName ?? "Waiting for a player…").font(.subheadline).foregroundStyle(Theme.textSecondary)
-                        }
-                        Spacer()
-                        Button("Rename \(family.name)", systemImage: "pencil") {
-                            renameText = family.name
-                            renaming = family
-                        }
-                        .labelStyle(.iconOnly)
-                        .frame(minWidth: 44, minHeight: 44)
-                        Button("Delete \(family.name)", systemImage: "trash", role: .destructive) { deleting = family }
-                            .labelStyle(.iconOnly)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .disabled(!admin.isLobby)
-                    }
-                    .buttonStyle(.borderless)
-                }
-            }
-            .themedRows()
+            familiesSection
 
             if let error = client.lastError {
                 Section { StatusLabel.error(error) }
@@ -232,9 +197,10 @@ struct SetupTab: View {
                 Button("New Game", systemImage: "arrow.counterclockwise") { confirmingNewGame = true }
             }
         }
-        .fullScreenCover(isPresented: $isShowingMap) {
+        .sheet(isPresented: $isShowingMap) {
             if let map = client.boothMap {
                 BoothMapViewer(map: map) { isShowingMap = false }
+                    .presentationSizing(.page)
             }
         }
         .onChange(of: client.boothMap == nil) { _, gone in
@@ -281,8 +247,59 @@ struct SetupTab: View {
             Text("This removes every family, player and result from the current game.")
         }
     }
+}
 
-    private static func clock(_ seconds: TimeInterval) -> String {
+extension SetupTab {
+    private var boothMapSection: some View {
+        Section {
+            if let map = client.boothMap {
+                BoothMapCard(map: map) { isShowingMap = true }
+                HStack {
+                    Button("Replace…") { isChoosingMap = true }
+                    Button("Remove", role: .destructive) { client.send(.admin(.removeBoothMap)) }
+                }
+                .buttonStyle(.bordered)
+            } else {
+                Button("Choose Image…", systemImage: "map") { isChoosingMap = true }
+            }
+            if let mapError {
+                StatusLabel.error(mapError)
+            }
+        } header: {
+            Text("Booth map")
+        } footer: {
+            Text("Optional. Players and OC devices can open it. Large images are shrunk to 3000 px.")
+        }
+        .themedRows()
+    }
+
+    private var familiesSection: some View {
+        Section("Families") {
+            ForEach(admin.families) { family in
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(family.name)
+                        Text(family.playerName ?? "Waiting for a player…").font(.subheadline).foregroundStyle(Theme.textSecondary)
+                    }
+                    Spacer()
+                    Button("Rename \(family.name)", systemImage: "pencil") {
+                        renameText = family.name
+                        renaming = family
+                    }
+                    .labelStyle(.iconOnly)
+                    .frame(minWidth: 44, minHeight: 44)
+                    Button("Delete \(family.name)", systemImage: "trash", role: .destructive) { deleting = family }
+                        .labelStyle(.iconOnly)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .disabled(!admin.isLobby)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+        .themedRows()
+    }
+
+    fileprivate static func clock(_ seconds: TimeInterval) -> String {
         Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))
     }
 

@@ -56,6 +56,6 @@ Automatic failover, selfie deltas, Keychain pairing storage.
 
 ## Implementation notes
 
-- Swift: `Shared/Net/{WebSocketClientTransport,AdaptiveClientTransport}`, `Shared/Host/{CloudConfig,HostRegistryClient,HostEndpointResolver,HostSnapshot,SnapshotUploader,HostModeController,CloudTakeoverController}`, `Admin/Features/Devices/HostModeSection`, `Admin/Features/Game/CloudControlView`.
+- Swift: `Shared/Net/{WebSocketClientTransport,AdaptiveClientTransport}`, `Shared/Host/{CloudConfig,HostRegistryClient,HostEndpointResolver,HostSnapshot,SnapshotUploader,HostModeController,CloudTakeoverController}`, `Admin/Features/Devices/HostModeSection`, `Admin/Features/Cloud/CloudAdminScreen` (the Mac shows the iPad admin tabs from `Shared/Features/RemoteAdmin` in Cloud mode).
 - Server and contract: `cloud/` (see `cloud/CONTRACT.md`). Golden fixtures are written by `Tests/Shared/GoldenFixtureGenerator.swift` when `MOONFALL_WRITE_FIXTURES=<dir>` is set.
-- Not yet verified: live deployment, real-device WebSocket backgrounding. Votes cast before a switch are lost because ballots are never encoded. In Cloud mode the Mac has only the main commands plus the Public Display; full controls are on the iPad.
+- Not yet verified: live deployment, real-device WebSocket backgrounding. Votes cast before a switch are lost because ballots are never encoded. In Cloud mode the Mac shows the same Setup, Game, Families and Booths tabs as the iPad admin, sent to the cloud as `AdminCommand`s, plus the Public Display.
