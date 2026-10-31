@@ -54,7 +54,7 @@ struct FamilyQuery: EntityQuery {
     }
 }
 
-// Replies stay neutral so a spoken answer never reveals a role or an action to people nearby.
+/// Replies stay neutral so a spoken answer never reveals a role or an action to people nearby.
 private enum IntentReply {
     static let unavailable: LocalizedStringResource = "Not available right now."
 
@@ -84,7 +84,7 @@ struct KillNearbyFamilyIntent: AppIntent {
             return .result(dialog: game.nearby.isEmpty ? "No one nearby." : "More than one family is nearby. Use the app.")
         }
         client.send(.kill(victim: target.id))
-        return .result(dialog: IntentDialog(await IntentReply.hostReply(from: client, sent: "Sent.")))
+        return await .result(dialog: IntentDialog(IntentReply.hostReply(from: client, sent: "Sent.")))
     }
 }
 
@@ -109,7 +109,7 @@ struct StartSabotageIntent: AppIntent {
             return .result(dialog: IntentDialog(IntentReply.unavailable))
         }
         client.send(.requestSabotage(kind))
-        return .result(dialog: IntentDialog(await IntentReply.hostReply(from: client, sent: "Sent.")))
+        return await .result(dialog: IntentDialog(IntentReply.hostReply(from: client, sent: "Sent.")))
     }
 }
 
@@ -132,7 +132,7 @@ struct VoteForFamilyIntent: AppIntent {
             return .result(dialog: IntentDialog(IntentReply.unavailable))
         }
         client.send(.vote(.family(FamilyID(family.id))))
-        return .result(dialog: IntentDialog(await IntentReply.hostReply(from: client, sent: "Vote sent.")))
+        return await .result(dialog: IntentDialog(IntentReply.hostReply(from: client, sent: "Vote sent.")))
     }
 }
 
@@ -146,7 +146,7 @@ struct VoteSkipIntent: AppIntent {
             return .result(dialog: IntentDialog(IntentReply.unavailable))
         }
         client.send(.vote(.skip))
-        return .result(dialog: IntentDialog(await IntentReply.hostReply(from: client, sent: "Vote sent.")))
+        return await .result(dialog: IntentDialog(IntentReply.hostReply(from: client, sent: "Vote sent.")))
     }
 }
 
@@ -160,7 +160,7 @@ struct SkipDiscussionIntent: AppIntent {
             return .result(dialog: IntentDialog(IntentReply.unavailable))
         }
         client.send(.voteSkipDiscussion)
-        return .result(dialog: IntentDialog(await IntentReply.hostReply(from: client, sent: "Sent.")))
+        return await .result(dialog: IntentDialog(IntentReply.hostReply(from: client, sent: "Sent.")))
     }
 }
 
