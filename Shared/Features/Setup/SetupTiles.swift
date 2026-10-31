@@ -234,6 +234,8 @@ struct StepperTile: View {
             Spacer(minLength: Spacing.sm)
             HStack(alignment: .firstTextBaseline) {
                 TextField(title, value: clamped, format: .number)
+                    .labelsHidden()
+                    .accessibilityLabel(title)
                     .font(.largeTitle.bold())
                     .monospacedDigit()
                     .textFieldStyle(.plain)
