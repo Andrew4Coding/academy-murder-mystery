@@ -27,7 +27,7 @@ extension View {
     }
 
     func countdownDisplay() -> some View {
-        scaledSystemFont(size: 56, weight: .bold, design: .rounded)
+        scaledSystemFont(size: 56, weight: .bold, design: .default)
             .lineLimit(1)
             .minimumScaleFactor(0.5)
     }

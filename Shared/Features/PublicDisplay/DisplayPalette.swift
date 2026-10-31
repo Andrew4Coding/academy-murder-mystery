@@ -10,9 +10,7 @@ enum DisplayPalette {
     static let redBright = Color(red: 229 / 255, green: 56 / 255, blue: 59 / 255)
     static let grey = Color(red: 158 / 255, green: 150 / 255, blue: 164 / 255)
 
-    static func cardFill(reduceTransparency: Bool) -> Color {
-        reduceTransparency ? card : Color.white.opacity(0.07)
-    }
+    static let alarmBase = Color(red: 38 / 255, green: 10 / 255, blue: 16 / 255)
 }
 
 extension PublicDisplayLayout {
@@ -26,14 +24,14 @@ extension PublicDisplayLayout {
 
 extension Font {
     static func stage(_ size: CGFloat, weight: Font.Weight = .heavy) -> Font {
-        Font.system(size: size, weight: weight, design: .default).width(.condensed)
+        Font.system(size: size, weight: weight)
     }
 
     static func stageRounded(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
-        .system(size: size, weight: weight, design: .rounded)
+        .system(size: size, weight: weight)
     }
 
     static func stageDigits(_ size: CGFloat) -> Font {
-        Font.system(size: size, weight: .bold, design: .rounded).monospacedDigit()
+        Font.system(size: size, weight: .bold).monospacedDigit()
     }
 }

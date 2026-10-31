@@ -27,7 +27,6 @@ struct ThemedCard: ViewModifier {
         content
             .padding(Spacing.md)
             .background(Theme.surface, in: .rect(cornerRadius: Radius.lg))
-            .overlay(RoundedRectangle(cornerRadius: Radius.lg).stroke(Theme.separator, lineWidth: 1))
     }
 }
 
