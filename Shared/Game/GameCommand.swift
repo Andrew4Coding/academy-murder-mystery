@@ -12,6 +12,8 @@ enum OCOverride: Codable, Equatable, Sendable {
     case endGame(Side)
     case proxyVote(FamilyID)
     case timerAdjusted(TimerTarget, seconds: TimeInterval)
+    case timerPaused(TimerTarget)
+    case timerResumed(TimerTarget)
 }
 
 enum GameCommand: Codable, Equatable, Sendable {
@@ -24,6 +26,8 @@ enum GameCommand: Codable, Equatable, Sendable {
     case proxyVote(for: FamilyID, choice: VoteChoice)
     case extendMeeting(seconds: TimeInterval)
     case adjustTimer(TimerTarget, seconds: TimeInterval)
+    case pauseTimer(TimerTarget)
+    case resumeTimer(TimerTarget)
     case voteSkipDiscussion(by: FamilyID)
     case approveSkipDiscussion
     case override(OCOverride)

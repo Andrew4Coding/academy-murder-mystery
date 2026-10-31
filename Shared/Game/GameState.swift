@@ -22,11 +22,12 @@ struct GameState: Codable, Equatable, Sendable {
     var finalVoteStarted = false
     var finalVoteOverride: Date?
     var finalVotePending = false
+    var timerPausedAt: [TimerTarget: Date]?
 
     /// Ballots are deliberately not encoded: stored games keep tallies, never who voted for whom.
     private enum CodingKeys: String, CodingKey {
         case settings, startedAt, families, phase, sabotage, sabotageReadyAt
-        case announcedDeaths, lastResult, deadSinceLastMeeting, finalVoteStarted, finalVotePending, finalVoteOverride
+        case announcedDeaths, lastResult, deadSinceLastMeeting, finalVoteStarted, finalVotePending, finalVoteOverride, timerPausedAt
     }
 
     var finalVoteAt: Date {

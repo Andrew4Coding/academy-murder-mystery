@@ -70,4 +70,39 @@ struct GameEngineTimerTests {
         #expect(decoded.state.finalVoteOverride == nil)
         #expect(decoded.state.finalVoteAt == fixture.engine.state.finalVoteAt)
     }
+
+    @Test func pausedMeetingDoesNotExpireAndResumesWithTheTimeLeft() throws {
+        var fixture = try Fixture()
+        try fixture.apply(.startMeeting, at: 100)
+        let events = try fixture.apply(.pauseTimer(.meeting), at: 150)
+        #expect(events.kinds == [.ocOverride(.timerPaused(.meeting))])
+        #expect(fixture.advance(to: 1000).isEmpty)
+        try fixture.apply(.resumeTimer(.meeting), at: 1000)
+        #expect(fixture.engine.state.phase == .discussion(until: at(1070)))
+        #expect(fixture.engine.state.timerPausedAt == nil)
+    }
+
+    @Test func pausedSabotageNeverExpires() throws {
+        var fixture = try Fixture()
+        try fixture.apply(.requestSabotage(by: fixture.werewolves[0], kind: .reactor), at: 130)
+        let original = try #require(fixture.engine.state.sabotage).endsAt
+        try fixture.apply(.pauseTimer(.sabotage), at: 140)
+        #expect(fixture.advance(to: original.timeIntervalSinceReferenceDate + 500).outcome == nil)
+        try fixture.apply(.resumeTimer(.sabotage), at: original.timeIntervalSinceReferenceDate + 500)
+        #expect(fixture.engine.state.sabotage?.endsAt == original.addingTimeInterval(original.timeIntervalSinceReferenceDate + 500 - 140))
+    }
+
+    @Test func pausingNeedsARunningTimer() throws {
+        var fixture = try Fixture()
+        #expect(throws: RuleError.wrongPhase) { try fixture.apply(.pauseTimer(.meeting), at: 10) }
+        #expect(throws: RuleError.noActiveSabotage) { try fixture.apply(.pauseTimer(.sabotage), at: 10) }
+    }
+
+    @Test func pauseIsDroppedWhenTheTimerEnds() throws {
+        var fixture = try Fixture()
+        try fixture.apply(.requestSabotage(by: fixture.werewolves[0], kind: .reactor), at: 130)
+        try fixture.apply(.pauseTimer(.sabotage), at: 140)
+        try fixture.apply(.resolveSabotage, at: 150)
+        #expect(fixture.engine.state.timerPausedAt == nil)
+    }
 }

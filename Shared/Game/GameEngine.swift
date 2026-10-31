@@ -74,8 +74,18 @@ struct GameEngine: Codable, Equatable, Sendable {
         var events = next.settle(upTo: now)
         guard next.state.outcome == nil else { throw RuleError.gameEnded }
         events += try next.perform(command, at: now)
+        next.dropFinishedPauses()
         self = next
         return events
+    }
+}
+
+private extension Phase {
+    var isMeetingPhase: Bool {
+        switch self {
+        case .discussion, .voting: true
+        case .running, .ended: false
+        }
     }
 }
 
@@ -90,8 +100,27 @@ private extension GameEngine {
         var events: [GameEvent] = []
         while let (time, timer) = nextTimer(), time <= now {
             events += fire(timer, at: time)
+            dropFinishedPauses()
         }
         return events
+    }
+
+    var pausedTimers: [TimerTarget: Date] {
+        state.timerPausedAt ?? [:]
+    }
+
+    mutating func dropFinishedPauses() {
+        var paused = pausedTimers
+        if !state.phase.isMeetingPhase {
+            paused[.meeting] = nil
+        }
+        if state.finalVoteStarted || state.outcome != nil {
+            paused[.finalVote] = nil
+        }
+        if state.sabotage == nil {
+            paused[.sabotage] = nil
+        }
+        state.timerPausedAt = paused.isEmpty ? nil : paused
     }
 
     func nextTimer() -> (Date, Timer)? {
@@ -102,15 +131,18 @@ private extension GameEngine {
                 best = (time, timer)
             }
         }
-        if let sabotage = state.sabotage {
+        let paused = pausedTimers
+        if let sabotage = state.sabotage, paused[.sabotage] == nil {
             consider(sabotage.endsAt, .sabotageExpiry)
         }
-        switch state.phase {
-        case let .discussion(until): consider(until, .phaseEnd)
-        case let .voting(until, _): consider(until, .phaseEnd)
-        case .running, .ended: break
+        if paused[.meeting] == nil {
+            switch state.phase {
+            case let .discussion(until): consider(until, .phaseEnd)
+            case let .voting(until, _): consider(until, .phaseEnd)
+            case .running, .ended: break
+            }
         }
-        if !state.finalVoteStarted {
+        if !state.finalVoteStarted, paused[.finalVote] == nil {
             consider(state.finalVoteAt, .finalVote)
         }
         return best
@@ -165,6 +197,8 @@ private extension GameEngine {
         case let .proxyVote(family, choice): try proxyVote(for: family, choice: choice, at: now)
         case let .extendMeeting(seconds): try extendMeeting(by: seconds)
         case let .adjustTimer(target, seconds): try adjustTimer(target, by: seconds, at: now)
+        case let .pauseTimer(target): try pauseTimer(target, at: now)
+        case let .resumeTimer(target): try resumeTimer(target, at: now)
         case let .voteSkipDiscussion(by): try voteSkipDiscussion(by: by, at: now)
         case .approveSkipDiscussion: try approveSkipDiscussion(at: now)
         case let .override(override): try applyOverride(override, at: now)
@@ -245,7 +279,7 @@ private extension GameEngine {
     }
 
     mutating func adjustTimer(_ target: TimerTarget, by seconds: TimeInterval, at now: Date) throws -> [GameEvent] {
-        let floor = now.addingTimeInterval(1)
+        let floor = (pausedTimers[target] ?? now).addingTimeInterval(1)
         func moved(_ end: Date) -> Date {
             max(end.addingTimeInterval(seconds), floor)
         }
@@ -270,6 +304,46 @@ private extension GameEngine {
         return [GameEvent(at: now, kind: .ocOverride(.timerAdjusted(target, seconds: seconds)))]
     }
 
+    func requireRunning(_ target: TimerTarget) throws {
+        switch target {
+        case .meeting:
+            guard state.phase.isMeetingPhase else { throw RuleError.wrongPhase }
+        case .finalVote:
+            guard !state.finalVoteStarted else { throw RuleError.timerFinished }
+        case .sabotage:
+            guard state.sabotage != nil else { throw RuleError.noActiveSabotage }
+        }
+    }
+
+    mutating func pauseTimer(_ target: TimerTarget, at now: Date) throws -> [GameEvent] {
+        try requireRunning(target)
+        guard pausedTimers[target] == nil else { return [] }
+        state.timerPausedAt = pausedTimers.merging([target: now]) { $1 }
+        return [GameEvent(at: now, kind: .ocOverride(.timerPaused(target)))]
+    }
+
+    mutating func resumeTimer(_ target: TimerTarget, at now: Date) throws -> [GameEvent] {
+        try requireRunning(target)
+        guard let pausedAt = pausedTimers[target] else { return [] }
+        let gap = max(0, now.timeIntervalSince(pausedAt))
+        switch target {
+        case .meeting:
+            switch state.phase {
+            case let .discussion(until): state.phase = .discussion(until: until.addingTimeInterval(gap))
+            case let .voting(until, isFinal): state.phase = .voting(until: until.addingTimeInterval(gap), isFinal: isFinal)
+            case .running, .ended: break
+            }
+        case .finalVote:
+            state.finalVoteOverride = state.finalVoteAt.addingTimeInterval(gap)
+        case .sabotage:
+            state.sabotage?.endsAt.addTimeInterval(gap)
+        }
+        var paused = pausedTimers
+        paused[target] = nil
+        state.timerPausedAt = paused.isEmpty ? nil : paused
+        return [GameEvent(at: now, kind: .ocOverride(.timerResumed(target)))]
+    }
+
     mutating func voteSkipDiscussion(by id: FamilyID, at now: Date) throws -> [GameEvent] {
         guard case .discussion = state.phase else { throw RuleError.wrongPhase }
         guard try state.family(id).isAlive else { throw RuleError.familyNotAlive(id) }
@@ -284,6 +358,7 @@ private extension GameEngine {
 
     mutating func skipDiscussion(at now: Date) -> [GameEvent] {
         state.skipVotes = []
+        state.timerPausedAt?[.meeting] = nil
         state.phase = .voting(until: now.addingTimeInterval(state.settings.votingDuration), isFinal: false)
         return [GameEvent(at: now, kind: .votingOpened(isFinal: false))]
     }
@@ -334,7 +409,7 @@ private extension GameEngine {
             events += evaluateWin(at: now)
         case let .endGame(side):
             events += end(side, .ocEnded, at: now)
-        case .proxyVote, .timerAdjusted:
+        case .proxyVote, .timerAdjusted, .timerPaused, .timerResumed:
             throw RuleError.wrongPhase
         }
         return events

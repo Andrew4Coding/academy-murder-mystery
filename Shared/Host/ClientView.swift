@@ -89,6 +89,7 @@ struct AdminView: Codable, Equatable, Sendable {
     var lastResult: VoteResultView?
     var votesCast = 0
     var devices: [DeviceStatus] = []
+    var timerPausedAt: [TimerTarget: Date] = [:]
 }
 
 struct OCView: Codable, Equatable, Sendable {

@@ -72,7 +72,8 @@ extension GameHost {
             setupIssues: engine == nil ? state.setupIssues() : [],
             lastResult: engine?.state.lastResult.map(publicResult),
             votesCast: engine?.state.votes.count ?? 0,
-            devices: deviceStatuses()
+            devices: deviceStatuses(),
+            timerPausedAt: engine?.state.timerPausedAt ?? [:]
         )
     }
 
