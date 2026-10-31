@@ -96,6 +96,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Fixed
 
+- Devices keeps the sidebar and shows the Self-host / Cloud host mode control, which had collapsed to nothing ([0036](specs/features/0036-host-switching.md)).
 - Setup now picks up changes made from the iPad instead of overwriting them with stale values.
 - App icon is shared with the iOS apps, from one Icon Composer bundle.
 - Sidebar rows can be clicked again.
