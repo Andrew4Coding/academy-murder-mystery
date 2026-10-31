@@ -4,6 +4,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
     case setup
     case game
     case families
+    case booths
     case devices
 
     var id: String {
@@ -15,6 +16,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
         case .setup: "Setup"
         case .game: "Game"
         case .families: "Families"
+        case .booths: "Booths"
         case .devices: "Devices"
         }
     }
@@ -24,6 +26,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
         case .setup: "slider.horizontal.3"
         case .game: "gamecontroller"
         case .families: "person.3"
+        case .booths: "square.grid.2x2"
         case .devices: "iphone.gen3.radiowaves.left.and.right"
         }
     }
@@ -55,6 +58,7 @@ struct DashboardView: View {
                 case .setup: SetupTab(admin: admin, client: client)
                 case .game: GameTab(admin: admin, client: client)
                 case .families: FamiliesTab(admin: admin, client: client)
+                case .booths: BoothsTab(client: client)
                 case .devices: DevicesTab(admin: admin, client: client)
                 }
             }

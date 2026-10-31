@@ -4,6 +4,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
     case setup
     case game
     case families
+    case booths
     case display
     case simulation
     case devices
@@ -17,6 +18,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
         case .setup: "Setup"
         case .game: "Game"
         case .families: "Families"
+        case .booths: "Booths"
         case .display: "Display"
         case .simulation: "Simulation"
         case .devices: "Devices"
@@ -28,6 +30,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
         case .setup: "slider.horizontal.3"
         case .game: "gamecontroller"
         case .families: "person.3"
+        case .booths: "square.grid.2x2"
         case .display: "tv"
         case .simulation: "testtube.2"
         case .devices: "iphone.gen3.radiowaves.left.and.right"
@@ -64,7 +67,8 @@ struct RootView: View {
             .accessibilityLabel("Sections")
         } detail: {
             switch selection ?? .setup {
-            case .setup where mode.phase == .cloud, .game where mode.phase == .cloud, .families where mode.phase == .cloud:
+            case .setup where mode.phase == .cloud, .game where mode.phase == .cloud, .families where mode.phase == .cloud,
+                 .booths where mode.phase == .cloud:
                 CloudControlView(mode: mode, title: (selection ?? .setup).title)
             case .setup:
                 SetupView(controller: controller)
@@ -72,6 +76,8 @@ struct RootView: View {
                 GameControlView(controller: controller)
             case .families:
                 FamiliesView(controller: controller)
+            case .booths:
+                BoothsAdminView(controller: controller)
             case .display:
                 DisplaySettingsView(controller: controller, mode: mode)
             case .simulation:

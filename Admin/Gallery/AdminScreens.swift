@@ -70,6 +70,10 @@
             AdminGalleryEntry("Families: voting") { HostScreen(.voting) { FamiliesView(controller: $0) } }
         ]
 
+        static let booths: [AdminGalleryEntry] = [
+            AdminGalleryEntry("Booths: guide defaults") { HostScreen(.lobbyReady) { BoothsAdminView(controller: $0) } }
+        ]
+
         static let devices: [AdminGalleryEntry] = [
             AdminGalleryEntry("Devices: none connected") { DevicesScreen(devices: []) },
             AdminGalleryEntry("Devices: mixed status") { DevicesScreen(devices: AdminFixtures.devices()) }
@@ -79,7 +83,7 @@
             AdminGalleryEntry("Simulation: \(stage.title.lowercased())") { SimulationScreen(stage) }
         }
 
-        static let all = setup + game + families + devices + simulation
+        static let all = setup + game + families + booths + devices + simulation
     }
 
     #Preview("Setup: issues to fix", traits: .fixedLayout(width: 960, height: 700)) { AdminScreens.setup[0].screen }
@@ -94,6 +98,7 @@
     #Preview("Families: no game yet", traits: .fixedLayout(width: 960, height: 560)) { AdminScreens.families[0].screen }
     #Preview("Families: running", traits: .fixedLayout(width: 960, height: 560)) { AdminScreens.families[1].screen }
     #Preview("Families: voting", traits: .fixedLayout(width: 960, height: 560)) { AdminScreens.families[2].screen }
+    #Preview("Booths: guide defaults", traits: .fixedLayout(width: 960, height: 640)) { AdminScreens.booths[0].screen }
     #Preview("Devices: none connected", traits: .fixedLayout(width: 960, height: 480)) { AdminScreens.devices[0].screen }
     #Preview("Devices: mixed status", traits: .fixedLayout(width: 960, height: 480)) { AdminScreens.devices[1].screen }
     #Preview("Simulation: not started", traits: .fixedLayout(width: 960, height: 640)) { AdminScreens.simulation[0].screen }
