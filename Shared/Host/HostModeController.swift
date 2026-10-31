@@ -59,7 +59,10 @@ final class HostModeController {
 
     var pairingSecret: String {
         get { defaults.string(forKey: CloudConfig.pairingSecretKey) ?? "" }
-        set { defaults.set(newValue.trimmingCharacters(in: .whitespacesAndNewlines), forKey: CloudConfig.pairingSecretKey) }
+        set {
+            defaults.set(newValue.trimmingCharacters(in: .whitespacesAndNewlines), forKey: CloudConfig.pairingSecretKey)
+            uploader.resume()
+        }
     }
 
     var credential: RegistryCredential? {

@@ -7,6 +7,7 @@ final class FakeRegistry: HostRegistry {
     var reachable = true
     var stored: HostSnapshot?
     var live: HostSnapshot?
+    var rejection: RegistryError?
     var failImport = false
     var failSetMode = false
     var putDelay: Duration = .zero
@@ -18,6 +19,9 @@ final class FakeRegistry: HostRegistry {
         calls.append(name)
         if !reachable {
             throw RegistryError.unreachable("offline")
+        }
+        if let rejection {
+            throw rejection
         }
     }
 

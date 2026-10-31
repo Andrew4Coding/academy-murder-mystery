@@ -14,11 +14,12 @@ final class SnapshotUploader {
     var isEnabled = false {
         didSet {
             if isEnabled, !oldValue {
-                schedule()
+                resume()
             }
         }
     }
 
+    @ObservationIgnored private var isPaused = false
     @ObservationIgnored private let host: GameHost
     @ObservationIgnored private let registry: any HostRegistry
     @ObservationIgnored private var dirty = false
@@ -38,8 +39,13 @@ final class SnapshotUploader {
         }
     }
 
+    func resume() {
+        isPaused = false
+        schedule()
+    }
+
     func schedule() {
-        guard isEnabled, !host.state.simulated else { return }
+        guard isEnabled, !isPaused, !host.state.simulated else { return }
         dirty = true
         guard running == nil else { return }
         running = Task { [weak self] in
@@ -60,6 +66,9 @@ final class SnapshotUploader {
                 status = .uploaded(Date())
             } catch let error as RegistryError {
                 status = .failed(error.message)
+                if error == .unauthorized || error == .locked {
+                    isPaused = true
+                }
             } catch {
                 status = .failed(error.localizedDescription)
             }

@@ -62,6 +62,26 @@ struct SnapshotUploaderTests {
         #expect(uploader.lastUploadedAt != nil)
     }
 
+    @Test func stopsRetryingAfterARefusedCredentialUntilResumed() async throws {
+        let harness = try HostHarness()
+        let registry = FakeRegistry()
+        registry.rejection = .unauthorized
+        let uploader = SnapshotUploader(host: harness.host, registry: registry)
+        uploader.isEnabled = true
+        await uploader.waitUntilIdle()
+        let attempts = registry.calls.filter { $0 == "putSnapshot" }.count
+        for _ in 0 ..< 3 {
+            harness.host.commit()
+            await uploader.waitUntilIdle()
+        }
+        #expect(registry.calls.filter { $0 == "putSnapshot" }.count == attempts)
+
+        registry.rejection = nil
+        uploader.resume()
+        await uploader.waitUntilIdle()
+        #expect(uploader.lastUploadedAt != nil)
+    }
+
     @Test func neverUploadsSimulatedGames() async throws {
         let harness = try HostHarness()
         let registry = FakeRegistry()
