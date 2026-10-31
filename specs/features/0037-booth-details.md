@@ -13,7 +13,7 @@ related: [0030-booth-map.md, 0035-cloud-host-server.md, 0036-host-switching.md, 
 
 ## Summary
 
-The four carnival booths from the booth guide (Tarot Reading, Pumpkin Pipe Cleaner Challenge, Copy the Artist, Movie) become editable data instead of a hardcoded list. Players tap a booth on their phone and get a sheet with a picture, where it is, how many can join, how long it takes, the task, numbered steps and the stamp requirement. The OC edits all of it, and the pictures, in a new Booths view on the Mac and the OC iPad.
+The booths from the participant booth guide (Booth 1 Decipher Clue to Booth 7 Gate Unlock, plus Sabotage Booth 6 Scary Memory and Sabotage Booth 7A Heist Plan) become editable data instead of a hardcoded list. Players tap a booth on their phone and get a sheet with a picture, how many families fit, the time limit, the task, numbered steps and when the booth counts as done. The OC edits all of it, and the pictures, in a new Booths view on the Mac and the OC iPad.
 
 ## User stories
 
@@ -23,11 +23,11 @@ The four carnival booths from the booth guide (Tarot Reading, Pumpkin Pipe Clean
 
 ## Acceptance criteria
 
-- [x] **AC1 Seed**: Given a fresh host, then the four booths from the guide exist, in English, with location, capacity, duration, task, steps and stamp requirement.
-- [x] **AC2 Detail sheet**: Given a booth row on the phone, when the player taps it, then a sheet shows the picture (if any), "Booth N", the title, location, capacity, duration, task, numbered steps and the stamp requirement.
+- [x] **AC1 Seed**: Given a fresh host, then the nine booths from the participant guide exist, in English, with capacity, duration, task, steps and a done-when line. The guide has no locations or staff notes, so those start empty.
+- [x] **AC2 Detail sheet**: Given a booth row on the phone, when the player taps it, then a sheet shows the picture (if any), the title, location, capacity and duration (when set), task, numbered steps and "Done when".
 - [x] **AC3 Where**: The booth list is on the Role tab ("Your tasks", every family, alive or not) and in the family lobby.
 - [x] **AC4 Edit**: Given the Booths view (Mac sidebar, iPad tab), when the OC changes any text field, steps or notes and saves, then every connected device updates.
-- [x] **AC5 CRUD and order**: The OC can add, delete and reorder booths, and restore the four defaults (this keeps pictures of the default booths).
+- [x] **AC5 CRUD and order**: The OC can add, delete and reorder booths, and restore the guide defaults (this keeps pictures of the default booths).
 - [x] **AC6 Picture**: The OC can set, replace and remove one picture per booth (any image, stored as JPEG, long side at most 1600 px).
 - [x] **AC7 Staff notes**: Staff notes are sent only to the admin OC station. Phones and other OC stations receive them empty.
 - [x] **AC8 Admin only**: Only the Mac and the admin iPad station can edit. Editing works at any time, including during a game, and open sheets follow the edit.
@@ -39,8 +39,8 @@ The four carnival booths from the booth guide (Tarot Reading, Pumpkin Pipe Clean
 
 | State | What the user sees |
 |---|---|
-| Phone, list | "Booth 1: Tarot Reading" with the task as subtitle and a chevron; one VoiceOver element per row, hint "Opens the booth details" |
-| Phone, sheet | Picture on top (when set), title, facts card (location, capacity, duration), Task, How to join (numbered), Stamp, Done button |
+| Phone, list | the booth title (it carries its own number, e.g. "Booth 1 – Decipher Clue") with the task as subtitle and a chevron; one VoiceOver element per row, hint "Opens the booth details" |
+| Phone, sheet | Picture on top (when set), title, facts card (location, capacity, duration; empty ones hidden), Task, How to join (numbered), Done when, Done button |
 | Mac and iPad, Booths | Booth list on the left (drag to reorder, swipe or menu to delete), editor on the right with Picture, Details, Task, How to join, Staff notes, Preview, Revert, Save |
 | Empty list | "No booths", with Add and Restore Defaults in the toolbar |
 

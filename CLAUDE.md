@@ -109,7 +109,7 @@ Shared/Net                   wire messages, length-prefixed Network.framework tr
 Shared/Data                  ModelContainerFactory, GameRepository (SwiftData + in-memory), Schema/ (SchemaV1: GameRecord, GameEventRecord)
 Shared/Features              feature views shared by targets (Booths/BoothDetailView, BoothsView, BoothEditorView, Timers/TimerControls, Setup/SetupTiles, Connection, Meeting/CountdownView, Map/BoothMapCard and BoothMapViewer)
 Shared/LiveActivity           GameActivityState (role-neutral Live Activity content) and its mapping from GameView; no ActivityKit, so it compiles into every target
-Shared/Booths                Booth, BoothCatalog, BoothDefaults (the four guide booths), BoothStore (file and in-memory)
+Shared/Booths                Booth, BoothCatalog, BoothDefaults (the nine participant-guide booths), BoothStore (file and in-memory)
 Shared/Map                   BoothMap, BoothMapImporter (downscale to JPEG), BoothMapStore (file and in-memory)
 Shared/Simulation            Simulation (seeded bots on a separate GameHost), SimulationController, SimulationLog
 Shared/Core                  DesignSystem tokens, QRCodeView
