@@ -105,9 +105,6 @@ struct FamilyStatusTable: View {
                     Text("Hidden").foregroundStyle(Theme.textSecondary)
                 }
             }
-            TableColumn("Tasks") { (family: Family) in
-                Text(family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
-            }
             TableColumn("Vote") { (family: Family) in
                 Text(voteStatus(family))
             }

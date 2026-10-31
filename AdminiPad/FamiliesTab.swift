@@ -113,10 +113,6 @@ private struct FamilyRow: View {
             if showRoles, let role = family.role {
                 Label(role.title, systemImage: role.symbol)
             }
-            if !family.tasks.isEmpty {
-                Text(family.tasks.map(\.rawValue).sorted().map(String.init).joined(separator: ", "))
-                    .foregroundStyle(Theme.textSecondary)
-            }
             if isVoting, family.life == .alive {
                 Text(family.voted ? "Voted" : "Waiting").foregroundStyle(Theme.textSecondary)
             }
