@@ -18,6 +18,7 @@ struct ThemedBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scrollContentBackground(.hidden)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.background.ignoresSafeArea())
     }
 }
