@@ -7,7 +7,19 @@ enum PublicDisplayWindow {
 
 struct PublicDisplayView: View {
     let controller: HostController
+    let mode: HostModeController
     var playsSound = true
+
+    private var inCloud: Bool {
+        mode.phase == .cloud
+    }
+
+    private var cloudDisplay: PublicDisplayState {
+        guard let client = mode.adminClient, client.status == .connected, let display = client.display else {
+            return PublicDisplayState(screen: .hostOffline, familiesRemaining: nil, alarm: nil, announcedDeaths: [])
+        }
+        return display
+    }
 
     private var isRunning: Bool {
         if case .running = controller.status {
@@ -20,10 +32,10 @@ struct PublicDisplayView: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.5)) { _ in
             PublicDisplayScreen(
-                display: controller.host.publicDisplayState(hostRunning: isRunning),
-                now: controller.host.clock.now,
+                display: inCloud ? cloudDisplay : controller.host.publicDisplayState(hostRunning: isRunning),
+                now: inCloud ? (mode.adminClient?.serverNow ?? Date()) : controller.host.clock.now,
                 playsSound: playsSound,
-                joinedCount: controller.host.state.players.count
+                joinedCount: inCloud ? nil : controller.host.state.players.count
             )
         }
         .onChange(of: isDiscussionOpen) { _, open in
@@ -34,11 +46,16 @@ struct PublicDisplayView: View {
     }
 
     private var isDiscussionOpen: Bool {
-        if case .discussion? = controller.host.state.engine?.state.phase {
-            true
-        } else {
-            false
+        if inCloud {
+            if case .discussion = cloudDisplay.screen {
+                return true
+            }
+            return false
         }
+        if case .discussion? = controller.host.state.engine?.state.phase {
+            return true
+        }
+        return false
     }
 }
 

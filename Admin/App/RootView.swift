@@ -37,6 +37,7 @@ enum AdminSection: String, CaseIterable, Identifiable {
 
 struct RootView: View {
     let controller: HostController
+    let mode: HostModeController
     let simulation: SimulationController
 
     @State private var selection: AdminSection? = RootView.initialSection
@@ -63,6 +64,8 @@ struct RootView: View {
             .accessibilityLabel("Sections")
         } detail: {
             switch selection ?? .setup {
+            case .setup where mode.phase == .cloud, .game where mode.phase == .cloud, .families where mode.phase == .cloud:
+                CloudControlView(mode: mode, title: (selection ?? .setup).title)
             case .setup:
                 SetupView(controller: controller)
             case .game:
@@ -70,11 +73,11 @@ struct RootView: View {
             case .families:
                 FamiliesView(controller: controller)
             case .display:
-                DisplaySettingsView(controller: controller)
+                DisplaySettingsView(controller: controller, mode: mode)
             case .simulation:
                 SimulationView(controller: simulation)
             case .devices:
-                DevicesView(controller: controller)
+                DevicesView(controller: controller, mode: mode)
             }
         }
         .toolbarBackground(Theme.background, for: .windowToolbar)
@@ -87,11 +90,16 @@ struct RootView: View {
                 .accessibilityHint("Opens the Public Display window")
             }
         }
-        .task { await controller.start() }
+        .task { await mode.bootstrap() }
         .onChange(of: controller.host.bellRings) { _, _ in bell.play() }
     }
 }
 
 #Preview {
-    RootView(controller: HostController(host: try! GameHost(repository: InMemoryGameRepository())), simulation: SimulationController())
+    let controller = HostController(host: try! GameHost(repository: InMemoryGameRepository()))
+    return RootView(
+        controller: controller,
+        mode: HostModeController(local: controller, registry: HostRegistryClient.live()),
+        simulation: SimulationController()
+    )
 }

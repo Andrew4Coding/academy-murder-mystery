@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DisplaySettingsView: View {
     let controller: HostController
+    let mode: HostModeController
 
     @Environment(\.openWindow) private var openWindow
 
@@ -24,7 +25,7 @@ struct DisplaySettingsView: View {
                     .aspectRatio(Self.canvas.width / Self.canvas.height, contentMode: .fit)
                     .overlay {
                         GeometryReader { proxy in
-                            PublicDisplayView(controller: controller, playsSound: false)
+                            PublicDisplayView(controller: controller, mode: mode, playsSound: false)
                                 .frame(width: Self.canvas.width, height: Self.canvas.height)
                                 .scaleEffect(proxy.size.width / Self.canvas.width, anchor: .topLeading)
                         }

@@ -2,11 +2,21 @@ import SwiftUI
 
 struct DevicesView: View {
     let controller: HostController
+    let mode: HostModeController
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { _ in
-            DevicesContent(devices: controller.host.deviceStatuses())
+        VStack(spacing: 0) {
+            HostModeSection(mode: mode)
+                .fixedSize(horizontal: false, vertical: true)
+            if mode.phase == .cloud {
+                DevicesContent(devices: mode.adminClient?.view?.admin?.devices ?? [])
+            } else {
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
+                    DevicesContent(devices: controller.host.deviceStatuses())
+                }
+            }
         }
+        .themedBackground()
     }
 }
 
