@@ -242,6 +242,7 @@ extension GameHost {
         guard state.isLobby else { throw HostError.gameAlreadyStarted }
         guard data.count <= Self.maxSelfieBytes else { throw HostError.photoTooLarge }
         selfies[playerID] = data
+        onCommit?()
         let update = ServerMessage.selfies(selfieList)
         for (clientID, session) in sessions where session.identity != nil {
             send(update, to: clientID)

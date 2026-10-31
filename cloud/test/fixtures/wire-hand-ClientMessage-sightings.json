@@ -1,0 +1,17 @@
+{
+ "type": "ClientMessage",
+ "json": {
+  "sightings": {
+   "_0": [
+    {
+     "token": "A1B2C3",
+     "rssi": -60
+    },
+    {
+     "token": "FFFFFF",
+     "rssi": -80
+    }
+   ]
+  }
+ }
+}

@@ -14,6 +14,7 @@ extension GameHost {
 
     private func applyBoothMap(_ map: BoothMap?) {
         boothMap = map
+        onCommit?()
         for (id, session) in sessions where session.identity != nil {
             send(.map(map), to: id)
         }

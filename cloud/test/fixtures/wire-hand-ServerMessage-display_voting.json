@@ -1,0 +1,27 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "display": {
+   "_0": {
+    "screen": {
+     "voting": {
+      "until": 300,
+      "isFinal": false,
+      "cast": 2,
+      "total": 5
+     }
+    },
+    "familiesRemaining": 5,
+    "alarm": {
+     "kind": "reactor",
+     "endsAt": 400
+    },
+    "announcedDeaths": [
+     "Family 2"
+    ],
+    "lobbyFamilies": [],
+    "reveal": []
+   }
+  }
+ }
+}

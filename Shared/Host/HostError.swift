@@ -20,6 +20,7 @@ enum HostError: Error, Equatable, Sendable {
     case wrongStation
     case notInGame
     case familyHasMembers
+    case snapshotBusy
 
     var message: String {
         switch self {
@@ -42,6 +43,7 @@ enum HostError: Error, Equatable, Sendable {
         case .wrongStation: "This sabotage is handled at a different station."
         case .notInGame: "There's no game running."
         case .familyHasMembers: "That family already has members."
+        case .snapshotBusy: "Players are still signed in. Stop the host before moving the game."
         }
     }
 }

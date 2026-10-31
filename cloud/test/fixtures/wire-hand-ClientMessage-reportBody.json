@@ -1,0 +1,10 @@
+{
+ "type": "ClientMessage",
+ "json": {
+  "reportBody": {
+   "_0": {
+    "rawValue": 4
+   }
+  }
+ }
+}

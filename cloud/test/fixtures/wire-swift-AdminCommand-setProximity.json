@@ -1,0 +1,1 @@
+{"type":"AdminCommand","json":{"setProximity":{"sightingFreshness":8,"rssiThreshold":-70}}}

@@ -1,0 +1,16 @@
+{
+ "type": "ClientMessage",
+ "json": {
+  "hello": {
+   "_0": {
+    "version": 2,
+    "credential": {
+     "familyCode": {
+      "_0": "ABC234"
+     }
+    },
+    "name": "Sam"
+   }
+  }
+ }
+}

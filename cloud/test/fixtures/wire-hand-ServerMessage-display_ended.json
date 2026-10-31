@@ -1,0 +1,38 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "display": {
+   "_0": {
+    "screen": {
+     "ended": {
+      "_0": {
+       "winner": "werewolves",
+       "reason": "parity"
+      }
+     }
+    },
+    "familiesRemaining": 2,
+    "announcedDeaths": [],
+    "lobbyFamilies": [],
+    "reveal": [
+     {
+      "id": {
+       "rawValue": 1
+      },
+      "name": "Family 1",
+      "player": "Sam",
+      "selfie": "/9j/4AECAw==",
+      "isWerewolf": true
+     },
+     {
+      "id": {
+       "rawValue": 2
+      },
+      "name": "Family 2",
+      "isWerewolf": false
+     }
+    ]
+   }
+  }
+ }
+}

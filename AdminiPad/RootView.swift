@@ -27,6 +27,8 @@ struct ReconnectingView: View {
             Button("Start Over", role: .destructive, action: onStartOver)
                 .buttonStyle(.bordered)
                 .frame(minHeight: 44)
+            TakeoverBar()
+                .frame(maxWidth: 520)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .themedBackground()
@@ -60,6 +62,11 @@ struct PinView: View {
                     }
                 }
                 .listRowBackground(Theme.surface)
+                Section {
+                    TakeoverBar()
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
                 Section {
                     Button("Connect", action: connect)
                         .buttonStyle(.accentFill)

@@ -1,0 +1,25 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "state": {
+   "_0": {
+    "serverTime": 1234.5,
+    "identity": {
+     "oc": {
+      "id": "A0B1C2D3-E4F5-4A6B-8C7D-9E0F1A2B3C4D",
+      "station": {
+       "townHall": {}
+      }
+     }
+    },
+    "oc": {
+     "sabotage": {
+      "kind": "reactor",
+      "startedAt": 1,
+      "endsAt": 91
+     }
+    }
+   }
+  }
+ }
+}

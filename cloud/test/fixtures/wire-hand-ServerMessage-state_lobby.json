@@ -1,0 +1,26 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "state": {
+   "_0": {
+    "serverTime": 1234.5,
+    "identity": {
+     "player": {
+      "id": "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10",
+      "name": "Sam",
+      "family": {
+       "rawValue": 1
+      }
+     }
+    },
+    "familyName": "Family 1",
+    "lobby": {
+     "familyName": "Family 1",
+     "joinCode": "ABC234",
+     "playerID": "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10",
+     "playerName": "Sam"
+    }
+   }
+  }
+ }
+}

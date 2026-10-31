@@ -1,0 +1,8 @@
+{
+ "type": "ClientMessage",
+ "json": {
+  "renameFamily": {
+   "_0": "The Foxes"
+  }
+ }
+}

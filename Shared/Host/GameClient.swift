@@ -34,6 +34,7 @@ final class GameClient {
     private(set) var serverClock = ServerClock()
     private(set) var selfies: [PlayerID: Data] = [:]
     private(set) var boothMap: BoothMap?
+    private(set) var display: PublicDisplayState?
 
     @ObservationIgnored private let transport: any ClientTransport
     @ObservationIgnored private let store: any IdentityStore
@@ -136,6 +137,7 @@ final class GameClient {
         lastError = nil
         selfies = [:]
         boothMap = nil
+        display = nil
     }
 
     private func signIn(_ hello: Hello) {
@@ -210,6 +212,8 @@ final class GameClient {
             selfies = Dictionary(list.map { ($0.player, $0.jpeg) }, uniquingKeysWith: { _, last in last })
         case let .map(map):
             boothMap = map
+        case let .display(state):
+            display = state
         }
     }
 }
