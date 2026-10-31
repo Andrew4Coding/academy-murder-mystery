@@ -2,7 +2,7 @@ import AppIntents
 
 @MainActor
 enum GameClientRegistry {
-    static let shared = GameClient(transport: NetworkClientTransport(), store: UserDefaultsIdentityStore())
+    static let shared = GameClient(transport: AdaptiveClientTransport.live(), store: UserDefaultsIdentityStore())
 
     static func connectedClient() async -> GameClient? {
         shared.start()
