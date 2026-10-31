@@ -1,0 +1,16 @@
+services:
+  moonfall-cloud:
+    build: .
+    image: moonfall-cloud:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      TRUST_PROXY: "1"
+      MOONFALL_PAIRING_SECRET: ${MOONFALL_PAIRING_SECRET:?set MOONFALL_PAIRING_SECRET}
+      MOONFALL_BOOTSTRAP_PIN: ${MOONFALL_BOOTSTRAP_PIN:?set MOONFALL_BOOTSTRAP_PIN}
+    volumes:
+      - moonfall-data:/data
+
+volumes:
+  moonfall-data:
