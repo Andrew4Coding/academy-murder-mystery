@@ -59,7 +59,8 @@ struct HostRegistryClientTests {
         #expect(http.requests[0].url?.path == "/registry")
         #expect(http.requests[0].value(forHTTPHeaderField: "X-Moonfall-Secret") == "s3cret")
         #expect(http.requests[1].value(forHTTPHeaderField: "X-Moonfall-Pin") == "4242")
-        #expect(String(decoding: http.requests[1].httpBody ?? Data(), as: UTF8.self).contains("cloud"))
+        let body = String(bytes: http.requests[1].httpBody ?? Data(), encoding: .utf8) ?? ""
+        #expect(body.contains("cloud"))
     }
 
     @Test func writesWithoutACredentialNeverReachTheNetwork() async {
@@ -77,7 +78,7 @@ struct HostRegistryClientTests {
         let registry = client(http)
         try await registry.putSnapshot(snapshot)
         try await registry.importState(snapshot)
-        try http.respond(String(decoding: WireCodec.encode(snapshot), as: UTF8.self))
+        try http.respond(String(bytes: WireCodec.encode(snapshot), encoding: .utf8) ?? "")
         #expect(try await registry.getSnapshot() == snapshot)
         #expect(try await registry.exportState() == snapshot)
         let routes = http.requests.map { "\($0.httpMethod ?? "") \($0.url?.path ?? "")" }
@@ -91,7 +92,7 @@ struct HostRegistryClientTests {
         let request = try #require(http.requests.first)
         #expect(request.httpMethod == "POST")
         #expect(request.url?.path == "/takeover")
-        #expect(String(decoding: request.httpBody ?? Data(), as: UTF8.self).contains("4242"))
+        #expect((String(bytes: request.httpBody ?? Data(), encoding: .utf8) ?? "").contains("4242"))
         #expect(request.value(forHTTPHeaderField: "X-Moonfall-Pin") == nil)
     }
 

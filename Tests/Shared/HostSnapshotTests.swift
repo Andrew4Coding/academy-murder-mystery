@@ -4,6 +4,7 @@ import Testing
 
 @MainActor
 struct HostSnapshotTests {
+    // swiftlint:disable:next large_tuple
     private func lobbyWithPlayer() async throws -> (HostHarness, GameClient, InMemoryIdentityStore) {
         let harness = try HostHarness()
         let store = InMemoryIdentityStore()

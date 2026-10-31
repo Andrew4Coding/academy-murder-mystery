@@ -97,6 +97,7 @@ struct GoldenFixtureGenerator {
         return ("wire-swift-\(type)-\(name).json", data)
     }
 
+    // swiftlint:disable:next function_body_length
     private static func wireFixtures() throws -> [(String, Data)] {
         var out: [(String, Data)] = []
         let command = AdminCommand.startGame
