@@ -47,7 +47,9 @@ struct GameControlView: View {
     private func content(_ game: GameState) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.lg) {
-                PhaseCard(game: game, clock: host.clock)
+                PhaseCard(game: game, clock: host.clock) { target, action in
+                    attempt { try host.applyAsOC(GameCommand(action, on: target)) }
+                }
                 actions(game)
                 if let result = game.lastResult {
                     resultCard(result)
@@ -120,13 +122,6 @@ struct GameControlView: View {
             .buttonStyle(.plain)
             .menuIndicator(.hidden)
             .disabled(!isVoting(game))
-            TimerAdjustMenu(
-                meeting: game.phase.isMeetingPhase,
-                gameClock: game.outcome == nil && !game.finalVoteStarted,
-                sabotage: game.sabotage != nil
-            ) { target, seconds in
-                attempt { try host.applyAsOC(.adjustTimer(target, seconds: seconds)) }
-            }
             BentoButton(
                 title: "Resolve Sabotage",
                 subtitle: "Mark the active sabotage as fixed",
@@ -211,26 +206,24 @@ struct GameControlView: View {
 private struct PhaseCard: View {
     let game: GameState
     let clock: any HostClock
+    let onTimer: (TimerTarget, TimerAction) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text(title).font(.title2.bold())
             switch game.phase {
             case .running:
-                labeled("Game clock") {
-                    TimelineView(.periodic(from: .now, by: 1)) { _ in
-                        Text(Duration.seconds(max(0, game.finalVoteAt.timeIntervalSince(clock.now))), format: .time(pattern: .minuteSecond))
-                            .monospacedDigit()
-                    }
+                if !game.finalVoteStarted {
+                    timer("Game clock", target: .finalVote, until: game.finalVoteAt)
                 }
             case let .discussion(until):
                 Text("Skip votes: \(game.skipVotes.count) of \(game.aliveFamilies().count) families")
                     .foregroundStyle(Theme.textSecondary)
-                labeled("Time left") { CountdownView(until: until, now: { _ in clock.now }) }
+                timer("Time left", target: .meeting, until: until)
             case let .voting(until, _):
                 Text("Votes: \(game.votes.count) of \(game.aliveFamilies().count) families")
                     .foregroundStyle(Theme.textSecondary)
-                labeled("Time left") { CountdownView(until: until, now: { _ in clock.now }) }
+                timer("Time left", target: .meeting, until: until)
             case let .ended(outcome):
                 Text(outcome.reason.explanation).foregroundStyle(Theme.textSecondary)
             }
@@ -238,12 +231,26 @@ private struct PhaseCard: View {
                 Divider().overlay(Theme.separator)
                 StatusLabel("Sabotage: \(sabotage.kind.title)", systemImage: "exclamationmark.triangle.fill", tint: Theme.accent)
                     .font(.headline)
-                labeled("Fix time left") { CountdownView(until: sabotage.endsAt, now: { _ in clock.now }) }
+                timer("Fix time left", target: .sabotage, until: sabotage.endsAt)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .themedCard()
         .accessibilityElement(children: .contain)
+    }
+
+    private func timer(_ label: String, target: TimerTarget, until: Date) -> some View {
+        let pausedAt = game.timerPausedAt?[target]
+        return VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(label).foregroundStyle(Theme.textSecondary)
+                CountdownView(until: until, now: { _ in clock.now }, pausedAt: pausedAt).countdownDisplay()
+                if pausedAt != nil {
+                    StatusLabel("Paused", systemImage: "pause.circle.fill", tint: Theme.warning)
+                }
+            }
+            TimerControls(title: label, isPaused: pausedAt != nil) { onTimer(target, $0) }
+        }
     }
 
     private var title: String {
@@ -252,13 +259,6 @@ private struct PhaseCard: View {
         case .discussion: "Discussion"
         case let .voting(_, isFinal): isFinal ? "Final vote" : "Voting"
         case let .ended(outcome): outcome.winner == .villagers ? "Villagers win" : "Werewolves win"
-        }
-    }
-
-    private func labeled(_ label: String, @ViewBuilder value: () -> some View) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(label).foregroundStyle(Theme.textSecondary)
-            value().countdownDisplay()
         }
     }
 }
