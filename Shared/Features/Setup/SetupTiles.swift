@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SetupBento<Content: View>: View {
+    let title: String
+    var footer: String?
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -8,6 +10,12 @@ struct SetupBento<Content: View>: View {
             BentoGrid { content }
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
+        } header: {
+            Text(title)
+        } footer: {
+            if let footer {
+                Text(footer)
+            }
         }
     }
 }
