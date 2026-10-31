@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct BentoGrid<Content: View>: View {
+    var minimum: CGFloat = 190
     @ViewBuilder let content: Content
 
     var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: Spacing.md)], spacing: Spacing.md) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: minimum), spacing: Spacing.md)], spacing: Spacing.md) {
             content
         }
     }
