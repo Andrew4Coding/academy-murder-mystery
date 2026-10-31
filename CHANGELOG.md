@@ -67,6 +67,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Changed
 
+- Family rows no longer list tasks.
 - Red and black look, setup grouped by task and a clearer game screen with a highlighted next step ([0031](specs/features/0031-red-black-theme-and-accessibility.md), [0033](specs/features/0033-screen-restyle-and-ui-flow.md)).
 - Stamp menus and task progress removed from the Game tab, since stamping now happens outside the app.
 - New app icon: the wolf moon with a teal check banner.
@@ -80,6 +81,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Pause, resume, add or shorten time under the game clock, meeting and sabotage timers, and a bento Setup screen with native time steppers.
 - Setup, Game and Devices tabs with everything the Mac has except Simulation and Display: settings, Bluetooth range, join QR, OC PIN, booth map, families, stamps, eliminate and revive, proxy votes, timers, end game, new game and a connection check.
 - Booth map card on the dashboard opens the uploaded map in a zoomable viewer ([0030](specs/features/0030-booth-map.md)).
 - Timers are one menu, and error and sabotage text keeps its colour on the icon only ([0027](specs/features/0027-hig-compliance.md)).
@@ -97,6 +99,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Added
 
+- Pause, resume, add or shorten time under the game clock, meeting and sabotage timers, and a bento Setup screen with native time steppers.
 - Booth map upload in Setup (PNG, JPEG or HEIC, shrunk to 3000 px) with preview, replace and remove; it stays across games and reaches every device ([0030](specs/features/0030-booth-map.md)).
 - Ring Bell button, separate from Start Discussion, plus a live Public Display preview in Display; the bell and the looped sabotage alarm are bundled sounds.
 - Debug Mode toggle in Setup: 2 families are enough, no kill or sabotage cooldown, and a kill never ends the game ([0028](specs/features/0028-debug-mode.md)).
@@ -130,6 +133,7 @@ Tooling and refactors that users can't see don't go here.
 
 #### Removed
 
+- The Tasks column in the Families table, and the separate Timers tile.
 - Recording and undoing stamps, and the task progress column, from the Game screen ([ADR 0008](specs/decisions/0008-stamping-outside-the-app.md)).
 - Sample Items list, detail and editor ([0002](specs/features/0002-game-engine.md)).
 - Check Connectivity button in Devices, the sabotage alarm mute switch and the lab screens help in Display.
