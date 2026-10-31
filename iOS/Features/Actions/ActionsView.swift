@@ -9,7 +9,10 @@ struct ActionsView: View {
     @State private var target: FamilySummary?
     @State private var killCount = 0
     @State private var reportCount = 0
+    @State private var lastSeen: [FamilyID: (family: FamilySummary, at: Date)] = [:]
     @State private var displayed: [FamilySummary] = []
+
+    private static let lingerSeconds: TimeInterval = 5
 
     var body: some View {
         NavigationStack {
@@ -42,6 +45,7 @@ struct ActionsView: View {
                 if let target {
                     Button("Eliminate \(target.name)", role: .destructive) {
                         client.send(.kill(victim: target.id))
+                        lastSeen[target.id] = nil
                         displayed.removeAll { $0.id == target.id }
                         killCount += 1
                     }
@@ -51,17 +55,12 @@ struct ActionsView: View {
             }
             .sensoryFeedback(.impact, trigger: killCount)
             .sensoryFeedback(.warning, trigger: reportCount)
-            .onAppear { displayed = game.nearby }
-            .onChange(of: game.nearby) { _, nearby in
-                if !nearby.isEmpty {
-                    displayed = nearby
-                }
-            }
-            .task(id: game.nearby.isEmpty) {
-                guard game.nearby.isEmpty else { return }
-                try? await Task.sleep(for: .seconds(3))
-                if !Task.isCancelled {
-                    displayed = []
+            .onAppear { refreshDisplayed() }
+            .onChange(of: game.nearby) { _, _ in refreshDisplayed() }
+            .task(id: game.nearby.map(\.id)) {
+                while !Task.isCancelled, displayed.count > game.nearby.count {
+                    try? await Task.sleep(for: .seconds(1))
+                    refreshDisplayed()
                 }
             }
         }
@@ -166,6 +165,15 @@ struct ActionsView: View {
                     .accessibilityHint(ready ? "Asks you to confirm" : "Not ready yet, wait for the cooldown")
                 }
             }
+    }
+
+    private func refreshDisplayed() {
+        let now = Date()
+        for family in game.nearby {
+            lastSeen[family.id] = (family, now)
+        }
+        lastSeen = lastSeen.filter { now.timeIntervalSince($0.value.at) < Self.lingerSeconds }
+        displayed = lastSeen.values.map(\.family).sorted { $0.id < $1.id }
     }
 
     private func isReady(at now: Date) -> Bool {

@@ -41,17 +41,19 @@ struct RoleView: View {
                     }
                 }
 
-                BoothListSection(
-                    booths: client.booths.booths,
-                    title: "Your tasks",
-                    footer: game.role == .werewolf
-                        ? "Pretend to do these so nobody suspects you."
-                        : "Tap a booth to see what to do there."
-                )
+                if !game.phase.isEnded {
+                    BoothListSection(
+                        booths: client.booths.booths,
+                        title: "Your tasks",
+                        footer: game.role == .werewolf
+                            ? "Pretend to do these so nobody suspects you."
+                            : "Tap a booth to see what to do there."
+                    )
 
-                if let boothMap {
-                    ScreenSection(title: "Venue") {
-                        BoothMapCard(map: boothMap) { isShowingMap = true }
+                    if let boothMap {
+                        ScreenSection(title: "Venue") {
+                            BoothMapCard(map: boothMap) { isShowingMap = true }
+                        }
                     }
                 }
             }

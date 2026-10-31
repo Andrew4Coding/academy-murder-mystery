@@ -21,12 +21,14 @@ struct GameTabsView: View {
             Tab("Family", systemImage: "house", value: .family) {
                 RoleView(game: game, boothMap: client.boothMap, client: client)
             }
-            Tab("Meeting", systemImage: "person.3", value: .meeting) {
-                MeetingView(game: game, client: client)
-            }
-            if game.role == .werewolf || game.life == .alive {
-                Tab("Actions", systemImage: "scope", value: .actions) {
-                    ActionsView(game: game, client: client, proximity: proximity)
+            if !game.phase.isEnded {
+                Tab("Meeting", systemImage: "person.3", value: .meeting) {
+                    MeetingView(game: game, client: client)
+                }
+                if game.role == .werewolf || game.life == .alive {
+                    Tab("Actions", systemImage: "scope", value: .actions) {
+                        ActionsView(game: game, client: client, proximity: proximity)
+                    }
                 }
             }
         }
@@ -59,6 +61,7 @@ struct GameTabsView: View {
         }
         .onChange(of: game.phase) { _, phase in
             if case let .ended(outcome) = phase {
+                selection = .family
                 notice = .over(outcome)
             }
         }
@@ -128,7 +131,7 @@ private extension GameView {
     }
 }
 
-private extension PhaseView {
+extension PhaseView {
     var isEnded: Bool {
         if case .ended = self {
             true
