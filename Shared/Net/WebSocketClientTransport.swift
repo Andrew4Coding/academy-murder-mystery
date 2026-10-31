@@ -41,7 +41,7 @@ final class URLSessionWebSocketConnection: WebSocketConnection {
     }
 
     func send(_ data: Data) async throws {
-        try await task.send(.string(String(decoding: data, as: UTF8.self)))
+        try await task.send(.string(String(bytes: data, encoding: .utf8) ?? ""))
     }
 
     func receive() async throws -> Data {

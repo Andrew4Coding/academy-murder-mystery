@@ -166,8 +166,13 @@ final class HostRegistryClient: HostRegistry {
         } catch {
             throw RegistryError.unreachable(error.localizedDescription)
         }
+        try Self.validate(status: status)
+        return data
+    }
+
+    private static func validate(status: Int) throws {
         switch status {
-        case 200 ..< 300: return data
+        case 200 ..< 300: return
         case 401: throw RegistryError.unauthorized
         case 404: throw RegistryError.notFound
         case 429: throw RegistryError.locked

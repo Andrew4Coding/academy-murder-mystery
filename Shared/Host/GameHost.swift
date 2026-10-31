@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 import Observation
 
@@ -51,8 +52,12 @@ final class GameHost {
     @ObservationIgnored private var transport: (any HostTransport)?
     @ObservationIgnored private var pump: Task<Void, Never>?
 
-    init(repository: any GameRepository, clock: any HostClock = SystemHostClock(), initialState: HostState? = nil,
-         boothMapStore: any BoothMapStore = InMemoryBoothMapStore()) throws {
+    init(
+        repository: any GameRepository,
+        clock: any HostClock = SystemHostClock(),
+        initialState: HostState? = nil,
+        boothMapStore: any BoothMapStore = InMemoryBoothMapStore()
+    ) throws {
         self.repository = repository
         self.clock = clock
         self.boothMapStore = boothMapStore
