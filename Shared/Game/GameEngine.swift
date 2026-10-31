@@ -42,12 +42,10 @@ struct GameEngine: Codable, Equatable, Sendable {
     ) -> (engine: GameEngine, events: [GameEvent]) {
         var families: [FamilyID: Family] = [:]
         for id in roles.keys.sorted() {
-            let tasks = Set(Booth.allCases)
             families[id] = Family(
                 id: id,
                 role: roles[id] ?? .villager,
                 life: .alive,
-                tasks: tasks,
                 killReadyAt: now
             )
         }

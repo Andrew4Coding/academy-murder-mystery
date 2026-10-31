@@ -1,1 +1,1 @@
-{"type":"ClientMessage","json":{"sightings":{"_0":[{"rssi":-60,"token":"A1B2C3"},{"rssi":-82,"token":"D4E5F6"}]}}}
+{"type":"ClientMessage","json":{"sightings":{"_0":[{"token":"A1B2C3","rssi":-60},{"token":"D4E5F6","rssi":-82}]}}}

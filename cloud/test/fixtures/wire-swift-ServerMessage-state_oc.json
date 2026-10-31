@@ -1,1 +1,1 @@
-{"type":"ServerMessage","json":{"state":{"_0":{"serverTime":812345.5,"oc":{},"identity":{"oc":{"station":{"townHall":{}},"id":"22222222-2222-2222-2222-222222222222"}}}}}}
+{"type":"ServerMessage","json":{"state":{"_0":{"identity":{"oc":{"id":"22222222-2222-2222-2222-222222222222","station":{"townHall":{}}}},"serverTime":812345.5,"oc":{}}}}}

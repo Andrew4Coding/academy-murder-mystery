@@ -49,7 +49,6 @@ extension GameHost {
                 playerName: state.player(of: info.id)?.name,
                 life: game?.life ?? .alive,
                 role: game?.role,
-                tasks: (game?.tasks ?? []).sorted { $0.rawValue < $1.rawValue },
                 voted: engine?.state.votes[info.id] != nil
             )
         }
@@ -111,7 +110,6 @@ extension GameHost {
             family: info.id,
             familyName: info.name,
             life: engineFamily.life,
-            tasks: engineFamily.tasks.sorted { $0.rawValue < $1.rawValue },
             allies: allies,
             families: state.families.keys.sorted().compactMap { summary(of: $0, in: engine) },
             phase: phase,

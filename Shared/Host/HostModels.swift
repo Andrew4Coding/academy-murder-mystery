@@ -44,10 +44,11 @@ struct Hello: Codable, Equatable, Sendable {
     var name: String?
     var station: OCStation?
     var mapHash: String?
+    var boothsRevision: String?
 }
 
 enum WireVersion {
-    static let current = 2
+    static let current = 3
 }
 
 struct Sighting: Codable, Equatable, Sendable {

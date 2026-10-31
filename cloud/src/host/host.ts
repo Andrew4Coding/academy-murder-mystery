@@ -1,7 +1,7 @@
 import { createHash, randomInt, randomUUID } from "node:crypto";
 import * as codec from "../codec/schemas.js";
 import type {
-  AdminCommand, BoothMap, ClientMessage, DeviceStatus, GameCommand, GameEvent, Hello, HostState,
+  AdminCommand, Booth, BoothCatalog, BoothImage, BoothMap, ClientMessage, DeviceStatus, GameCommand, GameEvent, Hello, HostState,
   Identity, PublicDisplayState, SabotageKind, ServerMessage, Sighting, VoteChoice
 } from "../codec/schemas.js";
 import { WIRE_VERSION, defaultSettings } from "../codec/schemas.js";
@@ -9,6 +9,7 @@ import { GameEngine } from "../engine/engine.js";
 import { HostError, RuleError } from "../engine/errors.js";
 import { SystemRng, type Rng } from "../engine/rng.js";
 import type { Db } from "../store/db.js";
+import { defaultBooths } from "./booth-defaults.js";
 import { systemClock, type Clock } from "./clock.js";
 import type { IpLimiter } from "./ratelimit.js";
 import { playerOf, publicDisplayState, setupIssues, stationTitle, viewFor, type ViewContext } from "./views.js";
@@ -39,6 +40,7 @@ export interface Snapshot {
   state: HostState;
   selfies: Map<string, Buffer>;
   map: BoothMap | undefined;
+  booths?: BoothCatalog;
 }
 
 export interface HostOptions {
@@ -104,6 +106,10 @@ export function makeBoothMap(bytes: Buffer): BoothMap {
   return { hash: createHash("sha256").update(bytes).digest("hex"), jpeg: bytes };
 }
 
+export function makeBoothImage(bytes: Buffer): BoothImage {
+  return { hash: createHash("sha256").update(bytes).digest("hex"), jpeg: bytes };
+}
+
 export class GameHost implements ViewContext {
   state: HostState;
   gameID: string;
@@ -111,6 +117,7 @@ export class GameHost implements ViewContext {
   recentEvents: GameEvent[] = [];
   selfies = new Map<string, Buffer>();
   boothMap: BoothMap | undefined;
+  boothCatalog: BoothCatalog;
   revision = 0;
   bellRings = 0;
 
@@ -135,6 +142,13 @@ export class GameHost implements ViewContext {
 
     this.selfies = this.db.loadSelfies();
     this.boothMap = this.db.loadBoothMap();
+    const storedBooths = this.db.loadBoothCatalog();
+    if (storedBooths) {
+      this.boothCatalog = codec.boothCatalog.dec(storedBooths);
+    } else {
+      this.boothCatalog = { revision: uuid(), booths: defaultBooths() };
+      this.db.saveBoothCatalog(codec.boothCatalog.enc(this.boothCatalog));
+    }
     const stored = this.db.loadHostState();
     if (stored) {
       this.gameID = stored.gameID;
@@ -362,6 +376,9 @@ export class GameHost implements ViewContext {
     this.send(id, { case: "welcome", _0: { resumeID: identity._0, serverTime: now } });
     this.send(id, { case: "selfies", _0: this.selfieList });
     if (hello.mapHash !== this.boothMap?.hash) this.send(id, { case: "map", _0: this.boothMap });
+    if (hello.boothsRevision !== this.boothCatalog.revision) {
+      this.send(id, { case: "booths", _0: this.catalogFor(identity) });
+    }
     this.commit();
   }
 
@@ -751,6 +768,64 @@ export class GameHost implements ViewContext {
     }
   }
 
+  catalogFor(identity: Identity): BoothCatalog {
+    const device = identity.case === "oc" ? this.state.ocDevices.get(identity._0) : undefined;
+    if (device?.station.case === "admin") return this.boothCatalog;
+    return { revision: this.boothCatalog.revision, booths: this.boothCatalog.booths.map((b) => ({ ...b, staffNotes: [] })) };
+  }
+
+  saveBooth(booth: Booth): void {
+    const booths = [...this.boothCatalog.booths];
+    const index = booths.findIndex((b) => b.id === booth.id);
+    if (index >= 0) booths[index] = { ...booth, image: booths[index]!.image };
+    else booths.push({ ...booth, image: undefined });
+    this.applyBooths(booths);
+  }
+
+  deleteBooth(id: string): void {
+    if (!this.boothCatalog.booths.some((b) => b.id === id)) throw new HostError("unknownBooth");
+    this.applyBooths(this.boothCatalog.booths.filter((b) => b.id !== id));
+  }
+
+  reorderBooths(ids: string[]): void {
+    const byId = new Map<string, Booth>();
+    for (const b of this.boothCatalog.booths) if (!byId.has(b.id)) byId.set(b.id, b);
+    const ordered = ids.flatMap((id) => byId.get(id) ?? []);
+    const listed = new Set(ids);
+    ordered.push(...this.boothCatalog.booths.filter((b) => !listed.has(b.id)));
+    this.applyBooths(ordered);
+  }
+
+  setBoothImage(id: string, bytes: Buffer): void {
+    if (bytes.length === 0 || bytes.length > MAX_MAP_BYTES || !detectImage(bytes)) throw new HostError("invalidImage");
+    this.updateBooth(id, (b) => ({ ...b, image: makeBoothImage(bytes) }));
+  }
+
+  removeBoothImage(id: string): void {
+    this.updateBooth(id, (b) => ({ ...b, image: undefined }));
+  }
+
+  restoreBoothDefaults(): void {
+    this.applyBooths(defaultBooths());
+  }
+
+  private updateBooth(id: string, change: (booth: Booth) => Booth): void {
+    const booths = [...this.boothCatalog.booths];
+    const index = booths.findIndex((b) => b.id === id);
+    if (index < 0) throw new HostError("unknownBooth");
+    booths[index] = change(booths[index]!);
+    this.applyBooths(booths);
+  }
+
+  private applyBooths(booths: Booth[]): void {
+    const catalog = { revision: uuid(), booths };
+    this.db.saveBoothCatalog(codec.boothCatalog.enc(catalog));
+    this.boothCatalog = catalog;
+    for (const [id, session] of this.sessions) {
+      if (session.identity) this.send(id, { case: "booths", _0: this.catalogFor(session.identity) });
+    }
+  }
+
   private adminCommand(command: AdminCommand, identity: Identity): void {
     const device = identity.case === "oc" ? this.state.ocDevices.get(identity._0) : undefined;
     if (!device || device.station.case !== "admin") throw new HostError("notOC");
@@ -781,6 +856,12 @@ export class GameHost implements ViewContext {
         break;
       case "setBoothMap": this.setBoothMap(command._0); break;
       case "removeBoothMap": this.removeBoothMap(); break;
+      case "saveBooth": this.saveBooth(command._0); break;
+      case "deleteBooth": this.deleteBooth(command._0); break;
+      case "reorderBooths": this.reorderBooths(command._0); break;
+      case "setBoothImage": this.setBoothImage(command._0, command._1); break;
+      case "removeBoothImage": this.removeBoothImage(command._0); break;
+      case "restoreBoothDefaults": this.restoreBoothDefaults(); break;
       case "eliminate":
         for (const family of command._0) this.applyAsOC({ case: "override", _0: { case: "forceKill", _0: family } });
         break;
@@ -794,7 +875,7 @@ export class GameHost implements ViewContext {
   }
 
   exportSnapshot(): Snapshot {
-    return { state: this.state, selfies: new Map(this.selfies), map: this.boothMap };
+    return { state: this.state, selfies: new Map(this.selfies), map: this.boothMap, booths: this.boothCatalog };
   }
 
   importSnapshot(snapshot: Snapshot): void {
@@ -804,6 +885,10 @@ export class GameHost implements ViewContext {
     this.state.gameCode ??= makeJoinCode(new Set());
     this.selfies = new Map(snapshot.selfies);
     this.boothMap = snapshot.map;
+    if (snapshot.booths) {
+      this.boothCatalog = snapshot.booths;
+      this.db.saveBoothCatalog(codec.boothCatalog.enc(snapshot.booths));
+    }
     this.sightings = new Map();
     this.lastNearby = new Map();
     this.lastBodies = new Map();

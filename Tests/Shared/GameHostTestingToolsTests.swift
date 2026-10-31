@@ -9,7 +9,6 @@ struct GameHostTestingToolsTests {
         let (engine, events) = try GameEngine.startForTesting(roles: [1: .werewolf], at: t0, using: &generator)
         #expect(engine.state.families.count == 1)
         #expect(engine.state.families[1]?.role == .werewolf)
-        #expect(engine.state.families[1]?.tasks.count == 5)
         #expect(events.first?.kind == .gameStarted(werewolves: [1]))
         #expect(throws: RuleError.invalidSetup("At least one family is required")) {
             try GameEngine.startForTesting(roles: [:], at: t0, using: &generator)
@@ -46,7 +45,6 @@ struct GameHostTestingToolsTests {
         #expect(await eventually { client.view?.game != nil })
         let game = try #require(client.view?.game)
         #expect(game.role == .werewolf)
-        #expect(game.tasks.count == 5)
         #expect(game.allies?.isEmpty == true)
         #expect(harness.host.state.simulated)
         #expect(harness.host.state.engine?.state.families[2]?.role == .villager)

@@ -31,11 +31,6 @@
        "playerName": "Sam",
        "life": "alive",
        "role": "werewolf",
-       "tasks": [
-        1,
-        2,
-        3
-       ],
        "voted": true
       },
       {
@@ -44,7 +39,6 @@
        },
        "name": "Family 2",
        "life": "killed",
-       "tasks": [],
        "voted": false
       }
      ],

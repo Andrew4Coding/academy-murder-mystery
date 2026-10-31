@@ -243,7 +243,7 @@ describe("websocket host", () => {
     const phones: WsClient[] = [];
     for (let i = 1; i <= 4; i++) {
       const phone = await WsClient.connect(port);
-      phone.send({ case: "hello", _0: hello({ familyCode: code }, `Player ${i}`) });
+      phone.send({ case: "hello", _0: hello({ familyCode: code }, `Player ${i}`, undefined, server.host.boothCatalog.revision) });
       await phone.waitFor((m) => m.find((x) => x.case === "state"));
       expect(phone.inbox.slice(0, 3).map((m) => m.case)).toEqual(["welcome", "selfies", "state"]);
       phones.push(phone);

@@ -3,12 +3,11 @@ import Testing
 @testable import Moonfall
 
 struct GameEngineSetupTests {
-    @Test func assignsRolesAndEveryBoothToEveryFamily() throws {
+    @Test func assignsRolesToEveryFamily() throws {
         let fixture = try Fixture(families: 10, werewolves: 2)
         #expect(fixture.werewolves.count == 2)
         #expect(fixture.villagers.count == 8)
         for family in fixture.engine.state.families.values {
-            #expect(family.tasks.count == Booth.allCases.count)
             #expect(family.life == .alive)
             }
     }

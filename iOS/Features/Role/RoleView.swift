@@ -44,23 +44,13 @@ struct RoleView: View {
                     }
                 }
 
-                ScreenSection(
+                BoothListSection(
+                    booths: client.booths.booths,
                     title: "Your tasks",
                     footer: game.role == .werewolf
                         ? "Pretend to do these so nobody suspects you."
-                        : "Visit every booth and complete its challenge."
-                ) {
-                    ForEach(Array(Booth.allCases.enumerated()), id: \.element) { index, booth in
-                        if index > 0 {
-                            Divider().overlay(Theme.separator)
-                        }
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text(booth.title).font(.body.weight(.semibold))
-                            Text(booth.instructions).secondaryText()
-                        }
-                        .accessibilityElement(children: .combine)
-                    }
-                }
+                        : "Tap a booth to see what to do there."
+                )
 
                 if let boothMap {
                     ScreenSection(title: "Venue") {

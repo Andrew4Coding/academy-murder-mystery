@@ -60,13 +60,13 @@ export class FakeClient {
   }
 }
 
-export function hello(credential: { familyCode?: string; ocPin?: string; resume?: string }, name?: string, mapHash?: string): codec.Hello {
+export function hello(credential: { familyCode?: string; ocPin?: string; resume?: string }, name?: string, mapHash?: string, boothsRevision?: string): codec.Hello {
   const c: codec.Hello["credential"] = credential.familyCode !== undefined
     ? { case: "familyCode", _0: credential.familyCode }
     : credential.ocPin !== undefined
       ? { case: "ocPin", _0: credential.ocPin }
       : { case: "resume", _0: credential.resume! };
-  return { version: 2, credential: c, name, station: undefined, mapHash };
+  return { version: 3, credential: c, name, station: undefined, mapHash, boothsRevision };
 }
 
 export function makeHost(options: { dbPath?: string; clock?: ManualClock; active?: () => boolean; bootstrapPin?: string; db?: Db } = {}) {

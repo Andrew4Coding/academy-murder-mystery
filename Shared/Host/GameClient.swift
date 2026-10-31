@@ -34,6 +34,7 @@ final class GameClient {
     private(set) var serverClock = ServerClock()
     private(set) var selfies: [PlayerID: Data] = [:]
     private(set) var boothMap: BoothMap?
+    private(set) var booths: BoothCatalog = .empty
     private(set) var display: PublicDisplayState?
 
     @ObservationIgnored private let transport: any ClientTransport
@@ -137,6 +138,7 @@ final class GameClient {
         lastError = nil
         selfies = [:]
         boothMap = nil
+        booths = .empty
         display = nil
     }
 
@@ -174,6 +176,7 @@ final class GameClient {
     private func withMapHash(_ hello: Hello) -> Hello {
         var hello = hello
         hello.mapHash = boothMap?.hash
+        hello.boothsRevision = booths.revision
         return hello
     }
 
@@ -212,6 +215,8 @@ final class GameClient {
             selfies = Dictionary(list.map { ($0.player, $0.jpeg) }, uniquingKeysWith: { _, last in last })
         case let .map(map):
             boothMap = map
+        case let .booths(catalog):
+            booths = catalog
         case let .display(state):
             display = state
         }

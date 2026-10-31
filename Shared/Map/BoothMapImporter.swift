@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 
 enum BoothMapImporter {
     static let maxPixelSize = 3000
+    static let boothImagePixelSize = 1600
     static let jpegQuality = 0.85
 
     static func makeMap(from data: Data) throws -> BoothMap {
@@ -12,6 +13,13 @@ enum BoothMapImporter {
             throw HostError.invalidImage
         }
         return BoothMap(jpeg: jpeg)
+    }
+
+    static func makeBoothImage(from data: Data) throws -> BoothImage {
+        guard let image = decode(data, maxPixelSize: boothImagePixelSize), let jpeg = encodeJPEG(image) else {
+            throw HostError.invalidImage
+        }
+        return BoothImage(jpeg: jpeg)
     }
 
     static func decode(_ data: Data, maxPixelSize: Int) -> CGImage? {

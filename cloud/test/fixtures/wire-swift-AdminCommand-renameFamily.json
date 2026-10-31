@@ -1,1 +1,1 @@
-{"type":"AdminCommand","json":{"renameFamily":{"_1":"Renamed","_0":{"rawValue":2}}}}
+{"type":"AdminCommand","json":{"renameFamily":{"_0":{"rawValue":2},"_1":"Renamed"}}}

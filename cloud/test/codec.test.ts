@@ -32,8 +32,27 @@ describe("wire fixtures", () => {
       seen[fixture.type]!.add(Object.keys(fixture.json)[0]!);
     }
     expect(seen.ClientMessage!.size).toBe(14);
-    expect(seen.ServerMessage!.size).toBe(8);
-    expect(seen.AdminCommand!.size).toBe(23);
+    expect(seen.ServerMessage!.size).toBe(9);
+    expect(seen.AdminCommand!.size).toBe(29);
+  });
+});
+
+describe("booth wire types", () => {
+  it("recomputes the image hash on decode", () => {
+    const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
+    const decoded = codec.boothImage.dec({ hash: "bogus", jpeg: jpeg.toString("base64") });
+    expect(decoded.hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(decoded.hash).not.toBe("bogus");
+  });
+
+  it("omits a missing image and decodes hello without a booths revision", () => {
+    const booth = codec.booth.dec({
+      id: "11111111-1111-1111-1111-111111111111", title: "", location: "", capacity: "", duration: "",
+      task: "", steps: [], stampRequirement: "", staffNotes: []
+    });
+    expect("image" in (codec.booth.enc(booth) as object)).toBe(false);
+    const hello = codec.hello.dec({ version: 3, credential: { resume: { _0: "11111111-1111-1111-1111-111111111111" } } });
+    expect(hello.boothsRevision).toBeUndefined();
   });
 });
 

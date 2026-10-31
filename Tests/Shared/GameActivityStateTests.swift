@@ -13,7 +13,6 @@ private func makeGame(
         family: FamilyID(1),
         familyName: "Cedar",
         life: life,
-        tasks: Booth.allCases,
         allies: role == .werewolf ? [] : nil,
         families: [],
         phase: phase,

@@ -1,1 +1,1 @@
-{"type":"ServerMessage","json":{"welcome":{"_0":{"resumeID":"11111111-1111-1111-1111-111111111111","serverTime":812345.5}}}}
+{"type":"ServerMessage","json":{"welcome":{"_0":{"serverTime":812345.5,"resumeID":"11111111-1111-1111-1111-111111111111"}}}}

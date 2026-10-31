@@ -36,16 +36,6 @@ enum LifeState: String, Codable, Sendable {
     case expelled
 }
 
-enum Booth: Int, CaseIterable, Codable, Sendable {
-    case morseCode = 1
-    case painting
-    case message
-    case rightPlace
-    case pattern
-    case tower
-    case locks
-}
-
 enum SabotageKind: String, CaseIterable, Codable, Sendable {
     case reactor
     case oxygen
@@ -88,7 +78,6 @@ struct Family: Codable, Equatable, Sendable, Identifiable {
     let id: FamilyID
     let role: Role
     var life: LifeState
-    let tasks: Set<Booth>
     var killReadyAt: Date
 
     var isAlive: Bool {

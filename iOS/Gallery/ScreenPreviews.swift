@@ -83,6 +83,8 @@
 
     #Preview("Sabotage banner") { GalleryPreview(.sabotageBanner) }
 
+    #Preview("Booth details") { BoothDetailView(booth: BoothDefaults.booths[1]) }
+
     #Preview("Booth station, idle") { GalleryPreview(.ocStationIdle) }
 
     #Preview("Booth station, sabotage here") { GalleryPreview(.ocStationActive) }

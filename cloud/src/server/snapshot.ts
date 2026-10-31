@@ -16,7 +16,8 @@ export function parseSnapshot(body: unknown): Snapshot {
   } else if (typeof raw.mapJPEG === "string") {
     map = makeBoothMap(Buffer.from(raw.mapJPEG, "base64"));
   }
-  return { state, selfies, map };
+  const booths = raw.booths !== undefined && raw.booths !== null ? codec.boothCatalog.dec(raw.booths, "booths") : undefined;
+  return { state, selfies, map, booths };
 }
 
 export function serializeSnapshot(snapshot: Snapshot): unknown {
@@ -24,6 +25,7 @@ export function serializeSnapshot(snapshot: Snapshot): unknown {
     state: codec.hostState.enc(snapshot.state),
     selfies: [...snapshot.selfies].map(([player, jpeg]) => codec.selfie.enc({ player, jpeg })),
     map: snapshot.map ? codec.boothMap.enc(snapshot.map) : null,
-    mapJPEG: snapshot.map ? snapshot.map.jpeg.toString("base64") : null
+    mapJPEG: snapshot.map ? snapshot.map.jpeg.toString("base64") : null,
+    booths: snapshot.booths ? codec.boothCatalog.enc(snapshot.booths) : undefined
   };
 }

@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as codec from "../src/codec/schemas.js";
 import { Db } from "../src/store/db.js";
+import { defaultBooths } from "../src/host/booth-defaults.js";
+import { parseSnapshot, serializeSnapshot } from "../src/server/snapshot.js";
 import { FakeClient, hello, lobbyWithPlayers, makeHost } from "./harness.js";
 
 const JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4]);
@@ -14,7 +16,7 @@ describe("hello flow", () => {
     const { host } = makeHost();
     const client = new FakeClient(host);
     client.join(host.state.gameCode!, "  Sam ");
-    expect(client.cases()).toEqual(["welcome", "selfies", "state"]);
+    expect(client.cases()).toEqual(["welcome", "selfies", "booths", "state"]);
     const view = client.lastView()!;
     expect(view.identity.case).toBe("player");
     expect(view.lobby?.playerName).toBe("Sam");
@@ -33,10 +35,10 @@ describe("hello flow", () => {
 
     const stale = new FakeClient(host);
     stale.send({ case: "hello", _0: hello({ familyCode: host.state.gameCode! }, "A", "old") });
-    expect(stale.cases()).toEqual(["welcome", "selfies", "map", "state"]);
+    expect(stale.cases()).toEqual(["welcome", "selfies", "map", "booths", "state"]);
 
     const fresh = new FakeClient(host);
-    fresh.send({ case: "hello", _0: hello({ familyCode: host.state.gameCode! }, "B", hash) });
+    fresh.send({ case: "hello", _0: hello({ familyCode: host.state.gameCode! }, "B", hash, host.boothCatalog.revision) });
     expect(fresh.cases()).toEqual(["welcome", "selfies", "state"]);
   });
 
@@ -411,5 +413,155 @@ describe("persistence", () => {
     const { host } = makeHost({ db: new Db(":memory:"), bootstrapPin: "9876" });
     expect(host.state.ocPin).toBe("9876");
     expect(host.state.gameCode).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
+  });
+});
+
+describe("booth catalog", () => {
+  const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.from([1, 2, 3])]);
+  const blank = (id: string, title: string): codec.Booth => ({
+    id, title, location: "", capacity: "", duration: "", task: "", steps: [], stampRequirement: "", staffNotes: [], image: undefined
+  });
+  const titles = (host: { boothCatalog: codec.BoothCatalog }) => host.boothCatalog.booths.map((b) => b.title);
+  const NEW_ID = "0A1B2C3D-4E5F-4A6B-8C7D-9E0F1A2B3C4D";
+
+  it("seeds a fresh host with the guide booths", () => {
+    const { host } = makeHost();
+    expect(host.boothCatalog.booths).toHaveLength(9);
+    expect(host.boothCatalog.booths.every((b) => b.image !== undefined)).toBe(true);
+    expect(titles(host)[0]).toBe("Booth 1 – Decipher Clue");
+    expect(titles(host)[8]).toBe("Sabotage Booth 7A – Heist Plan");
+    expect(host.boothCatalog.booths.every((b) => b.steps.length > 0 && b.task !== "")).toBe(true);
+    expect(host.boothCatalog.booths.map((b) => b.id)).toEqual(defaultBooths().map((b) => b.id));
+  });
+
+  it("persists edits across a new game and a restart", () => {
+    const path = join(mkdtempSync(join(tmpdir(), "moonfall-")), "db.sqlite");
+    const first = lobbyWithPlayers(3, makeHost({ dbPath: path }));
+    const { host, admin } = first;
+    admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, title: "Renamed" } });
+    admin.admin({ case: "saveBooth", _0: blank(NEW_ID, "Extra") });
+    admin.admin({ case: "deleteBooth", _0: host.boothCatalog.booths[1]!.id });
+    admin.admin({ case: "reorderBooths", _0: host.boothCatalog.booths.map((b) => b.id).reverse() });
+    admin.admin({ case: "newGame" });
+    expect(admin.lastRejected()).toBeUndefined();
+    first.db.close();
+
+    const second = makeHost({ dbPath: path });
+    expect(second.host.boothCatalog).toEqual(host.boothCatalog);
+    expect(titles(second.host)[0]).toBe("Extra");
+    expect(titles(second.host)).toContain("Renamed");
+    expect(second.host.boothCatalog.booths).toHaveLength(9);
+  });
+
+  it("keeps the stored image on save and ignores a client-supplied one", () => {
+    const { host, admin } = lobbyWithPlayers(3);
+    const id = host.boothCatalog.booths[0]!.id;
+    admin.admin({ case: "setBoothImage", _0: id, _1: PNG });
+    const image = host.boothCatalog.booths[0]!.image!;
+    expect(image.jpeg).toEqual(PNG);
+    expect(image.hash).toBe(createHash("sha256").update(PNG).digest("hex"));
+
+    admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, image: undefined, task: "New task" } });
+    expect(host.boothCatalog.booths[0]!.image).toEqual(image);
+    expect(host.boothCatalog.booths[0]!.task).toBe("New task");
+
+    admin.admin({ case: "saveBooth", _0: { ...blank(NEW_ID, "Extra"), image } });
+    expect(host.boothCatalog.booths.at(-1)!.image).toBeUndefined();
+
+    admin.admin({ case: "removeBoothImage", _0: id });
+    expect(host.boothCatalog.booths[0]!.image).toBeUndefined();
+  });
+
+  it("rejects non-images and unknown booths", () => {
+    const { host, admin } = lobbyWithPlayers(3);
+    const id = host.boothCatalog.booths[0]!.id;
+    admin.admin({ case: "setBoothImage", _0: id, _1: Buffer.from("nope") });
+    expect(admin.lastRejected()).toBe("That file isn't an image the map can use.");
+    admin.admin({ case: "setBoothImage", _0: id, _1: Buffer.concat([PNG, Buffer.alloc(8 * 1024 * 1024)]) });
+    expect(admin.lastRejected()).toBe("That file isn't an image the map can use.");
+    const revision = host.boothCatalog.revision;
+    admin.admin({ case: "deleteBooth", _0: NEW_ID });
+    expect(admin.lastRejected()).toBe("That booth no longer exists.");
+    admin.admin({ case: "removeBoothImage", _0: NEW_ID });
+    expect(admin.lastRejected()).toBe("That booth no longer exists.");
+    admin.admin({ case: "setBoothImage", _0: NEW_ID, _1: PNG });
+    expect(admin.lastRejected()).toBe("That booth no longer exists.");
+    expect(host.boothCatalog.revision).toBe(revision);
+  });
+
+  it("reorders listed booths first and appends the rest in the old order", () => {
+    const { host, admin } = lobbyWithPlayers(3);
+    const ids = host.boothCatalog.booths.map((x) => x.id);
+    const [a, , c] = ids;
+    admin.admin({ case: "reorderBooths", _0: [c!, NEW_ID, a!] });
+    expect(host.boothCatalog.booths.map((x) => x.id)).toEqual([c, a, ...ids.filter((x) => x !== a && x !== c)]);
+  });
+
+  it("restores the defaults, including their default pictures", () => {
+    const { host, admin } = lobbyWithPlayers(3);
+    const id = host.boothCatalog.booths[0]!.id;
+    admin.admin({ case: "setBoothImage", _0: id, _1: PNG });
+    admin.admin({ case: "saveBooth", _0: blank(NEW_ID, "Extra") });
+    admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, title: "Changed" } });
+    admin.admin({ case: "restoreBoothDefaults" });
+    expect(titles(host)).toEqual(defaultBooths().map((b) => b.title));
+    expect(host.boothCatalog.booths[0]!.image?.hash).toBe(defaultBooths()[0]!.image!.hash);
+  });
+
+  it("gives players no staff notes and the admin station full notes, on sign-in and on change", () => {
+    const { host, players, admin } = lobbyWithPlayers(3);
+    admin.admin({ case: "saveBooth", _0: { ...blank(NEW_ID, "With notes"), staffNotes: ["MC only"] } });
+    expect(host.boothCatalog.booths.some((b) => b.staffNotes.length > 0)).toBe(true);
+    const fromPlayer = players[0]!.last("booths")!._0;
+    expect(fromPlayer.booths).toHaveLength(10);
+    expect(fromPlayer.booths.every((b) => b.staffNotes.length === 0)).toBe(true);
+    expect(admin.last("booths")!._0.booths.some((b) => b.staffNotes.length > 0)).toBe(true);
+
+    admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, task: "Updated for everyone" } });
+    const update = players[0]!.last("booths")!._0;
+    expect(update.booths[0]!.task).toBe("Updated for everyone");
+    expect(update.booths.every((b) => b.staffNotes.length === 0)).toBe(true);
+    expect(update.revision).toBe(host.boothCatalog.revision);
+    expect(admin.last("booths")!._0.booths[0]!.staffNotes).toEqual(host.boothCatalog.booths[0]!.staffNotes);
+  });
+
+  it("does not let non-admin stations or players edit booths", () => {
+    const { host, players } = lobbyWithPlayers(3);
+    const before = host.boothCatalog.revision;
+    players[0]!.admin({ case: "restoreBoothDefaults" });
+    expect(players[0]!.lastRejected()).toBe("Only organisers can do that.");
+    const town = new FakeClient(host);
+    town.oc(host.state.ocPin, { case: "townHall" });
+    town.admin({ case: "deleteBooth", _0: host.boothCatalog.booths[0]!.id });
+    expect(town.lastRejected()).toBe("Only organisers can do that.");
+    expect(host.boothCatalog.revision).toBe(before);
+  });
+
+  it("skips the catalog when the hello carries the current revision", () => {
+    const { host } = makeHost();
+    const same = new FakeClient(host);
+    same.send({ case: "hello", _0: hello({ familyCode: host.state.gameCode! }, "A", undefined, host.boothCatalog.revision) });
+    expect(same.cases()).not.toContain("booths");
+    const stale = new FakeClient(host);
+    stale.send({ case: "hello", _0: hello({ familyCode: host.state.gameCode! }, "B", undefined, "old") });
+    expect(stale.cases()).toContain("booths");
+  });
+
+  it("carries the catalog through snapshot export and import", () => {
+    const { host, admin } = lobbyWithPlayers(3);
+    admin.admin({ case: "setBoothImage", _0: host.boothCatalog.booths[0]!.id, _1: PNG });
+    admin.admin({ case: "saveBooth", _0: blank(NEW_ID, "Extra") });
+    const body = JSON.parse(JSON.stringify(serializeSnapshot(host.exportSnapshot())));
+    expect(body.booths.revision).toBe(host.boothCatalog.revision);
+
+    const target = makeHost();
+    target.host.importSnapshot(parseSnapshot(body));
+    expect(target.host.boothCatalog).toEqual(host.boothCatalog);
+
+    const kept = target.host.boothCatalog;
+    const legacy = { ...body };
+    delete legacy.booths;
+    target.host.importSnapshot(parseSnapshot(legacy));
+    expect(target.host.boothCatalog).toEqual(kept);
   });
 });

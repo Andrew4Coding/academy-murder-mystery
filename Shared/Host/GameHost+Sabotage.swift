@@ -28,6 +28,12 @@ extension GameHost {
         case .regenerateOCPIN: regenerateOCPIN()
         case let .setBoothMap(data): try setBoothMap(imageData: data)
         case .removeBoothMap: try removeBoothMap()
+        case let .saveBooth(booth): try saveBooth(booth)
+        case let .deleteBooth(id): try deleteBooth(id)
+        case let .reorderBooths(ids): try reorderBooths(ids)
+        case let .setBoothImage(id, data): try setBoothImage(id, imageData: data)
+        case let .removeBoothImage(id): try removeBoothImage(id)
+        case .restoreBoothDefaults: try restoreBoothDefaults()
         case let .eliminate(families):
             for family in families { try applyAsOC(.override(.forceKill(family))) }
         case let .revive(families):

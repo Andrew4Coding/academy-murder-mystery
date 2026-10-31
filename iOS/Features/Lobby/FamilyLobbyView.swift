@@ -33,6 +33,12 @@ struct FamilyLobbyView: View {
                     .font(.footnote)
                     .foregroundStyle(Theme.textSecondary)
 
+                BoothListSection(
+                    booths: client.booths.booths,
+                    title: "Booths",
+                    footer: "Tap a booth to see what to do there."
+                )
+
                 if let map = client.boothMap {
                     ScreenSection(title: "Venue") {
                         BoothMapCard(map: map) { isShowingMap = true }
