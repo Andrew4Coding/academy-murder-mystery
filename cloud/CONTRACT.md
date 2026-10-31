@@ -54,11 +54,11 @@ Auth, where marked: header `X-Moonfall-Pin: <ocPin>` or `X-Moonfall-Secret: <pai
 | Route | Auth | Request | Response |
 |---|---|---|---|
 | `GET /health` | none | | `{"ok":true}` |
-| `GET /registry` | none | | `{"mode":"cloud"\|"local","updatedAt":<unix s>,"hasSnapshot":bool,"snapshotAt":<unix s>\|null}` |
+| `GET /registry` | none (a never-configured server answers `local`, `updatedAt` 0) | | `{"mode":"cloud"\|"local","updatedAt":<unix s>,"hasSnapshot":bool,"snapshotAt":<unix s>\|null}` |
 | `PUT /registry` | pin or secret | `{"mode":"cloud"\|"local"}` | the registry object. `local` disconnects all sockets. `cloud` without an imported state keeps whatever live state exists |
 | `PUT /snapshot` | pin or secret | snapshot body (below) | `{"ok":true,"snapshotAt":<unix s>}`. Cold backup only, never acted on |
 | `GET /snapshot` | pin or secret | | snapshot body, or `404` |
-| `POST /takeover` | none (PIN in body) | `{"pin":"1234"}` | `{"ok":true}`. Loads the latest snapshot as live state, sets mode `cloud`. `404` with no snapshot, `401` for a wrong PIN |
+| `POST /takeover` | none (PIN in body) | `{"pin":"1234"}` | `{"ok":true}`. Loads the latest snapshot as live state, sets mode `cloud`. If the mode is already `cloud` it changes nothing and answers `{"ok":true,"alreadyActive":true}`. `404` with no snapshot, `401` for a wrong PIN |
 | `GET /takeover` | none | | accessible HTML page with a PIN field posting to `POST /takeover` |
 | `PUT /import` | pin or secret | snapshot body | `{"ok":true}`. Loads it as live state and sets mode `cloud` (planned switch Mac -> cloud) |
 | `GET /export` | pin or secret | | snapshot body of the live state (planned switch cloud -> Mac) |
