@@ -54,7 +54,6 @@ struct DurationTile: View {
     let systemImage: String
     @Binding var seconds: TimeInterval
     var range: ClosedRange<TimeInterval> = 15 ... 600
-    var secondsStep = 15
 
     @State private var isEditing = false
     @Environment(\.isEnabled) private var isEnabled
@@ -85,7 +84,7 @@ struct DurationTile: View {
         .accessibilityValue(CountdownView.spoken(seconds))
         .accessibilityHint("Opens a time picker")
         .popover(isPresented: $isEditing) {
-            DurationPicker(title: title, seconds: $seconds, range: range, secondsStep: secondsStep)
+            DurationPicker(title: title, seconds: $seconds, range: range, showsHours: range.upperBound >= 3600)
         }
     }
 }
@@ -94,42 +93,127 @@ struct DurationPicker: View {
     let title: String
     @Binding var seconds: TimeInterval
     let range: ClosedRange<TimeInterval>
-    let secondsStep: Int
+    var showsHours = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(spacing: Spacing.md) {
             Text(title).font(.headline)
-            Stepper("Minutes: \(minutes)", value: minutesBinding, in: Int(range.lowerBound / 60) ... Int(range.upperBound / 60))
-            Stepper("Seconds: \(remainder)", value: secondsBinding, in: 0 ... 60 - secondsStep, step: secondsStep)
-            Text(Duration.seconds(seconds), format: .time(pattern: .minuteSecond))
-                .font(.largeTitle.bold())
-                .monospacedDigit()
-                .frame(maxWidth: .infinity)
+            HStack(alignment: .center, spacing: Spacing.sm) {
+                if showsHours {
+                    column("hr", unit: .hours)
+                    separator
+                }
+                column("min", unit: .minutes)
+                separator
+                column("sec", unit: .seconds)
+            }
         }
         .padding(Spacing.lg)
-        .frame(minWidth: 280)
         .presentationCompactAdaptation(.popover)
     }
 
-    private var minutes: Int {
-        Int(seconds) / 60
+    private var separator: some View {
+        Text(":")
+            .font(.system(size: 56, weight: .ultraLight))
+            .foregroundStyle(Theme.textSecondary)
+            .padding(.top, Spacing.lg)
+            .accessibilityHidden(true)
     }
 
-    private var remainder: Int {
-        Int(seconds) % 60
+    private func column(_ label: String, unit: ClockUnit) -> some View {
+        ClockColumn(label: label, unit: unit, seconds: $seconds, range: range)
+    }
+}
+
+enum ClockUnit {
+    case hours
+    case minutes
+    case seconds
+
+    var modulus: Int {
+        self == .hours ? 24 : 60
     }
 
-    private var minutesBinding: Binding<Int> {
-        Binding(get: { minutes }, set: { set(minutes: $0, seconds: remainder) })
+    func value(of total: Int) -> Int {
+        switch self {
+        case .hours: total / 3600
+        case .minutes: total / 60 % 60
+        case .seconds: total % 60
+        }
     }
 
-    private var secondsBinding: Binding<Int> {
-        Binding(get: { remainder }, set: { set(minutes: minutes, seconds: $0) })
+    func offset(_ delta: Int) -> Int {
+        switch self {
+        case .hours: delta * 3600
+        case .minutes: delta * 60
+        case .seconds: delta
+        }
+    }
+}
+
+private struct ClockColumn: View {
+    let label: String
+    let unit: ClockUnit
+    @Binding var seconds: TimeInterval
+    let range: ClosedRange<TimeInterval>
+
+    @State private var dragSteps = 0
+    @AccessibilityFocusState private var isFocused: Bool
+    @ScaledMetric(relativeTo: .largeTitle) private var digitSize = 64
+
+    private var total: Int {
+        Int(seconds)
     }
 
-    private func set(minutes: Int, seconds newSeconds: Int) {
-        let value = TimeInterval(minutes * 60 + newSeconds)
-        seconds = min(max(value, range.lowerBound), range.upperBound)
+    private var value: Int {
+        unit.value(of: total)
+    }
+
+    var body: some View {
+        VStack(spacing: Spacing.xs) {
+            Text(label).font(.subheadline).foregroundStyle(Theme.textSecondary)
+            Button("Increase \(label)", systemImage: "chevron.up") { step(1) }
+            Text(value, format: .number.precision(.integerLength(2...)))
+                .font(.system(size: digitSize, weight: .ultraLight))
+                .monospacedDigit()
+                .foregroundStyle(Theme.text)
+                .frame(minWidth: digitSize * 1.3)
+                .gesture(drag)
+            Button("Decrease \(label)", systemImage: "chevron.down") { step(-1) }
+        }
+        .buttonStyle(.borderless)
+        .labelStyle(.iconOnly)
+        .focusable()
+        .onKeyPress(.upArrow) { step(1); return .handled }
+        .onKeyPress(.downArrow) { step(-1); return .handled }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label == "hr" ? "Hours" : label == "min" ? "Minutes" : "Seconds")
+        .accessibilityValue("\(value)")
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: step(1)
+            case .decrement: step(-1)
+            @unknown default: break
+            }
+        }
+    }
+
+    private var drag: some Gesture {
+        DragGesture(minimumDistance: 4)
+            .onChanged { gesture in
+                let steps = Int(-gesture.translation.height / 24)
+                if steps != dragSteps {
+                    step(steps - dragSteps)
+                    dragSteps = steps
+                }
+            }
+            .onEnded { _ in dragSteps = 0 }
+    }
+
+    private func step(_ delta: Int) {
+        let wrapped = ((value + delta) % unit.modulus + unit.modulus) % unit.modulus
+        let next = total + unit.offset(wrapped - value)
+        seconds = min(max(TimeInterval(next), range.lowerBound), range.upperBound)
     }
 }
 
