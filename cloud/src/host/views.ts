@@ -98,7 +98,6 @@ export function adminView(ctx: ViewContext): AdminView {
         playerName: playerOf(state, info.id)?.name,
         life: family?.life ?? ("alive" as const),
         role: family?.role,
-        tasks: [...(family?.tasks ?? [])].sort((a, b) => a - b),
         voted: game?.votes.has(info.id) ?? false
       };
     });
@@ -144,7 +143,6 @@ function gameView(ctx: ViewContext, info: FamilyInfo, engine: GameEngine, viewer
     family: info.id,
     familyName: info.name,
     life: mine.life,
-    tasks: [...mine.tasks].sort((a, b) => a - b),
     allies,
     families: compact([...state.families.keys()].sort((a, b) => a - b).map((id) => summary(state, id, engine))),
     phase: game.phase,

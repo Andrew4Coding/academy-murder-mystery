@@ -2,6 +2,7 @@ import {
   array, bool, data, flatMap, int, num, optional, rawEnum, set, str, struct, union, uuid,
   type Codec, type Infer
 } from "./combinators.js";
+import { createHash } from "node:crypto";
 import { GameEngine } from "../engine/engine.js";
 
 function refine<A, B>(inner: Codec<A>, to: (a: A) => B, from: (b: B) => A): Codec<B> {
@@ -14,7 +15,6 @@ export const familyId: Codec<number> = refine(familyStruct, (s) => s.rawValue, (
 export const role = rawEnum(["villager", "werewolf"] as const);
 export const side = rawEnum(["villagers", "werewolves"] as const);
 export const lifeState = rawEnum(["alive", "killed", "expelled"] as const);
-export const booth = rawEnum([1, 2, 3, 4, 5, 6, 7] as const);
 export const sabotageKind = rawEnum(["reactor", "oxygen"] as const);
 export const timerTarget = rawEnum(["meeting", "finalVote", "sabotage"] as const);
 
@@ -32,7 +32,7 @@ export const gameSettings = struct({
   debugMode: optional(bool)
 });
 
-export const family = struct({ id: familyId, role, life: lifeState, tasks: set(booth), killReadyAt: num });
+export const family = struct({ id: familyId, role, life: lifeState, killReadyAt: num });
 
 export const activeSabotage = struct({ kind: sabotageKind, startedAt: num, endsAt: num, triggeredBy: familyId });
 
@@ -142,7 +142,8 @@ export const hello = struct({
   credential,
   name: optional(str),
   station: optional(ocStation),
-  mapHash: optional(str)
+  mapHash: optional(str),
+  boothsRevision: optional(str)
 });
 
 export const sighting = struct({ token: str, rssi: int });
@@ -187,7 +188,6 @@ export const adminFamilyRow = struct({
   playerName: optional(str),
   life: lifeState,
   role: optional(role),
-  tasks: array(booth),
   voted: bool
 });
 
@@ -232,7 +232,6 @@ export const gameView = struct({
   family: familyId,
   familyName: str,
   life: lifeState,
-  tasks: array(booth),
   allies: optional(array(familySummary)),
   families: array(familySummary),
   phase,
@@ -270,6 +269,24 @@ export const welcome = struct({ resumeID: uuid, serverTime: num });
 export const selfie = struct({ player: uuid, jpeg: data });
 export const selfieList = array(selfie);
 export const boothMap = struct({ hash: str, jpeg: data });
+export const boothImage: Codec<{ hash: string; jpeg: Buffer }> = refine(
+  struct({ hash: str, jpeg: data }),
+  (s) => ({ jpeg: s.jpeg, hash: createHash("sha256").update(s.jpeg).digest("hex") }),
+  (b) => b
+);
+export const booth = struct({
+  id: uuid,
+  title: str,
+  location: str,
+  capacity: str,
+  duration: str,
+  task: str,
+  steps: array(str),
+  stampRequirement: str,
+  staffNotes: array(str),
+  image: optional(boothImage)
+});
+export const boothCatalog = struct({ revision: str, booths: array(booth) });
 
 export const publicScreen = union({
   hostOffline: {},
@@ -320,6 +337,12 @@ export const adminCommand = union({
   regenerateOCPIN: {},
   setBoothMap: { _0: data },
   removeBoothMap: {},
+  saveBooth: { _0: booth },
+  deleteBooth: { _0: uuid },
+  reorderBooths: { _0: array(uuid) },
+  setBoothImage: { _0: uuid, _1: data },
+  removeBoothImage: { _0: uuid },
+  restoreBoothDefaults: {},
   eliminate: { _0: array(familyId) },
   revive: { _0: array(familyId) },
   proxyVote: { family: familyId, choice: voteChoice },
@@ -352,6 +375,7 @@ export const serverMessage = union({
   reset: {},
   selfies: { _0: array(selfie) },
   map: { _0: optional(boothMap) },
+  booths: { _0: boothCatalog },
   display: { _0: publicDisplayState }
 });
 
@@ -391,11 +415,13 @@ export type PublicDisplayState = Infer<typeof publicDisplayState>;
 export type SabotageView = Infer<typeof sabotageView>;
 export type DeviceStatus = Infer<typeof deviceStatus>;
 export type BoothMap = Infer<typeof boothMap>;
+export type BoothImage = Infer<typeof boothImage>;
+export type BoothCatalog = Infer<typeof boothCatalog>;
 export type Selfie = Infer<typeof selfie>;
 export type Sighting = Infer<typeof sighting>;
 export type ActiveSabotage = Infer<typeof activeSabotage>;
 
-export const WIRE_VERSION = 2;
+export const WIRE_VERSION = 3;
 export const defaultSettings = (): GameSettings => ({
   discussionDuration: 120,
   votingDuration: 120,

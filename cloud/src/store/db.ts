@@ -28,6 +28,7 @@ export class Db {
       CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, game_id TEXT NOT NULL, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS selfies (player TEXT PRIMARY KEY, jpeg BLOB NOT NULL);
       CREATE TABLE IF NOT EXISTS booth_map (id INTEGER PRIMARY KEY CHECK (id = 1), hash TEXT NOT NULL, jpeg BLOB NOT NULL);
+      CREATE TABLE IF NOT EXISTS booth_catalog (id INTEGER PRIMARY KEY CHECK (id = 1), json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS registry (id INTEGER PRIMARY KEY CHECK (id = 1), mode TEXT NOT NULL, updated_at REAL NOT NULL);
       CREATE TABLE IF NOT EXISTS snapshot (id INTEGER PRIMARY KEY CHECK (id = 1), body TEXT NOT NULL, at REAL NOT NULL);
     `);
@@ -110,6 +111,17 @@ export class Db {
         "INSERT INTO booth_map (id, hash, jpeg) VALUES (1, ?, ?) ON CONFLICT(id) DO UPDATE SET hash = excluded.hash, jpeg = excluded.jpeg"
       )
       .run(map.hash, map.jpeg);
+  }
+
+  loadBoothCatalog(): unknown | undefined {
+    const row = this.db.prepare("SELECT json FROM booth_catalog WHERE id = 1").get() as { json: string } | undefined;
+    return row ? JSON.parse(row.json) : undefined;
+  }
+
+  saveBoothCatalog(json: unknown): void {
+    this.db
+      .prepare("INSERT INTO booth_catalog (id, json) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET json = excluded.json")
+      .run(JSON.stringify(json));
   }
 
   getRegistry(): RegistryRow | undefined {

@@ -1,1 +1,1 @@
-{"type":"ClientMessage","json":{"hello":{"_0":{"version":2,"station":{"sabotage":{"_0":"oxygen"}},"credential":{"ocPin":{"_0":"4242"}}}}}}
+{"type":"ClientMessage","json":{"hello":{"_0":{"credential":{"ocPin":{"_0":"4242"}},"station":{"sabotage":{"_0":"oxygen"}},"version":3}}}}

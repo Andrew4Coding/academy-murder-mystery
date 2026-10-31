@@ -1,11 +1,10 @@
 import { RuleError } from "./errors.js";
 import { shuffled, type Rng } from "./rng.js";
 import type {
-  Booth, Family, GameCommand, GameEvent, GameEventKind, GameSettings, GameState, OCOverride, Outcome, Phase,
+  Family, GameCommand, GameEvent, GameEventKind, GameSettings, GameState, OCOverride, Outcome, Phase,
   Reveal, Role, Side, SabotageKind, TimerTarget, VoteChoice, VoteCount
 } from "../codec/schemas.js";
 
-export const ALL_BOOTHS: Booth[] = [1, 2, 3, 4, 5, 6, 7];
 
 export const isDebug = (settings: GameSettings): boolean => settings.debugMode ?? false;
 
@@ -78,7 +77,7 @@ export class GameEngine {
   ): { engine: GameEngine; events: GameEvent[] } {
     const families = new Map<number, Family>();
     for (const id of [...roles.keys()].sort((a, b) => a - b)) {
-      families.set(id, { id, role: roles.get(id) ?? "villager", life: "alive", tasks: new Set(ALL_BOOTHS), killReadyAt: now });
+      families.set(id, { id, role: roles.get(id) ?? "villager", life: "alive", killReadyAt: now });
     }
     const state: GameState = {
       settings,

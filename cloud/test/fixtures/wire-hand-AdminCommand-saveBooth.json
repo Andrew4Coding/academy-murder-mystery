@@ -1,0 +1,23 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "saveBooth": {
+   "_0": {
+    "id": "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10",
+    "title": "Tarot Reading",
+    "location": "Lab 1",
+    "capacity": "3",
+    "duration": "10 minutes",
+    "task": "Join a session.",
+    "steps": [
+     "Sign up",
+     "Wait"
+    ],
+    "stampRequirement": "Finished a reading.",
+    "staffNotes": [
+     "Watch Zoom"
+    ]
+   }
+  }
+ }
+}

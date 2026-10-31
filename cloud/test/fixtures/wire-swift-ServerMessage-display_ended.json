@@ -1,1 +1,1 @@
-{"type":"ServerMessage","json":{"display":{"_0":{"announcedDeaths":[],"screen":{"ended":{"_0":{"reason":"allWerewolvesRemoved","winner":"villagers"}}},"familiesRemaining":6,"lobbyFamilies":[],"reveal":[]}}}}
+{"type":"ServerMessage","json":{"display":{"_0":{"familiesRemaining":6,"reveal":[],"screen":{"ended":{"_0":{"reason":"allWerewolvesRemoved","winner":"villagers"}}},"announcedDeaths":[],"lobbyFamilies":[]}}}}

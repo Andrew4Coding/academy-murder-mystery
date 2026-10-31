@@ -3,7 +3,7 @@
  "json": {
   "hello": {
    "_0": {
-    "version": 2,
+    "version": 3,
     "credential": {
      "ocPin": {
       "_0": "4242"

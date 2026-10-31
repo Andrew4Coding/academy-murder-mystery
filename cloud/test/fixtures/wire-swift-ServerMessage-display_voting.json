@@ -1,1 +1,1 @@
-{"type":"ServerMessage","json":{"display":{"_0":{"announcedDeaths":[],"screen":{"voting":{"isFinal":true,"until":821692847,"total":8,"cast":5}},"familiesRemaining":8,"alarm":{"kind":"reactor","endsAt":821692874},"lobbyFamilies":[],"reveal":[]}}}}
+{"type":"ServerMessage","json":{"display":{"_0":{"familiesRemaining":8,"reveal":[],"screen":{"voting":{"isFinal":true,"cast":5,"until":821692847,"total":8}},"alarm":{"kind":"reactor","endsAt":821692874},"announcedDeaths":[],"lobbyFamilies":[]}}}}

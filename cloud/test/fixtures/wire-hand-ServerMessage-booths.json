@@ -1,0 +1,32 @@
+{
+ "type": "ServerMessage",
+ "json": {
+  "booths": {
+   "_0": {
+    "revision": "rev-1",
+    "booths": [
+     {
+      "id": "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10",
+      "title": "Tarot Reading",
+      "location": "Lab 1",
+      "capacity": "3",
+      "duration": "10 minutes",
+      "task": "Join a session.",
+      "steps": [
+       "Sign up",
+       "Wait"
+      ],
+      "stampRequirement": "Finished a reading.",
+      "staffNotes": [
+       "Watch Zoom"
+      ],
+      "image": {
+       "hash": "474ebe266cd7f9ed28807fa3fdfe0c04cdb3cef9313cdda5c08b15910fcc8184",
+       "jpeg": "/9j/4AECAw=="
+      }
+     }
+    ]
+   }
+  }
+ }
+}

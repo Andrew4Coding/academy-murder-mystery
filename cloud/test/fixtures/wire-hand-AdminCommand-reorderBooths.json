@@ -1,0 +1,11 @@
+{
+ "type": "AdminCommand",
+ "json": {
+  "reorderBooths": {
+   "_0": [
+    "0A1B2C3D-4E5F-4A6B-8C7D-9E0F1A2B3C4D",
+    "6F1C2B4A-0D3E-4F55-9A11-2B7C8D9E0F10"
+   ]
+  }
+ }
+}

@@ -1,1 +1,1 @@
-{"type":"AdminCommand","json":{"adjustTimer":{"_0":"finalVote","seconds":-15}}}
+{"type":"AdminCommand","json":{"adjustTimer":{"seconds":-15,"_0":"finalVote"}}}

@@ -1,1 +1,1 @@
-{"type":"AdminCommand","json":{"proxyVote":{"choice":{"skip":{}},"family":{"rawValue":2}}}}
+{"type":"AdminCommand","json":{"proxyVote":{"family":{"rawValue":2},"choice":{"skip":{}}}}}

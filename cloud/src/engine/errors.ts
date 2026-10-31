@@ -31,7 +31,7 @@ export type HostErrorKind =
   | "notSignedIn" | "unsupportedVersion" | "invalidCredential" | "tooManyAttempts" | "nameRequired"
   | "familyFull" | "gameAlreadyStarted" | "unknownDevice" | "notAPlayer" | "invalidName" | "photoTooLarge"
   | "invalidImage" | "notNearBody" | "setup" | "notNearby" | "notOC" | "wrongStation" | "notInGame"
-  | "familyHasMembers" | "notActiveHost";
+  | "familyHasMembers" | "notActiveHost" | "unknownBooth";
 
 const HOST_MESSAGES: Record<HostErrorKind, string> = {
   notSignedIn: "Join a family or enter the OC PIN first.",
@@ -53,6 +53,7 @@ const HOST_MESSAGES: Record<HostErrorKind, string> = {
   wrongStation: "This sabotage is handled at a different station.",
   notInGame: "There's no game running.",
   familyHasMembers: "That family already has members.",
+  unknownBooth: "That booth no longer exists.",
   notActiveHost: "The game is hosted elsewhere right now. Reconnect to the active host."
 };
 
