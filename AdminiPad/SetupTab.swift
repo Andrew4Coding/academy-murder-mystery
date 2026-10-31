@@ -99,6 +99,17 @@ struct SetupTab: View {
                 .disabled(!admin.isLobby)
             }
 
+            SetupBento(title: "Werewolf kill", footer: "How long a werewolf family waits between eliminations.") {
+                DurationTile(
+                    title: "Kill cooldown",
+                    subtitle: "Between eliminations",
+                    systemImage: "scope",
+                    seconds: setting(\.killCooldown) { $0.killCooldown = $1 },
+                    range: 0 ... 300
+                )
+                .disabled(!admin.isLobby)
+            }
+
             SetupBento(title: "Sabotage", footer: "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.") {
                 DurationTile(
                     title: "Reactor fix time",

@@ -127,6 +127,17 @@ struct SetupView: View {
                 .disabled(!isLobby)
             }
 
+            SetupBento(title: "Werewolf kill", footer: "How long a werewolf family waits between eliminations.") {
+                DurationTile(
+                    title: "Kill cooldown",
+                    subtitle: "Between eliminations",
+                    systemImage: "scope",
+                    seconds: $killCooldown,
+                    range: 0 ... 300
+                )
+                .disabled(!isLobby)
+            }
+
             SetupBento(title: "Sabotage", footer: "Fix time is how long villagers have at the booth. After a sabotage, the cooldown of the booth that was used applies to every werewolf family.") {
                 DurationTile(title: "Reactor fix time", subtitle: "Villagers' window", systemImage: "bolt.fill", seconds: $sabotageDuration)
                     .disabled(!isLobby)
@@ -326,7 +337,6 @@ struct SetupView: View {
                     Text(player.map { "\($0.name) joined" } ?? "No phone: stands in as a family")
                 }
             }
-            Stepper("Kill cooldown: \(Int(killCooldown)) s", value: $killCooldown, in: 0 ... 300, step: 5)
             Stepper("Game length: \(gameMinutes) min", value: $gameMinutes, in: 1 ... 60)
         } header: {
             Text("Testing")
@@ -379,8 +389,8 @@ struct SetupView: View {
         settings.sabotageDuration = sabotageDuration
         settings.oxygenCooldown = oxygenCooldown
         settings.oxygenDuration = oxygenDuration
+        settings.killCooldown = killCooldown
         if testing {
-            settings.killCooldown = killCooldown
             settings.gameDuration = TimeInterval(gameMinutes * 60)
         }
         do {
