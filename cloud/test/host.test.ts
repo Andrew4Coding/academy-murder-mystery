@@ -424,9 +424,11 @@ describe("booth catalog", () => {
   const titles = (host: { boothCatalog: codec.BoothCatalog }) => host.boothCatalog.booths.map((b) => b.title);
   const NEW_ID = "0A1B2C3D-4E5F-4A6B-8C7D-9E0F1A2B3C4D";
 
-  it("seeds a fresh host with the four guide booths", () => {
+  it("seeds a fresh host with the guide booths", () => {
     const { host } = makeHost();
-    expect(titles(host)).toEqual(["Tarot Reading", "Pumpkin Pipe Cleaner Challenge", "Copy the Artist", "Movie"]);
+    expect(host.boothCatalog.booths).toHaveLength(9);
+    expect(titles(host)[0]).toBe("Booth 1 – Decipher Clue");
+    expect(titles(host)[8]).toBe("Sabotage Booth 7A – Heist Plan");
     expect(host.boothCatalog.booths.every((b) => b.steps.length > 0 && b.task !== "")).toBe(true);
     expect(host.boothCatalog.booths.map((b) => b.id)).toEqual(defaultBooths().map((b) => b.id));
   });
@@ -435,7 +437,7 @@ describe("booth catalog", () => {
     const path = join(mkdtempSync(join(tmpdir(), "moonfall-")), "db.sqlite");
     const first = lobbyWithPlayers(3, makeHost({ dbPath: path }));
     const { host, admin } = first;
-    admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, title: "Tarot" } });
+    admin.admin({ case: "saveBooth", _0: { ...host.boothCatalog.booths[0]!, title: "Renamed" } });
     admin.admin({ case: "saveBooth", _0: blank(NEW_ID, "Extra") });
     admin.admin({ case: "deleteBooth", _0: host.boothCatalog.booths[1]!.id });
     admin.admin({ case: "reorderBooths", _0: host.boothCatalog.booths.map((b) => b.id).reverse() });
@@ -446,8 +448,8 @@ describe("booth catalog", () => {
     const second = makeHost({ dbPath: path });
     expect(second.host.boothCatalog).toEqual(host.boothCatalog);
     expect(titles(second.host)[0]).toBe("Extra");
-    expect(titles(second.host)).toContain("Tarot");
-    expect(second.host.boothCatalog.booths).toHaveLength(4);
+    expect(titles(second.host)).toContain("Renamed");
+    expect(second.host.boothCatalog.booths).toHaveLength(9);
   });
 
   it("keeps the stored image on save and ignores a client-supplied one", () => {
@@ -488,9 +490,10 @@ describe("booth catalog", () => {
 
   it("reorders listed booths first and appends the rest in the old order", () => {
     const { host, admin } = lobbyWithPlayers(3);
-    const [a, b, c, d] = host.boothCatalog.booths.map((x) => x.id);
+    const ids = host.boothCatalog.booths.map((x) => x.id);
+    const [a, , c] = ids;
     admin.admin({ case: "reorderBooths", _0: [c!, NEW_ID, a!] });
-    expect(host.boothCatalog.booths.map((x) => x.id)).toEqual([c, a, b, d]);
+    expect(host.boothCatalog.booths.map((x) => x.id)).toEqual([c, a, ...ids.filter((x) => x !== a && x !== c)]);
   });
 
   it("restores the defaults and keeps images of booths with the same id", () => {
@@ -507,9 +510,10 @@ describe("booth catalog", () => {
 
   it("gives players no staff notes and the admin station full notes, on sign-in and on change", () => {
     const { host, players, admin } = lobbyWithPlayers(3);
+    admin.admin({ case: "saveBooth", _0: { ...blank(NEW_ID, "With notes"), staffNotes: ["MC only"] } });
     expect(host.boothCatalog.booths.some((b) => b.staffNotes.length > 0)).toBe(true);
     const fromPlayer = players[0]!.last("booths")!._0;
-    expect(fromPlayer.booths).toHaveLength(4);
+    expect(fromPlayer.booths).toHaveLength(10);
     expect(fromPlayer.booths.every((b) => b.staffNotes.length === 0)).toBe(true);
     expect(admin.last("booths")!._0.booths.some((b) => b.staffNotes.length > 0)).toBe(true);
 
